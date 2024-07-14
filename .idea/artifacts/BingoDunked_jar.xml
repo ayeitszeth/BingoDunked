@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="BingoDunked:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/BingoDunked_jar</output-path>
+    <root id="archive" name="BingoDunked.jar">
+      <element id="module-output" name="BingoDunked" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/plugin.yml" />
+    </root>
+  </artifact>
+</component>

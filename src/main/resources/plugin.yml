@@ -1,0 +1,54 @@
+name: MinecraftDunked
+version: '1.2'
+main: org.zethcodes.bingodunked.BingoDunked
+api-version: '1.21'
+commands:
+  bingocard:
+    usage: /bingocard
+    permission: bingo.bingocard
+    aliases: [bc,card]
+  bingojoin:
+    usage: /bingojoin <team>
+    permission: bingo.bingojoin
+    aliases: [bj,join]
+  bingostart:
+    usage: /bingostart <mode> [time]
+    permission: bingo.bingostart
+    aliases: [bs,start]
+  newworld:
+    usage: /newworld
+    permission: bingo.newworld
+    aliases: [ nw ]
+  cheat:
+    usage: /cheat <slot>
+  latejoin:
+    usage: /latejoin
+    permission: bingo.latejoin
+  all:
+    usage: /all <message>
+    permission: bingo.allchat
+  time:
+    usage: /time
+    permission: bingo.time
+permissions:
+  bingo.bingocard:
+    description: Open your team's bingo card.
+    default: true
+  bingo.bingojoin:
+    description: Join a bingo team. Either 'red' or 'blue'.
+    default: true
+  bingo.bingostart:
+    description: Start a game of bingo.
+    default: true
+  bingo.newworld:
+    description: Generate a new world for bingo
+    default: true
+  bingo.latejoin:
+    description: Join a world later
+    default: true
+  bingo.allchat:
+    description: Send a message to all players while in-game
+    default: true
+  bingo.time:
+    description: Tells the player the time remaining
+    default: true
