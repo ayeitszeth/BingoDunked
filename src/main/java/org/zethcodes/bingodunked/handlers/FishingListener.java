@@ -46,6 +46,7 @@ public class FishingListener implements Listener {
 
     @EventHandler
     public void onPlayerFish(PlayerFishEvent event) {
+        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
         if (event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
             Player player = event.getPlayer();
             playerFishItemsCaught.put(player.getUniqueId(), ((Item) event.getCaught()).getItemStack().getType());

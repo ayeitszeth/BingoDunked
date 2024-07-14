@@ -19,6 +19,7 @@ public class BlockInteractListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
+        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
         Player player = event.getPlayer();
         Block block = event.getClickedBlock();
         if (block == null) return;
@@ -48,7 +49,7 @@ public class BlockInteractListener implements Listener {
                 if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " interacted with a campfire and has started a campfire: " + ((Campfire) block.getBlockData()).isSignalFire());
                 return ((Campfire) block.getBlockData()).isSignalFire();
             case LECTERN:
-                if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " interacted with a lecturn and it has a book: " + ((Campfire) block.getBlockData()).isSignalFire());
+                if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " interacted with a lecturn and it has a book: " + ((Lectern) block.getBlockData()).hasBook());
                 return ((Lectern) block.getBlockData()).hasBook();
             case DISPENSER:
                 return ((Dispenser) block.getBlockData()).isTriggered();

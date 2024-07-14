@@ -24,6 +24,7 @@ public class ExperienceListener implements Listener {
 
     @EventHandler
     public void onLevelChanged(PlayerLevelChangeEvent event) {
+        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
         Player player = event.getPlayer();
         int level = player.getLevel();
         playerExperience.put(player.getUniqueId(), level);

@@ -31,6 +31,7 @@ public class KillEntityListener implements Listener {
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
+        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
         EntityType entityType = event.getEntity().getType();
 
         if (event.getEntity().getKiller() != null) {

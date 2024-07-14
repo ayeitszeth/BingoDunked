@@ -25,6 +25,7 @@ public class EnchantListener implements Listener {
 
     @EventHandler
     public void onEnchant(EnchantItemEvent event) {
+        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
         Player player = event.getEnchanter();
         List<Enchant> latestEnchants = new ArrayList<>();
         Map<Enchantment, Integer> encMap = event.getEnchantsToAdd();

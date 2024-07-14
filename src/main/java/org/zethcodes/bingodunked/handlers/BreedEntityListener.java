@@ -25,6 +25,7 @@ public class BreedEntityListener implements Listener {
 
     @EventHandler
     public void onEntityBreed(EntityBreedEvent event) {
+        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
         EntityType entityType = event.getEntity().getType();
         if (event.getBreeder() instanceof Player) {
             Player breeder = (Player) event.getBreeder();

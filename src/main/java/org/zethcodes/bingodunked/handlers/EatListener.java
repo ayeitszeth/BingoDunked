@@ -25,6 +25,7 @@ public class EatListener implements Listener {
 
     @EventHandler
     public void onPlayerEat(PlayerItemConsumeEvent event) {
+        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
         Player player = event.getPlayer();
         playerEats.put(player.getUniqueId(), event.getItem().getType());
     }

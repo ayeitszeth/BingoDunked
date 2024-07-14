@@ -25,6 +25,7 @@ public class PotionEffectListener implements Listener {
 
     @EventHandler
     public void onPotionEffect(EntityPotionEffectEvent event) {
+        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
             PotionEffectType effectType = event.getModifiedType();

@@ -29,6 +29,7 @@ public class FallHeightListener implements Listener {
     @EventHandler
     public void onPlayerFall(PlayerMoveEvent event)
     {
+        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
         Player player = event.getPlayer();
 
         if (!(event.getPlayer().getWorld().getName().equals(WorldUtil.bingoWorldName) || event.getPlayer().getWorld().getName().equals(WorldUtil.bingoWorldName + "_nether")))

@@ -21,6 +21,7 @@ public class ArmorStandInteractListener implements Listener {
 
     @EventHandler
     public void onPlayerInteractAtEntity(PlayerArmorStandManipulateEvent event) {
+        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
         Player player = event.getPlayer();
         Entity entity = event.getRightClicked();
 

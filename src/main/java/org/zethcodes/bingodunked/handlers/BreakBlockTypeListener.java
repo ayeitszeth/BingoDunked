@@ -49,10 +49,12 @@ public class BreakBlockTypeListener implements Listener {
             player.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED WHISPER] " + ChatColor.GRAY + "You have broken " + curCount + " " + type.name().toLowerCase() + " blocks.");
         }
         counts.put(playerId, curCount);
+        if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " has broken " + counts.getOrDefault(playerId, 0) + " of the block type: " + type);
     }
 
     @EventHandler
     public void onPlayerBreakBlock(BlockBreakEvent event) {
+        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
         Player player = event.getPlayer();
         Material block = event.getBlock().getType();
 
@@ -68,7 +70,6 @@ public class BreakBlockTypeListener implements Listener {
     public boolean hasPlayerBrokeEnoughBlocks(Player player, BlockType type, int requiredToBreak) {
         UUID playerId = player.getUniqueId();
         HashMap<UUID, Integer> counts = playerBlockCounts.get(type);
-        if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " has broken " + counts.getOrDefault(playerId, 0) + " of the block type: " + type);
         return counts.getOrDefault(playerId, 0) >= requiredToBreak;
     }
 }

@@ -74,7 +74,7 @@ public class BingoUtil {
     Map<UUID, Team> TeamMap = new HashMap<>();
     List<Biome> startBiomes;
     private int timeLeft;
-    public GameState gameState = GameState.FINISHED;
+    public static GameState gameState = GameState.FINISHED;
     boolean overTime = false;
     int goalsToWinOT = -1;
 
@@ -158,7 +158,6 @@ public class BingoUtil {
         overTime = false;
         goalsToWinOT = -1;
         startBiomes = new ArrayList<>();
-        gameState = GameState.STARTED;
 
         activeFallGoal = false;
         activeExpGoal = false;
@@ -379,6 +378,9 @@ public class BingoUtil {
             OpenInv(player);
             player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 2f);
         }
+
+        gameState = GameState.STARTED;
+
         BingoAnnounce("");
         BingoAnnounce("Bingo has begun!");
         BingoAnnounce("");
@@ -1177,9 +1179,10 @@ public class BingoUtil {
         BlockInteractGoal fillchiseledBookshelfGoal = new BlockInteractGoal("Completely fill a Chiseled Bookshelf", chiseledBookshelf, Material.CHISELED_BOOKSHELF, blockInteractListener);
         allGoals.add(fillchiseledBookshelfGoal);
 
+        /* Player needs to right-click campfire after making signal fire which is weird
         ItemStack campfire = new ItemStack(Material.CAMPFIRE, 1);
         BlockInteractGoal signalFireGoal = new BlockInteractGoal("Start a Signal Fire", campfire, Material.CAMPFIRE, blockInteractListener);
-        allGoals.add(signalFireGoal);
+        allGoals.add(signalFireGoal);*/
 
         ItemStack rawCod = new ItemStack(Material.COD,1);
         BreedEntityGoal catBreedGoal = new BreedEntityGoal("Breed two Cats", rawCod, EntityType.CAT, breedEntityListener);
@@ -1635,7 +1638,7 @@ public class BingoUtil {
         CollectItemsAmountGoal stairsGoal = new CollectItemsAmountGoal("Collect 128 Stairs of Any Type", stairs, stairsList, 128);
         allGoals.add(stairsGoal);
 
-        //testGoal = encbookGoal;
+        //testGoal = placeBookOnLecternGoal;
     }
 
     public void goalAutoComplete(Player player, Class goalType)
