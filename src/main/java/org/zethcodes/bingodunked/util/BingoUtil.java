@@ -67,10 +67,12 @@ public class BingoUtil {
     BlockInteractListener blockInteractListener;
     ArmorStandInteractListener armorStandInteractListener;
     TravelListener travelListener;
+    DeathListener deathListener;
     public boolean isPvpEnabled;
     Goal testGoal = null;
     int numOfGoalsCompleted = 0;
     private final Map<UUID, Integer> playerGoalsCompleted = new HashMap<>();
+    private Map<UUID, Integer> playerTotalGoalsCompleted = new HashMap<>();
     Map<UUID, Team> TeamMap = new HashMap<>();
     List<Biome> startBiomes;
     private int timeLeft;
@@ -101,7 +103,7 @@ public class BingoUtil {
     public BingoUtil(BingoDunked plugin, KillEntityListener killEntityListener, BreedEntityListener breedEntityListener, PotionEffectListener potionEffectListener,
                      EnchantListener enchantListener, FishingListener fishingListener, FallHeightListener fallHeightListener,
                      ExperienceListener experienceListener, EatListener eatListener, BlockInteractListener blockInteractListener,
-                     ArmorStandInteractListener armorStandInteractListener) {
+                     ArmorStandInteractListener armorStandInteractListener, DeathListener deathListener) {
         this.plugin = plugin;
         this.killEntityListener = killEntityListener;
         this.breedEntityListener = breedEntityListener;
@@ -113,6 +115,8 @@ public class BingoUtil {
         this.eatListener = eatListener;
         this.blockInteractListener = blockInteractListener;
         this.armorStandInteractListener = armorStandInteractListener;
+        this.deathListener = deathListener;
+
         this.travelListener = new TravelListener(this);
         this.blockTypeListener = new BreakBlockTypeListener(this);
         getServer().getPluginManager().registerEvents(travelListener, plugin);
@@ -152,6 +156,7 @@ public class BingoUtil {
         eatListener.Reset();
         blockInteractListener.Reset();
         travelListener.Reset();
+        deathListener.Reset();
         numOfGoalsCompleted = 0;
         timeLeft = time * 60;
         isPvpEnabled = false;
@@ -442,7 +447,7 @@ public class BingoUtil {
         Goal goal = allGoals.get(0);
         int ranGoal = 0;
 
-        if (random.nextInt(2) == 0) { // 50/50 coin flip if it's a biome goal
+        if (random.nextInt(4) != 3) { // 75/25 flip if it's a biome goal
             if (!startBiomes.isEmpty())
             {
                 Biome biome = startBiomes.get(0);
@@ -484,19 +489,26 @@ public class BingoUtil {
                     (goal instanceof CollectColouredItemGoal && activeColouredGoal) ||
                     (goal instanceof CompleteAdvancementGoal && activeAdvancementGoal) ||
                     (goal instanceof TravelGoal && activeTravelGoal) ||
-                    (gameMode == Mode.FFA && lateGameGoals.contains(goal) && numOfGoalsCompleted < 2.5 * playerGoalsCompleted.size()) ||
-                    (gameMode == Mode.TEAM && lateGameGoals.contains(goal) && numOfGoalsCompleted < 1.5 * playerGoalsCompleted.size()) ||
+                    (gameMode == Mode.FFA && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12) ||
+                    (gameMode == Mode.TEAM && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12 - Math.min(playerGoalsCompleted.size(),12)) ||
                     (goals.containsValue(goal))) {
+            if (allGoals.isEmpty()) {
+                SetGoals();
+            }
+
             ranGoal = random.nextInt(allGoals.size());
             goal = allGoals.get(ranGoal);
 
-            if ((gameMode == Mode.FFA && lateGameGoals.contains(goal) && numOfGoalsCompleted < 9) ||
-                    (gameMode == Mode.TEAM && lateGameGoals.contains(goal) && numOfGoalsCompleted < 5))
+            if ((gameMode == Mode.FFA && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12) ||
+                    (gameMode == Mode.TEAM && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12 - Math.min(playerGoalsCompleted.size(),12)))
             {
                 continue;
             }
             allGoals.remove(goal);
         }
+
+        // force test goal
+        //goal = testGoal;
 
         if (goal instanceof FallGoal) {
             activeFallGoal = true;
@@ -530,14 +542,10 @@ public class BingoUtil {
         BingoCard.setItem(slot, item);
         BingoAnnounce("The new goal is " + ChatColor.BOLD + goal.getName() + "!");
 
-        if (goal instanceof CompleteAdvancementGoal)
+        for (Player player : Bukkit.getOnlinePlayers())
         {
-
-            for (Player player : Bukkit.getOnlinePlayers())
-            {
-                if (goal.isComplete(player)) {
-                    completeGoal(slot, getTeam(player), player);
-                }
+            if (goal.isComplete(player)) {
+                completeGoal(slot, getTeam(player), player);
             }
         }
     }
@@ -711,7 +719,7 @@ public class BingoUtil {
 
         ItemStack goldenapple = new ItemStack(Material.GOLDEN_APPLE,1);
         BreedEntityGoal donkeyBreedGoal = new BreedEntityGoal("Breed Two Donkeys", goldenapple, EntityType.DONKEY, breedEntityListener);
-        biomeGoals.put(Biome.PLAINS, donkeyBreedGoal);
+        biomeGoals.put(Biome.MEADOW, donkeyBreedGoal);
         lateGameGoals.add(donkeyBreedGoal);
 
         ItemStack leather = new ItemStack(Material.LEATHER, 1);
@@ -1138,10 +1146,6 @@ public class BingoUtil {
         ItemStack carvedPumpkin = new ItemStack(Material.CARVED_PUMPKIN, 1);
         CompleteAdvancementGoal hiredHelpGoal = new CompleteAdvancementGoal("Complete the advancement Hired Help", carvedPumpkin, Bukkit.getAdvancement(new NamespacedKey("minecraft","adventure/summon_iron_golem")));
         allGoals.add(hiredHelpGoal);
-
-        ItemStack jukeBox = new ItemStack(Material.JUKEBOX,1);
-        CompleteAdvancementGoal soundofmusicGoal = new CompleteAdvancementGoal("Complete the advancement Sound of Music", jukeBox, Bukkit.getAdvancement(new NamespacedKey("minecraft","adventure/play_jukebox_in_meadows")));
-        biomeGoals.put(Biome.MEADOW,soundofmusicGoal);
 
         ItemStack leatherBoots = new ItemStack(Material.LEATHER_BOOTS, 1);
         CompleteAdvancementGoal lightAsRabbitGoal = new CompleteAdvancementGoal("Complete the advancement Light as a Rabbit", leatherBoots, Bukkit.getAdvancement(new NamespacedKey("minecraft", "adventure/walk_on_powder_snow_with_leather_boots")));
@@ -1582,11 +1586,12 @@ public class BingoUtil {
         CollectItemsAmountGoal coarseDirtGoal = new CollectItemsAmountGoal("Collect 64 Coarse Dirt Blocks", coarsedirt, coarsedirtList, 64);
         biomeGoals.put(Biome.OLD_GROWTH_SPRUCE_TAIGA,coarseDirtGoal);
 
+        /* Disabled due to spigot
         ItemStack snowballs = new ItemStack(Material.SNOWBALL, 64);
         List<Material> snowList = new ArrayList<>();
         mudBrickList.add(Material.SNOWBALL);
         CollectItemsAmountGoal snowballGoal = new CollectItemsAmountGoal("Collect 64 Snowballs", snowballs, snowList, 64);
-        biomeGoals.put(Biome.SNOWY_TAIGA,snowballGoal);
+        biomeGoals.put(Biome.SNOWY_TAIGA,snowballGoal);*/
 
         ItemStack muddyMangroveRoots = new ItemStack(Material.MUDDY_MANGROVE_ROOTS, 16);
         List<Material> mangroveRootsList = new ArrayList<>();
@@ -1638,7 +1643,40 @@ public class BingoUtil {
         CollectItemsAmountGoal stairsGoal = new CollectItemsAmountGoal("Collect 128 Stairs of Any Type", stairs, stairsList, 128);
         allGoals.add(stairsGoal);
 
-        //testGoal = placeBookOnLecternGoal;
+        ItemStack waterBucket = new ItemStack(Material.WATER_BUCKET,1);
+        DeathGoal drownGoal = new DeathGoal("Achieve the Death Message '<player> drowned'", waterBucket,"drowned",deathListener);
+        allGoals.add(drownGoal);
+
+        ItemStack tntMinecart = new ItemStack(Material.TNT_MINECART,1);
+        DeathGoal tntCartGoal = new DeathGoal("Achieve the Death Message '<player> blew up'", tntMinecart, "blew up",deathListener);
+        allGoals.add(tntCartGoal);
+
+        ItemStack bed = new ItemStack(Material.RED_BED,1);
+        DeathGoal netherBedGoal = new DeathGoal("Achieve the Death Message '<player> was killed by [Intentional Game Design]'", bed, "was killed by [Intentional Game Design]",deathListener);
+        allGoals.add(netherBedGoal);
+        lateGameGoals.add(netherBedGoal);
+
+        ItemStack ladder = new ItemStack(Material.LADDER,1);
+        DeathGoal ladderFallGoal = new DeathGoal("Achieve the Death Message '<player> fell off a ladder'",ladder,"fell off a ladder",deathListener);
+        allGoals.add(ladderFallGoal);
+
+        ItemStack flintAndSteel = new ItemStack(Material.FLINT_AND_STEEL,1);
+        DeathGoal flamesGoal = new DeathGoal("Achieve the Death Message '<player> went up in flames'",flintAndSteel,"went up in flames",deathListener);
+        allGoals.add(flamesGoal);
+
+        ItemStack magmaBlock = new ItemStack(Material.MAGMA_BLOCK,1);
+        DeathGoal floorLavaGoal = new DeathGoal("Achieve the Death Message '<player> discovered the floor was lava'",magmaBlock,"discovered the floor was lava",deathListener);
+        allGoals.add(floorLavaGoal);
+
+        ItemStack gravel = new ItemStack(Material.GRAVEL,1);
+        DeathGoal suffocationGoal = new DeathGoal("Achieve the Death Message '<player> suffocated in a wall'",gravel,"suffocated in a wall",deathListener);
+        allGoals.add(suffocationGoal);
+
+        ItemStack berries = new ItemStack(Material.SWEET_BERRIES,1);
+        DeathGoal berryPokedGoal = new DeathGoal("Achieve the Death Message '<player> was poked to death by a sweet berry bush'",berries,"was poked to death by a sweet berry bush",deathListener);
+        biomeGoals.put(Biome.TAIGA,berryPokedGoal);
+
+        //testGoal = killCreeperWithTntGoal;
     }
 
     public void goalAutoComplete(Player player, Class goalType)
@@ -1807,6 +1845,8 @@ public class BingoUtil {
             Player p = getServer().getPlayer(entry.getKey());
             Team playerTeam = entry.getValue();
 
+            if (p == null) continue;
+
             if (playerTeam == team) {
                 p.playSound(p, teamSound, 10f, 2f);
             } else {
@@ -1881,6 +1921,7 @@ public class BingoUtil {
     {
         cancelAllTasks();
         gameState = GameState.FINISHED;
+        gameMode = Mode.TEAM;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.teleport(Bukkit.getWorld(WorldUtil.bingoWorldName).getSpawnLocation());
@@ -1937,6 +1978,12 @@ public class BingoUtil {
 
     public void showStats()
     {
+        playerGoalsCompleted.forEach((uuid, numOfGoals) ->
+        {
+            playerTotalGoalsCompleted.put(uuid, playerTotalGoalsCompleted.getOrDefault(uuid,0) + numOfGoals);
+        });
+
+
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             Bukkit.broadcastMessage("");
             BingoAnnounce(ChatColor.LIGHT_PURPLE + "Made by " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "ayeitszeth");
@@ -1945,7 +1992,7 @@ public class BingoUtil {
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             BingoAnnounce("");
-            Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED STATS] ");
+            Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED GAME STATS] ");
             List<Map.Entry<UUID, Integer>> sortedEntries = new ArrayList<>(playerGoalsCompleted.entrySet());
             sortedEntries.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
 
@@ -1956,7 +2003,26 @@ public class BingoUtil {
                 Bukkit.broadcastMessage("    " + teamChatColour + player.getName() + ChatColor.WHITE + ": " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + goalsCompleted + ChatColor.WHITE + " goals completed");
             }
             Bukkit.broadcastMessage("");
+            showSessionStats();
         }, 20L * 15);
+    }
+
+    public void showSessionStats()
+    {
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            BingoAnnounce("");
+            Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED SESSION STATS] ");
+            List<Map.Entry<UUID, Integer>> sortedEntries = new ArrayList<>(playerTotalGoalsCompleted.entrySet());
+            sortedEntries.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
+
+            for (Map.Entry<UUID, Integer> entry : sortedEntries) {
+                Player player = getServer().getPlayer(entry.getKey());
+                Integer goalsCompleted = entry.getValue();
+                ChatColor teamChatColour = getTeamChatColour(player);
+                Bukkit.broadcastMessage("    " + teamChatColour + player.getName() + ChatColor.WHITE + ": " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + goalsCompleted + ChatColor.WHITE + " goals completed");
+            }
+            Bukkit.broadcastMessage("");
+        }, 20L * 8);
     }
 
     public boolean checkBingo(Team team) {

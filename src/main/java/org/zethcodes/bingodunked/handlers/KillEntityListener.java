@@ -34,6 +34,8 @@ public class KillEntityListener implements Listener {
         if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
         EntityType entityType = event.getEntity().getType();
 
+        if (entityType == EntityType.PLAYER) return;
+
         if (event.getEntity().getKiller() != null) {
             Player killer = event.getEntity().getKiller();
             playerKills.put(killer.getUniqueId(), entityType);

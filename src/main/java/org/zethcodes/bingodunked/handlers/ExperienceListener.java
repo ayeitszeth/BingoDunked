@@ -32,6 +32,6 @@ public class ExperienceListener implements Listener {
 
     public boolean hasPlayerReachedLevel(Player player, int level) {
         if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " is level " + playerExperience.get(player.getUniqueId()));
-        return level == playerExperience.get(player.getUniqueId());
+        return level <= playerExperience.get(player.getUniqueId());
     }
 }

@@ -39,14 +39,8 @@ public class FallHeightListener implements Listener {
 
         if (event.getFrom().getBlockY() > event.getTo().getBlockY())
         {
-            try
-            {
-                int lastFallHeight = playerLastFallHeight.get(player.getUniqueId());
-                if (event.getFrom().getBlockY() > lastFallHeight)
-                {
-                    playerLastFallHeight.put(player.getUniqueId(), event.getFrom().getBlockY());
-                }
-            } catch (Exception e)
+            int lastFallHeight = playerLastFallHeight.getOrDefault(player.getUniqueId(),-999);
+            if (event.getFrom().getBlockY() > lastFallHeight)
             {
                 playerLastFallHeight.put(player.getUniqueId(), event.getFrom().getBlockY());
             }
@@ -54,18 +48,13 @@ public class FallHeightListener implements Listener {
 
         if (player.getVelocity().getY() > -0.1 && player.getVelocity().getY() < 0)
         {
-            try
+            int fallHeight = playerLastFallHeight.getOrDefault(player.getUniqueId(), -999) - player.getLocation().getBlockY();
+            if (fallHeight > playerLargestFall.getOrDefault(player.getUniqueId(),0))
             {
-                int fallHeight = playerLastFallHeight.get(player.getUniqueId()) - player.getLocation().getBlockY();
-                if (fallHeight > playerLargestFall.get(player.getUniqueId()))
-                {
-                    playerLargestFall.put(player.getUniqueId(), fallHeight);
-                    if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + "'s new largest fall is " + playerLargestFall.get(player.getUniqueId()));
-                }
-            } catch (Exception e)
-            {
-                playerLargestFall.put(player.getUniqueId(), 0);
+                playerLargestFall.put(player.getUniqueId(), fallHeight);
+                if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + "'s new largest fall is " + playerLargestFall.getOrDefault(player.getUniqueId(),0));
             }
+
             playerLastFallHeight.put(player.getUniqueId(),player.getLocation().getBlockY());
         }
 
@@ -76,6 +65,6 @@ public class FallHeightListener implements Listener {
 
     public boolean hasPlayerFallenFarEnough(Player player, int fallHeightNeeded)
     {
-        return playerLargestFall.get(player.getUniqueId()) > fallHeightNeeded;
+        return playerLargestFall.getOrDefault(player.getUniqueId(), 0) > fallHeightNeeded;
     }
 }

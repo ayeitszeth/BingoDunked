@@ -49,7 +49,7 @@ public class BreakBlockTypeListener implements Listener {
             player.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED WHISPER] " + ChatColor.GRAY + "You have broken " + curCount + " " + type.name().toLowerCase() + " blocks.");
         }
         counts.put(playerId, curCount);
-        if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " has broken " + counts.getOrDefault(playerId, 0) + " of the block type: " + type);
+        if (BingoUtil.DEBUG && curCount % 5 == 0) Bukkit.getLogger().info(player + " has broken " + counts.getOrDefault(playerId, 0) + " of the block type: " + type);
     }
 
     @EventHandler

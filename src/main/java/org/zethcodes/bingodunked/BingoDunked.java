@@ -24,22 +24,23 @@ public final class BingoDunked extends JavaPlugin {
         EatListener eatListener = new EatListener();
         BlockInteractListener blockInteractListener = new BlockInteractListener();
         ArmorStandInteractListener armorStandInteractListener = new ArmorStandInteractListener();
-        new DelayedTask(this);
+        DeathListener deathListener = new DeathListener();
+        //new DelayedTask(this);
         getServer().getPluginManager().registerEvents(killEntityListener, this);
         getServer().getPluginManager().registerEvents(breedEntityListener, this);
         getServer().getPluginManager().registerEvents(potionEffectListener, this);
         getServer().getPluginManager().registerEvents(enchantListener, this);
         getServer().getPluginManager().registerEvents(fishingListener, this);
-
         getServer().getPluginManager().registerEvents(fallHeightListener, this);
         getServer().getPluginManager().registerEvents(experienceListener, this);
         getServer().getPluginManager().registerEvents(eatListener, this);
         getServer().getPluginManager().registerEvents(blockInteractListener, this);
         getServer().getPluginManager().registerEvents(armorStandInteractListener, this);
+        getServer().getPluginManager().registerEvents(deathListener,this);
 
         BingoUtil bingoUtil = new BingoUtil(this,killEntityListener,breedEntityListener,potionEffectListener, enchantListener,
                 fishingListener,fallHeightListener,experienceListener, eatListener, blockInteractListener,
-                armorStandInteractListener);
+                armorStandInteractListener, deathListener);
 
         new BingoHandler(this,bingoUtil);
 

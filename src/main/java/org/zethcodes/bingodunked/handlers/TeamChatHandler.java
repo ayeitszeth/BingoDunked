@@ -30,6 +30,7 @@ public class TeamChatHandler implements Listener {
 
                 for (Player p : teammatesList)
                 {
+                    if (p == null) continue;
                     p.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [TEAM CHAT] " + bingoUtil.getTeamChatColour(team) + ChatColor.BOLD + event.getPlayer().getName() + ChatColor.WHITE + ": " + event.getMessage());
 
                 }

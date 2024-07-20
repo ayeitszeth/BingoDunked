@@ -18,7 +18,7 @@ public class PortalListener implements Listener {
 
         if (fromWorld != null && fromWorld.getName().equals(WorldUtil.bingoWorldName)) {
             if (event.getTo().getWorld().getEnvironment() == World.Environment.NETHER) {
-                Location netherLoc = new Location(Bukkit.getWorld(WorldUtil.bingoWorldName), location.getX()/8,location.getY()/8,location.getZ()/8);
+                Location netherLoc = new Location(Bukkit.getWorld(WorldUtil.bingoWorldName + "_nether"), location.getX()/8,location.getY()/8,location.getZ()/8);
                 event.setTo(netherLoc);
             } else if (event.getTo().getWorld().getEnvironment() == World.Environment.THE_END) {
                 event.setTo(Bukkit.getWorld(WorldUtil.bingoWorldName).getSpawnLocation());

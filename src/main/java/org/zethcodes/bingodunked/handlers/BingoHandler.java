@@ -10,6 +10,8 @@ import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zethcodes.bingodunked.goals.*;
@@ -97,6 +99,13 @@ public class BingoHandler implements Listener {
         if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
         Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.craftGoalAutoComplete((Player) event.getWhoClicked(), event.getCursor()));
         Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete((Player) event.getWhoClicked(), CollectItemGoal.class));
+    }
+
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event)
+    {
+        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete((Player) event.getPlayer(), CollectItemGoal.class));
     }
 
     @EventHandler
@@ -207,5 +216,12 @@ public class BingoHandler implements Listener {
     {
         if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
         Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(event.getPlayer(), ArmorStandInteractGoal.class));
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event)
+    {
+        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(event.getEntity(), DeathGoal.class));
     }
 }

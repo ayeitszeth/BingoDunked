@@ -92,24 +92,12 @@ public class TravelListener implements Listener {
     {
         if (type == TYPE.BOAT)
         {
-            try
-            {
-                if ((int) Math.floor(playerBoatDistances.get(player.getUniqueId())) % 25 == 0) Bukkit.getLogger().info(player + "has travelled " + playerBoatDistances.get(player.getUniqueId()) + " in a boat");
-                return playerBoatDistances.get(player.getUniqueId()) > travelDistanceNeeded;
-            } catch (Exception e)
-            {
-                return false;
-            }
+            if ((int) Math.floor(playerBoatDistances.getOrDefault(player.getUniqueId(), 0.0)) % 25 == 0) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerBoatDistances.get(player.getUniqueId())) + " in a boat");
+            return playerBoatDistances.getOrDefault(player.getUniqueId(),0.0) > travelDistanceNeeded;
         } else if (type == TYPE.RUNNING)
         {
-            try
-            {
-                if ((int) Math.floor(playerNonVehicleDistances.get(player.getUniqueId())) % 25 == 0) Bukkit.getLogger().info(player + "has travelled " + playerNonVehicleDistances.get(player.getUniqueId()) + " on foot");
-                return playerNonVehicleDistances.get(player.getUniqueId()) > travelDistanceNeeded;
-            } catch (Exception e)
-            {
-                return false;
-            }
+            if ((int) Math.floor(playerNonVehicleDistances.get(player.getUniqueId())) % 25 == 0) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerNonVehicleDistances.get(player.getUniqueId())) + " on foot");
+            return playerNonVehicleDistances.getOrDefault(player.getUniqueId(),0.0) > travelDistanceNeeded;
         } /*else if (type == TYPE.MINECART)
         {
             try
