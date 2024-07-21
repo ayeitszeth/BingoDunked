@@ -92,11 +92,11 @@ public class TravelListener implements Listener {
     {
         if (type == TYPE.BOAT)
         {
-            if ((int) Math.floor(playerBoatDistances.getOrDefault(player.getUniqueId(), 0.0)) % 25 == 0) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerBoatDistances.get(player.getUniqueId())) + " in a boat");
+            if ((int) Math.floor(playerBoatDistances.getOrDefault(player.getUniqueId(), 0.0)) % 25 == 0) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerBoatDistances.getOrDefault(player.getUniqueId(),0.0)) + " in a boat");
             return playerBoatDistances.getOrDefault(player.getUniqueId(),0.0) > travelDistanceNeeded;
         } else if (type == TYPE.RUNNING)
         {
-            if ((int) Math.floor(playerNonVehicleDistances.get(player.getUniqueId())) % 25 == 0) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerNonVehicleDistances.get(player.getUniqueId())) + " on foot");
+            if ((int) Math.floor(playerNonVehicleDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerNonVehicleDistances.getOrDefault(player.getUniqueId(),0.0)) + " on foot");
             return playerNonVehicleDistances.getOrDefault(player.getUniqueId(),0.0) > travelDistanceNeeded;
         } /*else if (type == TYPE.MINECART)
         {

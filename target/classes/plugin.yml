@@ -30,6 +30,9 @@ commands:
   time:
     usage: /time
     permission: bingo.time
+  settings:
+    usage: /settings
+    permission: bingo.settings
 permissions:
   bingo.bingocard:
     description: Open your team's bingo card.
@@ -51,4 +54,7 @@ permissions:
     default: true
   bingo.time:
     description: Tells the player the time remaining
+    default: true
+  bingo.settings:
+    description: Allows access to Bingo Dunked Settings
     default: true

@@ -21,6 +21,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.Team;
 import org.zethcodes.bingodunked.BingoDunked;
 import org.zethcodes.bingodunked.goals.*;
 import org.zethcodes.bingodunked.handlers.*;
@@ -32,6 +35,7 @@ import static org.bukkit.Bukkit.getServer;
 public class BingoUtil {
 
     Inventory BingoCard;
+    Inventory settingsGUI;
     List<Integer> validSlots = new ArrayList<>();
     ItemStack redWool = new ItemStack(Material.RED_WOOL, 1);
     ItemStack blueWool = new ItemStack(Material.BLUE_WOOL, 1);
@@ -81,9 +85,13 @@ public class BingoUtil {
     int goalsToWinOT = -1;
 
     public enum Team {RED, BLUE, GREEN, YELLOW, ORANGE, PURPLE, CYAN, BROWN, NONE};
-    public enum Mode { TEAM, FFA };
-    public enum GameState { STARTED, FINISHED }
+    public enum Mode { TEAM, FFA }
+    public enum Difficulty { NORMAL, INSANE }
+    public enum PvP { NOPVP, PVP, GLOWING_PVP, TRACKING_PVP }
+    public enum GameState { LOADING, STARTED, FINISHED }
     public Mode gameMode = Mode.TEAM;
+    public Difficulty difficulty = Difficulty.NORMAL;
+    public PvP pvp = PvP.PVP;
     private final List<Integer> taskIds = new ArrayList<>();
     BingoDunked plugin;
     public static boolean DEBUG = true;
@@ -96,6 +104,9 @@ public class BingoUtil {
     boolean activeColouredGoal = false;
     boolean activeAdvancementGoal = false;
     boolean activeTravelGoal = false;
+
+    ItemStack enabled = new ItemStack(Material.LIME_WOOL, 1);
+    ItemStack disabled = new ItemStack(Material.RED_WOOL, 1);
 
     public TravelListener.TYPE activeTravelType = null;
     public Set<BreakBlockTypeListener.BlockType> activeBlockTypes = new HashSet<>();
@@ -123,18 +134,37 @@ public class BingoUtil {
         getServer().getPluginManager().registerEvents(blockTypeListener, plugin);
 
         BingoCard = Bukkit.createInventory(null, 27, "Bingo Card");
+        settingsGUI = Bukkit.createInventory(null, 45, "Bingo Settings");
 
         for (int col = 0; col < 3; ++col) {
             for (int row = 0; row < 3; ++row) {
                 validSlots.add(row * 9 + col + 3);
             }
         }
+
+        ItemMeta enabledMeta = enabled.getItemMeta();
+        enabledMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Enabled");
+        enabled.setItemMeta(enabledMeta);
+
+        ItemMeta disabledMeta = disabled.getItemMeta();
+        disabledMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Disabled");
+        disabled.setItemMeta(disabledMeta);
+
         SetCardsInv();
     }
 
     public void BingoSetUp(Mode mode, int time) {
         cancelAllTasks();
         gameMode = mode;
+        gameState = GameState.LOADING;
+
+        if (gameMode == Mode.TEAM) {
+            settingsGUI.setItem(12, enabled);
+            settingsGUI.setItem(15, disabled);
+        } else if (mode == Mode.FFA) {
+            settingsGUI.setItem(12, disabled);
+            settingsGUI.setItem(15, enabled);
+        }
 
         redBoard = new boolean[3][3];
         blueBoard = new boolean[3][3];
@@ -174,28 +204,29 @@ public class BingoUtil {
         activeTravelGoal = false;
 
         activeTravelType = null;
-        activeBlockTypes = new HashSet<>();
+        activeBlockTypes.clear();
 
-        if (gameMode == Mode.FFA)
-        {
+        if (gameMode == Mode.FFA) {
             TeamMap = new HashMap<>();
             Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
             int numOfPlayers = players.length;
-            if (numOfPlayers <= 8)
-            {
+            if (numOfPlayers <= 8) {
                 Team[] teams = Team.values();
 
-                for (int i = 0; i < numOfPlayers; ++i)
-                {
-                    TeamMap.put(players[i].getUniqueId(),teams[i]);
+                for (int i = 0; i < numOfPlayers; ++i) {
+                    TeamMap.put(players[i].getUniqueId(), teams[i]);
                     updatePlayerTabListName(players[i]);
                 }
 
-            } else
-            {
+            } else {
                 BingoAnnounce("This game mode only is functional with less than 8 players... Start Aborting...");
                 return;
             }
+        }
+
+        for (Player p : Bukkit.getOnlinePlayers())
+        {
+            updatePlayerTabListName(p);
         }
 
         Location spawnLoc;
@@ -214,13 +245,16 @@ public class BingoUtil {
         resetPlayerGoalsCompleted();
         startBiomes = findBiomes(getServer().getWorld(WorldUtil.bingoWorldName).getSpawnLocation(), 150);
 
-        addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            isPvpEnabled = true;
-            BingoAnnounce("The Grace Period has ended...");
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                p.playSound(p, Sound.ENTITY_ENDER_DRAGON_GROWL, 3f, 0f);
-            }
-        }, 20L * 190).getTaskId());
+        if (pvp != PvP.NOPVP)
+        {
+            addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                isPvpEnabled = true;
+                BingoAnnounce("The Grace Period has ended...");
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.playSound(p, Sound.ENTITY_ENDER_DRAGON_GROWL, 3f, 0f);
+                }
+            }, 20L * 190).getTaskId());
+        }
 
         BingoAnnounce("Bingo will start in 10 seconds...");
 
@@ -299,12 +333,13 @@ public class BingoUtil {
         for (int slot : validSlots) {
             Goal goal = allGoals.get(0);
             int ranGoal = 0;
-            if (random.nextInt(2) == 0 && !startBiomes.isEmpty()) { // 50/50 coin flip if it's a biome goal
+            if (random.nextInt(4) != 0 && !startBiomes.isEmpty()) { // 50/50 coin flip if it's a biome goal
                 Biome biome = startBiomes.get(0);
                 startBiomes.remove(biome);
                 if (biomeGoals.containsKey(biome)) {
                     goal = biomeGoals.get(biome);
                     biomeGoals.remove(biome);
+                    allGoals.remove(biome);
                 } else {
                     ranGoal = random.nextInt(allGoals.size());
                     goal = allGoals.get(ranGoal);
@@ -316,7 +351,7 @@ public class BingoUtil {
                 allGoals.remove(goal);
             }
 
-            while ((goal instanceof FallGoal && activeFallGoal) ||
+            while (((goal instanceof FallGoal && activeFallGoal) ||
                     (goal instanceof ExperienceGoal && activeExpGoal) ||
                     (goal instanceof PotionEffectGoal && activeEffectGoal) ||
                     (goal instanceof FishingGoal && activeFishGoal) ||
@@ -325,14 +360,15 @@ public class BingoUtil {
                     (goal instanceof CompleteAdvancementGoal && activeAdvancementGoal) ||
                     (goal instanceof TravelGoal && activeTravelGoal) ||
                     (lateGameGoals.contains(goal)) ||
-                    (goals.containsValue(goal))) {
+                    (goals.containsValue(goal))) &&
+                    difficulty == Difficulty.NORMAL) {
 
                 if (allGoals.isEmpty()) SetGoals();
 
                 ranGoal = random.nextInt(allGoals.size());
                 goal = allGoals.get(ranGoal);
 
-                if (lateGameGoals.contains(goal))
+                if (lateGameGoals.contains(goal) && difficulty == Difficulty.NORMAL)
                 {
                     continue;
                 }
@@ -382,6 +418,10 @@ public class BingoUtil {
         for (Player player : Bukkit.getOnlinePlayers()) {
             OpenInv(player);
             player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 2f);
+            if (pvp == PvP.TRACKING_PVP)
+            {
+                player.getInventory().addItem(new ItemStack(Material.COMPASS,1));
+            }
         }
 
         gameState = GameState.STARTED;
@@ -455,6 +495,7 @@ public class BingoUtil {
                 if (biomeGoals.containsKey(biome)) {
                     goal = biomeGoals.get(biome);
                     biomeGoals.remove(biome);
+                    allGoals.remove(biome);
                 } else {
                     ranGoal = random.nextInt(allGoals.size());
                     goal = allGoals.get(ranGoal);
@@ -481,7 +522,7 @@ public class BingoUtil {
             allGoals.remove(goal);
         }
 
-        while ((goal instanceof FallGoal && activeFallGoal) ||
+        while (((goal instanceof FallGoal && activeFallGoal) ||
                     (goal instanceof ExperienceGoal && activeExpGoal) ||
                     (goal instanceof PotionEffectGoal && activeEffectGoal) ||
                     (goal instanceof FishingGoal && activeFishGoal) ||
@@ -489,9 +530,10 @@ public class BingoUtil {
                     (goal instanceof CollectColouredItemGoal && activeColouredGoal) ||
                     (goal instanceof CompleteAdvancementGoal && activeAdvancementGoal) ||
                     (goal instanceof TravelGoal && activeTravelGoal) ||
-                    (gameMode == Mode.FFA && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12) ||
-                    (gameMode == Mode.TEAM && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12 - Math.min(playerGoalsCompleted.size(),12)) ||
-                    (goals.containsValue(goal))) {
+                    (gameMode == Mode.FFA && difficulty == Difficulty.NORMAL && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12) ||
+                    (gameMode == Mode.TEAM && difficulty == Difficulty.NORMAL && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12 - Math.min(playerGoalsCompleted.size(),12)) ||
+                    (goals.containsValue(goal))) &&
+                    difficulty == Difficulty.NORMAL) {
             if (allGoals.isEmpty()) {
                 SetGoals();
             }
@@ -499,8 +541,8 @@ public class BingoUtil {
             ranGoal = random.nextInt(allGoals.size());
             goal = allGoals.get(ranGoal);
 
-            if ((gameMode == Mode.FFA && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12) ||
-                    (gameMode == Mode.TEAM && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12 - Math.min(playerGoalsCompleted.size(),12)))
+            if ((gameMode == Mode.FFA && difficulty == Difficulty.NORMAL && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12) ||
+                    (gameMode == Mode.TEAM && difficulty == Difficulty.NORMAL && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12 - Math.min(playerGoalsCompleted.size(),12)))
             {
                 continue;
             }
@@ -578,6 +620,64 @@ public class BingoUtil {
             BingoCard.setItem(i * 9 + 7, black);
             BingoCard.setItem(i * 9 + 8, black);
         }
+
+        ItemStack teams = new ItemStack(Material.SHIELD, 1);
+        ItemMeta teamsMeta = teams.getItemMeta();
+        teamsMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "TEAMS Mode");
+        teams.setItemMeta(teamsMeta);
+        settingsGUI.setItem(11, teams);
+
+        settingsGUI.setItem(12, enabled);
+        settingsGUI.setItem(21, enabled);
+        settingsGUI.setItem(30, enabled);
+
+        settingsGUI.setItem(15, disabled);
+        settingsGUI.setItem(24, disabled);
+        settingsGUI.setItem(28, disabled);
+        settingsGUI.setItem(33, disabled);
+        settingsGUI.setItem(35, disabled);
+
+        ItemStack ffaMode = new ItemStack(Material.NETHERITE_SWORD, 1);
+        ItemMeta ffaModeMeta = ffaMode.getItemMeta();
+        ffaModeMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "FFA Mode");
+        ffaMode.setItemMeta(ffaModeMeta);
+        settingsGUI.setItem(14, ffaMode);
+
+        ItemStack normalMode = new ItemStack(Material.GRASS_BLOCK, 1);
+        ItemMeta normalModeMeta = normalMode.getItemMeta();
+        normalModeMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Normal Difficulty");
+        normalMode.setItemMeta(normalModeMeta);
+        settingsGUI.setItem(20, normalMode);
+
+        ItemStack insaneMode = new ItemStack(Material.CRYING_OBSIDIAN, 1);
+        ItemMeta insaneModeMeta = insaneMode.getItemMeta();
+        insaneModeMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Insane Difficulty");
+        insaneMode.setItemMeta(insaneModeMeta);
+        settingsGUI.setItem(23, insaneMode);
+
+        ItemStack noPvP = new ItemStack(Material.CAKE, 1);
+        ItemMeta noPvPMeta = noPvP.getItemMeta();
+        noPvPMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "No PvP");
+        noPvP.setItemMeta(noPvPMeta);
+        settingsGUI.setItem(27, noPvP);
+
+        ItemStack pvp = new ItemStack(Material.CROSSBOW, 1);
+        ItemMeta pvpMeta = pvp.getItemMeta();
+        pvpMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "PvP");
+        pvp.setItemMeta(pvpMeta);
+        settingsGUI.setItem(29, pvp);
+
+        ItemStack glowingPvP = new ItemStack(Material.SPECTRAL_ARROW, 1);
+        ItemMeta glowingPvPMeta = glowingPvP.getItemMeta();
+        glowingPvPMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Glowing PvP");
+        glowingPvP.setItemMeta(glowingPvPMeta);
+        settingsGUI.setItem(32, glowingPvP);
+
+        ItemStack trackingPvP = new ItemStack(Material.COMPASS, 1);
+        ItemMeta trackingPvPMeta = trackingPvP.getItemMeta();
+        trackingPvPMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Tracking PvP");
+        trackingPvP.setItemMeta(trackingPvPMeta);
+        settingsGUI.setItem(34, trackingPvP);
     }
 
     public void SetGoals()
@@ -609,10 +709,6 @@ public class BingoUtil {
         ItemStack saddle = new ItemStack(Material.SADDLE, 1);
         CollectItemGoal saddleGoal = new CollectItemGoal("Collect a Saddle", saddle);
         allGoals.add(saddleGoal);
-
-        ItemStack compass = new ItemStack(Material.COMPASS, 1);
-        CollectItemGoal compassGoal = new CollectItemGoal("Collect a Compass", compass);
-        allGoals.add(compassGoal);
 
         ItemStack clock = new ItemStack(Material.CLOCK, 1);
         CollectItemGoal clockGoal = new CollectItemGoal("Collect a Clock", clock);
@@ -749,20 +845,31 @@ public class BingoUtil {
         fireResPotion.setItemMeta(fireResPotionMeta);
         PotionEffectGoal fireResGoal = new PotionEffectGoal("Get the Fire Resistance Effect", fireResPotion, PotionEffectType.FIRE_RESISTANCE, potionEffectListener);
         allGoals.add(fireResGoal);
+        lateGameGoals.add(fireResGoal);
 
         ItemStack blindPotion = new ItemStack(Material.POTION,1);
         PotionMeta blindPotionMeta = (PotionMeta) blindPotion.getItemMeta();
         blindPotionMeta.setColor(Color.fromRGB(0, 0, 0));
         blindPotion.setItemMeta(blindPotionMeta);
         PotionEffectGoal blindGoal = new PotionEffectGoal("Get the Blindness Effect", blindPotion, PotionEffectType.BLINDNESS, potionEffectListener);
-        allGoals.add(blindGoal);
+        biomeGoals.put(Biome.PLAINS,blindGoal);
+        lateGameGoals.add(blindGoal);
+
+        ItemStack satPotion = new ItemStack(Material.POTION,1);
+        PotionMeta satPotionMeta = (PotionMeta) blindPotion.getItemMeta();
+        blindPotionMeta.setColor(Color.fromRGB(155, 122, 1));
+        blindPotion.setItemMeta(satPotionMeta);
+        PotionEffectGoal satGoal = new PotionEffectGoal("Get the Saturation Effect", satPotion, PotionEffectType.SATURATION, potionEffectListener);
+        allGoals.add(satGoal);
+        lateGameGoals.add(satGoal);
 
         ItemStack jumpPotion = new ItemStack(Material.POTION,1);
         PotionMeta jumpPotionMeta = (PotionMeta) jumpPotion.getItemMeta();
         jumpPotionMeta.setBasePotionType(PotionType.LEAPING);
         jumpPotion.setItemMeta(jumpPotionMeta);
         PotionEffectGoal jumpBoostGoal = new PotionEffectGoal("Get the Jump Boost Effect", jumpPotion, PotionEffectType.JUMP_BOOST, potionEffectListener);
-        allGoals.add(jumpBoostGoal);
+        biomeGoals.put(Biome.SUNFLOWER_PLAINS,jumpBoostGoal);
+        lateGameGoals.add(jumpBoostGoal);
 
         ItemStack poisonPotion = new ItemStack(Material.POTION,1);
         PotionMeta poisonPotionMeta = (PotionMeta) poisonPotion.getItemMeta();
@@ -784,13 +891,15 @@ public class BingoUtil {
         nightVisionPotion.setItemMeta(nightVisionPotionItemMeta);
         PotionEffectGoal nightVisionGoal = new PotionEffectGoal("Get the Night Vision Effect", nightVisionPotion, PotionEffectType.NIGHT_VISION, potionEffectListener);
         allGoals.add(nightVisionGoal);
+        lateGameGoals.add(nightVisionGoal);
 
         ItemStack weaknessPotion = new ItemStack(Material.POTION,1);
         PotionMeta weaknessPotionItemMeta = (PotionMeta) weaknessPotion.getItemMeta();
         weaknessPotionItemMeta.setBasePotionType(PotionType.WEAKNESS);
         weaknessPotion.setItemMeta(weaknessPotionItemMeta);
         PotionEffectGoal weaknessGoal = new PotionEffectGoal("Get the Weakness Effect", weaknessPotion, PotionEffectType.WEAKNESS, potionEffectListener);
-        allGoals.add(weaknessGoal);
+        biomeGoals.put(Biome.FLOWER_FOREST,weaknessGoal);
+        lateGameGoals.add(weaknessGoal);
 
         ItemStack sharpnessBook = new ItemStack(Material.ENCHANTED_BOOK,1);
         EnchantmentStorageMeta sharpnessMeta = (EnchantmentStorageMeta) sharpnessBook.getItemMeta();
@@ -1478,7 +1587,7 @@ public class BingoUtil {
         List<Material> sugarcaneList = new ArrayList<>();
         sugarcaneList.add(Material.SUGAR_CANE);
         CollectItemsAmountGoal sugarcaneGoal = new CollectItemsAmountGoal("Collect 32 Sugar Cane", sugarcane, sugarcaneList, 32);
-        biomeGoals.put(Biome.RIVER, sugarcaneGoal);
+        allGoals.add(sugarcaneGoal);
 
         ItemStack goldBoots = new ItemStack(Material.GOLDEN_BOOTS,1);
         TravelGoal run4000Goal = new TravelGoal("Run 4000 Blocks", goldBoots, 4000.0, TravelListener.TYPE.RUNNING, travelListener);
@@ -1676,7 +1785,15 @@ public class BingoUtil {
         DeathGoal berryPokedGoal = new DeathGoal("Achieve the Death Message '<player> was poked to death by a sweet berry bush'",berries,"was poked to death by a sweet berry bush",deathListener);
         biomeGoals.put(Biome.TAIGA,berryPokedGoal);
 
-        //testGoal = killCreeperWithTntGoal;
+        if (difficulty == Difficulty.INSANE)
+        {
+            biomeGoals.forEach((key,goal) ->
+            {
+                allGoals.add(goal);
+            });
+        }
+
+        //testGoal = oreBreakGoal;
     }
 
     public void goalAutoComplete(Player player, Class goalType)
@@ -1990,7 +2107,7 @@ public class BingoUtil {
             Bukkit.broadcastMessage("");
         }, 20L * 8);
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
             BingoAnnounce("");
             Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED GAME STATS] ");
             List<Map.Entry<UUID, Integer>> sortedEntries = new ArrayList<>(playerGoalsCompleted.entrySet());
@@ -2004,12 +2121,12 @@ public class BingoUtil {
             }
             Bukkit.broadcastMessage("");
             showSessionStats();
-        }, 20L * 15);
+        }, 20L * 15).getTaskId());
     }
 
     public void showSessionStats()
     {
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
             BingoAnnounce("");
             Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED SESSION STATS] ");
             List<Map.Entry<UUID, Integer>> sortedEntries = new ArrayList<>(playerTotalGoalsCompleted.entrySet());
@@ -2022,7 +2139,7 @@ public class BingoUtil {
                 Bukkit.broadcastMessage("    " + teamChatColour + player.getName() + ChatColor.WHITE + ": " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + goalsCompleted + ChatColor.WHITE + " goals completed");
             }
             Bukkit.broadcastMessage("");
-        }, 20L * 8);
+        }, 20L * 8).getTaskId());
     }
 
     public boolean checkBingo(Team team) {
@@ -2139,6 +2256,39 @@ public class BingoUtil {
 
         ChatColor teamChatColour = getTeamChatColour(player);
 
+        if (pvp == PvP.GLOWING_PVP) {
+            player.setGlowing(true);
+
+            // Create or get the scoreboard
+            ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
+            Scoreboard scoreboard = scoreboardManager.getMainScoreboard();
+
+            // Create or get the team
+            String teamName = "team_" + teamChatColour.name();
+            org.bukkit.scoreboard.Team team = scoreboard.getTeam(teamName);
+            if (team == null) {
+                team = scoreboard.registerNewTeam(teamName);
+                team.setColor(teamChatColour);
+            }
+
+            // Add the player to the team
+            team.addEntry(player.getName());
+
+            // Set the player's team to apply the color glow
+            player.setScoreboard(scoreboard);
+        } else {
+            player.setGlowing(false);
+
+            // Optionally, remove the player from the team if the glowing effect is removed
+            ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
+            Scoreboard scoreboard = scoreboardManager.getMainScoreboard();
+            org.bukkit.scoreboard.Team team = scoreboard.getEntryTeam(player.getName());
+            if (team != null) {
+                team.removeEntry(player.getName());
+            }
+        }
+
+        player.setDisplayName(teamChatColour + player.getName());
         player.setPlayerListName(teamChatColour + player.getName() + ChatColor.LIGHT_PURPLE+ " (" + goalsCompleted + ")");
     }
 
@@ -2338,5 +2488,122 @@ public class BingoUtil {
         }
 
         return Bukkit.getPlayer(playerWithLeastGoals);
+    }
+
+    public void openSettings(Player player)
+    {
+        player.openInventory(settingsGUI);
+    }
+
+    public void updateGameMode(Mode mode)
+    {
+        if (mode == null) return;
+        gameMode = mode;
+
+        if (mode == Mode.TEAM)
+        {
+            settingsGUI.setItem(12,enabled);
+            settingsGUI.setItem(15,disabled);
+        } else if (mode == Mode.FFA)
+        {
+            settingsGUI.setItem(12,disabled);
+            settingsGUI.setItem(15,enabled);
+        }
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 2.0f);
+        }
+
+        BingoAnnounce("The game mode has been updated to " + ChatColor.BOLD + gameMode.name() + "!");
+    }
+
+    public void updateDifficulty(Difficulty difficulty)
+    {
+        if (difficulty == null) return;
+        this.difficulty = difficulty;
+
+        if (difficulty == Difficulty.NORMAL)
+        {
+            settingsGUI.setItem(21,enabled);
+            settingsGUI.setItem(24,disabled);
+        } else if (difficulty == Difficulty.INSANE)
+        {
+            settingsGUI.setItem(21,disabled);
+            settingsGUI.setItem(24,enabled);
+        }
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 2.0f);
+        }
+
+        BingoAnnounce("The difficulty has been updated to " + ChatColor.BOLD + difficulty.name() + "!");
+    }
+
+    public void updatePvp(PvP pvp)
+    {
+        if (pvp == null) return;
+        this.pvp = pvp;
+
+        if (pvp == PvP.NOPVP)
+        {
+            settingsGUI.setItem(28,enabled);
+            settingsGUI.setItem(30,disabled);
+            settingsGUI.setItem(33,disabled);
+            settingsGUI.setItem(35,disabled);
+        } else if (pvp == PvP.PVP)
+        {
+            settingsGUI.setItem(28,disabled);
+            settingsGUI.setItem(30,enabled);
+            settingsGUI.setItem(33,disabled);
+            settingsGUI.setItem(35,disabled);
+        } else if (pvp == PvP.GLOWING_PVP)
+        {
+            settingsGUI.setItem(28,disabled);
+            settingsGUI.setItem(30,disabled);
+            settingsGUI.setItem(33,enabled);
+            settingsGUI.setItem(35,disabled);
+        } else if (pvp == PvP.TRACKING_PVP)
+        {
+            settingsGUI.setItem(28,disabled);
+            settingsGUI.setItem(30,disabled);
+            settingsGUI.setItem(33,disabled);
+            settingsGUI.setItem(35,enabled);
+        }
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 2.0f);
+            updatePlayerTabListName(p);
+        }
+
+        BingoAnnounce("The difficulty has been updated to " + ChatColor.BOLD + pvp.name() + "!");
+
+    }
+
+    public Location getNearestPlayerNotOnTeam(Player player)
+    {
+        Player nearestPlayer = null;
+        double nearestDistanceSquared = Double.MAX_VALUE;
+        World locationWorld = player.getWorld();
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.getWorld().equals(locationWorld) && getTeam(player) != getTeam(p)) {
+                double distanceSquared = p.getLocation().distanceSquared(player.getLocation());
+                if (distanceSquared < nearestDistanceSquared) {
+                    nearestDistanceSquared = distanceSquared;
+                    nearestPlayer = p;
+                }
+            }
+        }
+
+        if (nearestPlayer == null) {
+            nearestPlayer = player;
+            BingoWhisper(player, "No player has been found...");
+        } else
+        {
+            BingoWhisper(player, "Your nearest rival has been found...");
+        }
+
+
+        return nearestPlayer.getLocation();
     }
 }

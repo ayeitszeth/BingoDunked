@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.meta.CompassMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zethcodes.bingodunked.goals.*;
 import org.zethcodes.bingodunked.util.BingoUtil;
@@ -188,11 +189,41 @@ public class BingoHandler implements Listener {
     @EventHandler
     public void onPlayerHit(EntityDamageByEntityEvent event)
     {
-        if (!bingoUtil.isPvpEnabled)
+        if (!bingoUtil.isPvpEnabled || bingoUtil.pvp == BingoUtil.PvP.NOPVP)
         {
             if (event.getEntity() instanceof Player && event.getDamager() instanceof Player)
             {
                 event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerHitProj(ProjectileHitEvent event)
+    {
+        if (!bingoUtil.isPvpEnabled || bingoUtil.pvp == BingoUtil.PvP.NOPVP)
+        {
+            if (event.getHitEntity() instanceof Player && event.getEntity().getShooter() instanceof Player && event.getHitEntity() != event.getEntity().getShooter())
+            {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void InteractWithCompass(PlayerInteractEvent event)
+    {
+        if (BingoUtil.gameState == BingoUtil.GameState.STARTED && bingoUtil.pvp == BingoUtil.PvP.TRACKING_PVP)
+        {
+            if (event.hasItem())
+            {
+                if (event.getItem().getType() == Material.COMPASS)
+                {
+                    CompassMeta meta = (CompassMeta) event.getItem().getItemMeta();
+                    meta.setLodestone(bingoUtil.getNearestPlayerNotOnTeam(event.getPlayer()));
+                    meta.setLodestoneTracked(false);
+                    event.getItem().setItemMeta(meta);
+                }
             }
         }
     }

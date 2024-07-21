@@ -28,10 +28,11 @@ public class BingoStart implements CommandExecutor, TabExecutor {
         }
 
         Player player = (Player) sender;
+        int time = 30; // default 30 minute timer for ffa, does not affect duel mode
 
-        if (args[0] == null)
+        if (args.length == 0)
         {
-            bingoUtil.BingoWhisper(player, "Please enter a game mode. Input either 'team' or 'ffa'");
+            bingoUtil.BingoSetUp(bingoUtil.gameMode,time);
             return true;
         }
 
@@ -40,7 +41,6 @@ public class BingoStart implements CommandExecutor, TabExecutor {
         if (mode.equals("team") || mode.equals("ffa"))
         {
             BingoUtil.Mode m = mode.equals("team") ? BingoUtil.Mode.TEAM : BingoUtil.Mode.FFA;
-            int time = 30; // default 30 minute timer for ffa, does not affect duel mode
             if (m == BingoUtil.Mode.FFA)
             {
                 try

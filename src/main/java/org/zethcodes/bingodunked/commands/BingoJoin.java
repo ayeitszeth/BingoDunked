@@ -20,14 +20,19 @@ public class BingoJoin implements CommandExecutor, TabExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
-    {
-        if (!(sender instanceof Player))
-        {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!(sender instanceof Player)) {
             return true;
         }
 
         Player player = (Player) sender;
+
+        if (args.length == 0)
+        {
+            BingoUtil.BingoWhisper(player, "Please input a team name.");
+            return true;
+        }
+
         String strTeam = args[0].toLowerCase();
 
         if (strTeam.equals("red") || strTeam.equals("blue") || strTeam.equals("green") || strTeam.equals("yellow"))
@@ -43,7 +48,7 @@ public class BingoJoin implements CommandExecutor, TabExecutor {
             }
         } else
         {
-            bingoUtil.BingoWhisper(player,"Incorrect team name. Input either red, blue, green or yellow.");
+            BingoUtil.BingoWhisper(player,"Incorrect team name. Input either red, blue, green or yellow.");
         }
 
         return true;

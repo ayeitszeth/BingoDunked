@@ -43,6 +43,8 @@ public final class BingoDunked extends JavaPlugin {
                 armorStandInteractListener, deathListener);
 
         new BingoHandler(this,bingoUtil);
+        SettingsListener settingsListener = new SettingsListener(bingoUtil);
+        getServer().getPluginManager().registerEvents(settingsListener, this);
 
         TeamChatHandler teamChatHandler = new TeamChatHandler(bingoUtil);
         getServer().getPluginManager().registerEvents(teamChatHandler, this);
@@ -73,7 +75,9 @@ public final class BingoDunked extends JavaPlugin {
         BingoTime bingoTime = new BingoTime(bingoUtil);
         getCommand("time").setExecutor(bingoTime);
         getCommand("time").setTabCompleter(bingoTime);
-
+        BingoSettings bingoSettings = new BingoSettings(bingoUtil);
+        getCommand("settings").setExecutor(bingoSettings);
+        getCommand("settings").setTabCompleter(bingoSettings);
     }
 
     @Override
