@@ -71,6 +71,9 @@ public class BingoCheat implements CommandExecutor, TabExecutor {
             if (targetPlayer == null) {
                 bingoUtil.BingoWhisper((Player) sender,"Player not found.");
                 return true;
+            } else
+            {
+                team = bingoUtil.getTeam(targetPlayer);
             }
         } else {
             targetPlayer = (Player) sender;

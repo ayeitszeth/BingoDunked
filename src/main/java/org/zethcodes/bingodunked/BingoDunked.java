@@ -78,6 +78,9 @@ public final class BingoDunked extends JavaPlugin {
         BingoSettings bingoSettings = new BingoSettings(bingoUtil);
         getCommand("settings").setExecutor(bingoSettings);
         getCommand("settings").setTabCompleter(bingoSettings);
+        EndGame endGame = new EndGame(bingoUtil);
+        getCommand("endgame").setExecutor(endGame);
+        getCommand("endgame").setTabCompleter(endGame);
     }
 
     @Override

@@ -333,7 +333,7 @@ public class BingoUtil {
         for (int slot : validSlots) {
             Goal goal = allGoals.get(0);
             int ranGoal = 0;
-            if (random.nextInt(4) != 0 && !startBiomes.isEmpty()) { // 50/50 coin flip if it's a biome goal
+            if (random.nextInt(2) == 0 && !startBiomes.isEmpty() && difficulty == Difficulty.NORMAL) { // 50/50 coin flip if it's a biome goal
                 Biome biome = startBiomes.get(0);
                 startBiomes.remove(biome);
                 if (biomeGoals.containsKey(biome)) {
@@ -487,7 +487,7 @@ public class BingoUtil {
         Goal goal = allGoals.get(0);
         int ranGoal = 0;
 
-        if (random.nextInt(4) != 3) { // 75/25 flip if it's a biome goal
+        if (random.nextInt(4) != 3 && difficulty == Difficulty.NORMAL) { // 75/25 flip if it's a biome goal
             if (!startBiomes.isEmpty())
             {
                 Biome biome = startBiomes.get(0);
@@ -586,8 +586,13 @@ public class BingoUtil {
 
         for (Player player : Bukkit.getOnlinePlayers())
         {
-            if (goal.isComplete(player)) {
-                completeGoal(slot, getTeam(player), player);
+            if (goal instanceof CollectItemGoal || goal instanceof ExperienceGoal ||
+            goal instanceof CompleteAdvancementGoal || goal instanceof BreakBlockTypeGoal ||
+            goal instanceof TravelGoal)
+            {
+                if (goal.isComplete(player)) {
+                    completeGoal(slot, getTeam(player), player);
+                }
             }
         }
     }
@@ -1539,7 +1544,7 @@ public class BingoUtil {
         allGoals.add(netherBlocksGoal);
         lateGameGoals.add(netherBlocksGoal);
 
-        ItemStack oakSapling = new ItemStack(Material.OAK_SAPLING, 32);
+        ItemStack oakSapling = new ItemStack(Material.OAK_SAPLING, 16);
         List<Material> saplings = new ArrayList<>();
         saplings.add(Material.OAK_SAPLING);
         saplings.add(Material.SPRUCE_SAPLING);
@@ -1550,16 +1555,16 @@ public class BingoUtil {
         saplings.add(Material.MANGROVE_PROPAGULE);
         saplings.add(Material.CHERRY_SAPLING);
         saplings.add(Material.BAMBOO);
-        CollectItemsAmountGoal saplingsGoal = new CollectItemsAmountGoal("Collect 32 Saplings of Any Type", oakSapling, saplings, 32);
+        CollectItemsAmountGoal saplingsGoal = new CollectItemsAmountGoal("Collect 16 Saplings of Any Type", oakSapling, saplings, 16);
         allGoals.add(saplingsGoal);
 
-        ItemStack brownMushroom = new ItemStack(Material.BROWN_MUSHROOM, 32);
+        ItemStack brownMushroom = new ItemStack(Material.BROWN_MUSHROOM, 16);
         List<Material> mushrooms = new ArrayList<>();
         mushrooms.add(Material.RED_MUSHROOM);
         mushrooms.add(Material.BROWN_MUSHROOM);
         mushrooms.add(Material.WARPED_FUNGUS);
         mushrooms.add(Material.CRIMSON_FUNGUS);
-        CollectItemsAmountGoal mushroomsGoal = new CollectItemsAmountGoal("Collect 32 Mushrooms of Any Type", brownMushroom, mushrooms, 32);
+        CollectItemsAmountGoal mushroomsGoal = new CollectItemsAmountGoal("Collect 16 Mushrooms of Any Type", brownMushroom, mushrooms, 16);
         biomeGoals.put(Biome.DARK_FOREST, mushroomsGoal);
 
         ItemStack tintedGlass = new ItemStack(Material.TINTED_GLASS,1);
@@ -1793,7 +1798,7 @@ public class BingoUtil {
             });
         }
 
-        //testGoal = oreBreakGoal;
+        //testGoal = subspaceGoal;
     }
 
     public void goalAutoComplete(Player player, Class goalType)
@@ -1891,12 +1896,6 @@ public class BingoUtil {
             activeColouredGoal = false;
         } else if (goal instanceof CompleteAdvancementGoal) {
             activeAdvancementGoal = false;
-        } else if (goal instanceof TravelGoal)
-        {
-            activeTravelType = null;
-        } else if (goal instanceof BreakBlockTypeGoal)
-        {
-            activeBlockTypes.remove(((BreakBlockTypeGoal) goal).requiredBlock);
         }
 
         boolean[][] teamBoard;
@@ -1950,10 +1949,24 @@ public class BingoUtil {
             resetBoards(col, row);
             BingoAnnounce(teamColor + player.getName() + ChatColor.WHITE + " has dunked the goal " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + goal.getName() + ChatColor.WHITE + "!");
             BingoAnnounce("");
+
+            if (goal instanceof TravelGoal)
+            {
+                activeTravelType = null;
+            } else if (goal instanceof BreakBlockTypeGoal)
+            {
+                activeBlockTypes.remove(((BreakBlockTypeGoal) goal).requiredBlock);
+            }
+
             newGoal(slot);
 
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.playSound(p, Sound.ENTITY_ENDER_DRAGON_GROWL, 3f, 2f);
+            }
+
+            if (overTime)
+            {
+                determineWinner();
             }
             return;
         }
@@ -1984,10 +1997,7 @@ public class BingoUtil {
 
         if (overTime)
         {
-            if (playerGoalsCompleted.get(player.getUniqueId()) >= goalsToWinOT)
-            {
-                BingoEnd(team);
-            }
+            determineWinner();
         }
     }
 
@@ -2391,14 +2401,22 @@ public class BingoUtil {
         }.runTaskTimer(plugin, 0, 20L).getTaskId());
     }
 
-    private void determineWinner() {
-        Player winner = null;
+    public void determineWinner() {
+        Map<Team, Integer> teamGoalsCompleted = new HashMap<>();
+        Team winner = null;
         int maxGoals = 0;
         boolean tie = false;
 
         for (Map.Entry<UUID, Integer> entry : playerGoalsCompleted.entrySet()) {
+            Team team = TeamMap.get(entry.getKey());
+            if (team != null && team != Team.NONE) {
+                teamGoalsCompleted.put(team, teamGoalsCompleted.getOrDefault(team, 0) + entry.getValue());
+            }
+        }
+
+        for (Map.Entry<Team, Integer> entry : teamGoalsCompleted.entrySet()) {
             if (entry.getValue() > maxGoals) {
-                winner = getServer().getPlayer(entry.getKey());
+                winner = entry.getKey();
                 maxGoals = entry.getValue();
                 tie = false;
             } else if (entry.getValue() == maxGoals) {
@@ -2412,10 +2430,10 @@ public class BingoUtil {
             overTime = true;
             goalsToWinOT = maxGoals + 1;
             BingoAnnounce("");
-            BingoAnnounce("The first player to " + goalsToWinOT + " goals OR get a Bingo WINS !!!");
+            BingoAnnounce("The first team to " + goalsToWinOT + " goals OR get a Bingo WINS !!!");
             BingoAnnounce("");
         } else if (winner != null) {
-            BingoEnd(getTeam(winner));
+            BingoEnd(winner);
         } else {
             BingoAnnounce("No winner can be determined...");
         }

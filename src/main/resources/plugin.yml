@@ -33,6 +33,9 @@ commands:
   settings:
     usage: /settings
     permission: bingo.settings
+  endgame:
+    usage: /endgame
+    permission: bingo.endgame
 permissions:
   bingo.bingocard:
     description: Open your team's bingo card.
@@ -44,17 +47,20 @@ permissions:
     description: Start a game of bingo.
     default: true
   bingo.newworld:
-    description: Generate a new world for bingo
+    description: Generate a new world for bingo.
     default: true
   bingo.latejoin:
-    description: Join a world later
+    description: Joins a world later.
     default: true
   bingo.allchat:
-    description: Send a message to all players while in-game
+    description: Send a message to all players while in-game.
     default: true
   bingo.time:
-    description: Tells the player the time remaining
+    description: Tells the player the time remaining.
     default: true
   bingo.settings:
-    description: Allows access to Bingo Dunked Settings
+    description: Allows access to Dunked settings.
+    default: true
+  bingo.endgame:
+    description: Ends bingo game.
     default: true
