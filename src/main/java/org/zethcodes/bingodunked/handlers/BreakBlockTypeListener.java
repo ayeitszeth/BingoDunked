@@ -19,10 +19,11 @@ public class BreakBlockTypeListener implements Listener {
     private EnumSet<Material> stones = EnumSet.of(Material.STONE, Material.DEEPSLATE, Material.GRANITE, Material.DIORITE, Material.ANDESITE);
     private EnumSet<Material> logs = EnumSet.of(Material.OAK_LOG, Material.SPRUCE_LOG, Material.BIRCH_LOG, Material.JUNGLE_LOG, Material.ACACIA_LOG, Material.DARK_OAK_LOG, Material.MANGROVE_LOG, Material.CHERRY_LOG);
     private EnumSet<Material> ores = EnumSet.of(Material.COAL_ORE, Material.DEEPSLATE_COAL_ORE, Material.IRON_ORE, Material.DEEPSLATE_IRON_ORE, Material.COPPER_ORE, Material.DEEPSLATE_COPPER_ORE, Material.GOLD_ORE, Material.DEEPSLATE_GOLD_ORE, Material.REDSTONE_ORE, Material.DEEPSLATE_REDSTONE_ORE, Material.EMERALD_ORE, Material.DEEPSLATE_EMERALD_ORE, Material.LAPIS_ORE, Material.DEEPSLATE_LAPIS_ORE, Material.DIAMOND_ORE, Material.DEEPSLATE_DIAMOND_ORE, Material.NETHER_GOLD_ORE, Material.NETHER_QUARTZ_ORE);
+    private EnumSet<Material> netherOres = EnumSet.of(Material.NETHER_GOLD_ORE, Material.NETHER_QUARTZ_ORE, Material.ANCIENT_DEBRIS);
     private BingoUtil bingoUtil;
 
     public enum BlockType {
-        STONE, LOG, ORE
+        STONE, LOG, ORE, NETHERORE
     }
 
     public BreakBlockTypeListener(BingoUtil bingoUtil) {
@@ -64,6 +65,8 @@ public class BreakBlockTypeListener implements Listener {
             incrementBlockCount(player, BlockType.LOG);
         } else if (ores.contains(block)) {
             incrementBlockCount(player, BlockType.ORE);
+        } else if (netherOres.contains(block)) {
+            incrementBlockCount(player, BlockType.NETHERORE);
         }
     }
 

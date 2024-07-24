@@ -711,10 +711,6 @@ public class BingoUtil {
         CollectItemGoal spyglassGoal = new CollectItemGoal("Collect a Spyglass", spyglass);
         allGoals.add(spyglassGoal);
 
-        ItemStack saddle = new ItemStack(Material.SADDLE, 1);
-        CollectItemGoal saddleGoal = new CollectItemGoal("Collect a Saddle", saddle);
-        allGoals.add(saddleGoal);
-
         ItemStack clock = new ItemStack(Material.CLOCK, 1);
         CollectItemGoal clockGoal = new CollectItemGoal("Collect a Clock", clock);
         allGoals.add(clockGoal);
@@ -810,6 +806,11 @@ public class BingoUtil {
         allGoals.add(zombiePiglinGoal);
         lateGameGoals.add(zombiePiglinGoal);
 
+        ItemStack zoglinEgg = new ItemStack(Material.ZOGLIN_SPAWN_EGG, 1);
+        KillEntityGoal zoglinGoal = new KillEntityGoal("Kill a Zoglin", zoglinEgg, EntityType.ZOGLIN, killEntityListener);
+        allGoals.add(zoglinGoal);
+        lateGameGoals.add(zoglinGoal);
+
         ItemStack witchEgg = new ItemStack(Material.WITCH_SPAWN_EGG,1);
         KillEntityGoal witchKillGoal = new KillEntityGoal("Kill a Witch", witchEgg, EntityType.WITCH, killEntityListener);
         allGoals.add(witchKillGoal);
@@ -823,9 +824,9 @@ public class BingoUtil {
         biomeGoals.put(Biome.MEADOW, donkeyBreedGoal);
         lateGameGoals.add(donkeyBreedGoal);
 
-        ItemStack leather = new ItemStack(Material.LEATHER, 1);
+        /*ItemStack leather = new ItemStack(Material.LEATHER, 1);
         BreedEntityGoal cowBreedGoal = new BreedEntityGoal("Breed Two Cows", leather, EntityType.COW, breedEntityListener);
-        allGoals.add(cowBreedGoal);
+        allGoals.add(cowBreedGoal);*/
 
         ItemStack honeyBlock = new ItemStack(Material.HONEY_BLOCK, 1);
         BreedEntityGoal beeBreedGoal = new BreedEntityGoal("Breed Two Bees", honeyBlock, EntityType.BEE, breedEntityListener);
@@ -906,6 +907,30 @@ public class BingoUtil {
         biomeGoals.put(Biome.FLOWER_FOREST,weaknessGoal);
         lateGameGoals.add(weaknessGoal);
 
+        ItemStack infestationPotion = new ItemStack(Material.POTION, 1);
+        PotionMeta infestationPotionItemMeta = (PotionMeta) infestationPotion.getItemMeta();
+        infestationPotionItemMeta.setBasePotionType(PotionType.INFESTED);
+        infestationPotion.setItemMeta(infestationPotionItemMeta);
+        PotionEffectGoal infestationGoal = new PotionEffectGoal("Get the Infestation Effect", infestationPotion, PotionEffectType.INFESTED, potionEffectListener);
+        allGoals.add(infestationGoal);
+        lateGameGoals.add(infestationGoal);
+
+        ItemStack swiftnessPotion = new ItemStack(Material.POTION, 1);
+        PotionMeta swiftnessPotionItemMeta = (PotionMeta) swiftnessPotion.getItemMeta();
+        swiftnessPotionItemMeta.setBasePotionType(PotionType.SWIFTNESS);
+        swiftnessPotion.setItemMeta(swiftnessPotionItemMeta);
+        PotionEffectGoal swiftnessGoal = new PotionEffectGoal("Get the Speed Effect", swiftnessPotion, PotionEffectType.SPEED, potionEffectListener);
+        allGoals.add(swiftnessGoal);
+        lateGameGoals.add(swiftnessGoal);
+
+        ItemStack strengthPotion = new ItemStack(Material.POTION, 1);
+        PotionMeta strengthPotionItemMeta = (PotionMeta) strengthPotion.getItemMeta();
+        strengthPotionItemMeta.setBasePotionType(PotionType.STRENGTH);
+        strengthPotion.setItemMeta(strengthPotionItemMeta);
+        PotionEffectGoal strengthGoal = new PotionEffectGoal("Get the Strength Effect", strengthPotion, PotionEffectType.STRENGTH, potionEffectListener);
+        allGoals.add(strengthGoal);
+        lateGameGoals.add(strengthGoal);
+
         ItemStack sharpnessBook = new ItemStack(Material.ENCHANTED_BOOK,1);
         EnchantmentStorageMeta sharpnessMeta = (EnchantmentStorageMeta) sharpnessBook.getItemMeta();
         sharpnessMeta.addStoredEnchant(Enchantment.SHARPNESS,2, false);
@@ -971,6 +996,11 @@ public class BingoUtil {
         ItemStack diamondOre = new ItemStack(Material.DIAMOND_ORE, 1);
         BreakBlockTypeGoal oreBreakGoal = new BreakBlockTypeGoal("Break 125 Ore Blocks", diamondOre, BreakBlockTypeListener.BlockType.ORE, 125, blockTypeListener);
         allGoals.add(oreBreakGoal);
+
+        ItemStack netherGoldOre = new ItemStack(Material.NETHER_GOLD_ORE, 1);
+        BreakBlockTypeGoal netherOreBreakGoal = new BreakBlockTypeGoal("Break 100 Nether Ore Blocks", netherGoldOre, BreakBlockTypeListener.BlockType.NETHERORE, 100, blockTypeListener);
+        allGoals.add(netherOreBreakGoal);
+        lateGameGoals.add(netherOreBreakGoal);
 
         ItemStack feather = new ItemStack(Material.FEATHER,1);
         FallGoal fall75Goal = new FallGoal("Fall from 75 Blocks", feather, 75, fallHeightListener);
@@ -1051,17 +1081,18 @@ public class BingoUtil {
         allGoals.add(cakeGoal);
         lateGameGoals.add(cakeGoal);
 
-        ItemStack steak = new ItemStack(Material.COOKED_BEEF, 1);
-        EatGoal steakGoal = new EatGoal("Eat some Cooked Beef", steak, eatListener);
-        allGoals.add(steakGoal);
+        ItemStack netheriteScrap = new ItemStack(Material.NETHERITE_SCRAP, 1);
+        CollectItemGoal netheriteScrapGoal = new CollectItemGoal("Collect a Netherite Scrap", netheriteScrap);
+        allGoals.add(netheriteScrapGoal);
+        lateGameGoals.add(netheriteScrapGoal);
 
         ItemStack cookedRabbit = new ItemStack(Material.COOKED_RABBIT, 1);
         EatGoal cookedRabbitGoal = new EatGoal("Eat some Cooked Rabbit", cookedRabbit, eatListener);
         biomeGoals.put(Biome.BADLANDS, cookedRabbitGoal);
 
-        ItemStack rabbitStew = new ItemStack(Material.RABBIT_STEW, 1);
+        /*ItemStack rabbitStew = new ItemStack(Material.RABBIT_STEW, 1);
         EatGoal rabbitStewGoal = new EatGoal("Eat some Rabbit Stew", rabbitStew, eatListener);
-        allGoals.add(rabbitStewGoal);
+        allGoals.add(rabbitStewGoal);*/
 
         ItemStack cookie = new ItemStack(Material.COOKIE, 1);
         EatGoal cookieGoal = new EatGoal("Eat a Cookie", cookie, eatListener);
@@ -1244,10 +1275,20 @@ public class BingoUtil {
         allGoals.add(subspaceGoal);
         lateGameGoals.add(subspaceGoal);
 
+        ItemStack eyeOfEnder = new ItemStack(Material.ENDER_EYE,1);
+        CompleteAdvancementGoal eyeSpyGoal = new CompleteAdvancementGoal("Complete the advancement Eye Spy", eyeOfEnder, Bukkit.getAdvancement(new NamespacedKey("minecraft","story/follow_ender_eye")));
+        allGoals.add(eyeSpyGoal);
+        lateGameGoals.add(eyeSpyGoal);
+
         ItemStack goldIngot = new ItemStack(Material.GOLD_INGOT,1);
         CompleteAdvancementGoal ohshinyGoal = new CompleteAdvancementGoal("Complete the advancement Oh Shiny", goldIngot, Bukkit.getAdvancement(new NamespacedKey("minecraft","nether/distract_piglin")));
         allGoals.add(ohshinyGoal);
         lateGameGoals.add(ohshinyGoal);
+
+        ItemStack netheriteBoots = new ItemStack(Material.NETHERITE_BOOTS,1);
+        CompleteAdvancementGoal hotTouristGoal = new CompleteAdvancementGoal("Complete the advancement Hot Tourist Destinations", netheriteBoots, Bukkit.getAdvancement(new NamespacedKey("minecraft","nether/explore_nether")));
+        allGoals.add(hotTouristGoal);
+        lateGameGoals.add(hotTouristGoal);
 
         ItemStack sculkSensor = new ItemStack(Material.SCULK_SENSOR,1);
         CompleteAdvancementGoal sneakGoal = new CompleteAdvancementGoal("Complete the advancement Sneak 100", sculkSensor, Bukkit.getAdvancement(new NamespacedKey("minecraft","adventure/avoid_vibration")));
@@ -1302,9 +1343,9 @@ public class BingoUtil {
         BlockInteractGoal signalFireGoal = new BlockInteractGoal("Start a Signal Fire", campfire, Material.CAMPFIRE, blockInteractListener);
         allGoals.add(signalFireGoal);*/
 
-        ItemStack rawCod = new ItemStack(Material.COD,1);
+        /*ItemStack rawCod = new ItemStack(Material.COD,1);
         BreedEntityGoal catBreedGoal = new BreedEntityGoal("Breed two Cats", rawCod, EntityType.CAT, breedEntityListener);
-        allGoals.add(catBreedGoal);
+        allGoals.add(catBreedGoal);*/
 
         ItemStack tnt = new ItemStack(Material.TNT,1);
         CollectItemGoal tntGoal = new CollectItemGoal("Craft a block of TNT", tnt);
@@ -1433,6 +1474,41 @@ public class BingoUtil {
         fireworks.add(Material.FIREWORK_ROCKET);
         CollectItemsAmountGoal fireworksGoal = new CollectItemsAmountGoal("Collect 16 Fireworks", fireworkRocket, fireworks, 16);
         allGoals.add(fireworksGoal);
+
+        ItemStack spectralArrows = new ItemStack(Material.SPECTRAL_ARROW, 32);
+        List<Material> spectralArrowMaterials = new ArrayList<>();
+        spectralArrowMaterials.add(Material.SPECTRAL_ARROW);
+        CollectItemsAmountGoal spectralArrowsGoal = new CollectItemsAmountGoal("Collect 32 Spectral Arrows", spectralArrows, spectralArrowMaterials, 32);
+        allGoals.add(spectralArrowsGoal);
+        lateGameGoals.add(spectralArrowsGoal);
+
+        ItemStack enderPearls = new ItemStack(Material.ENDER_PEARL, 16);
+        List<Material> enderPearlMaterials = new ArrayList<>();
+        enderPearlMaterials.add(Material.ENDER_PEARL);
+        CollectItemsAmountGoal enderPearlsGoal = new CollectItemsAmountGoal("Collect 16 Ender Pearls", enderPearls, enderPearlMaterials, 16);
+        allGoals.add(enderPearlsGoal);
+        lateGameGoals.add(enderPearlsGoal);
+
+        ItemStack netherHyphae = new ItemStack(Material.CRIMSON_HYPHAE, 32);
+        List<Material> netherHyphaeMaterials = new ArrayList<>();
+        netherHyphaeMaterials.add(Material.CRIMSON_HYPHAE);
+        netherHyphaeMaterials.add(Material.WARPED_HYPHAE);
+        CollectItemsAmountGoal netherHyphaeGoal = new CollectItemsAmountGoal("Collect 32 Nether Hyphae", netherHyphae, netherHyphaeMaterials, 32);
+        allGoals.add(netherHyphaeGoal);
+        lateGameGoals.add(netherHyphaeGoal);
+
+        ItemStack strippedLogs = new ItemStack(Material.STRIPPED_OAK_LOG, 64);
+        List<Material> strippedLogsMaterials = new ArrayList<>();
+        strippedLogsMaterials.add(Material.STRIPPED_OAK_LOG);
+        strippedLogsMaterials.add(Material.STRIPPED_SPRUCE_LOG);
+        strippedLogsMaterials.add(Material.STRIPPED_BIRCH_LOG);
+        strippedLogsMaterials.add(Material.STRIPPED_JUNGLE_LOG);
+        strippedLogsMaterials.add(Material.STRIPPED_ACACIA_LOG);
+        strippedLogsMaterials.add(Material.STRIPPED_DARK_OAK_LOG);
+        strippedLogsMaterials.add(Material.STRIPPED_MANGROVE_LOG);
+        strippedLogsMaterials.add(Material.STRIPPED_CHERRY_LOG);
+        CollectItemsAmountGoal strippedLogsGoal = new CollectItemsAmountGoal("Collect 64 Stripped Logs of Any Variant", strippedLogs, strippedLogsMaterials, 64);
+        allGoals.add(strippedLogsGoal);
 
         ItemStack chiseledStoneBricks = new ItemStack(Material.CHISELED_STONE_BRICKS, 16);
         List<Material> stoneBricks = new ArrayList<>();
@@ -1571,6 +1647,17 @@ public class BingoUtil {
         CollectItemGoal tintedGlassGoal = new CollectItemGoal("Collect a Block of Tinted Glass",tintedGlass);
         allGoals.add(tintedGlassGoal);
 
+        ItemStack endCrystal = new ItemStack(Material.END_CRYSTAL, 1);
+        CollectItemGoal endCrystalGoal = new CollectItemGoal("Collect an End Crystal", endCrystal);
+        allGoals.add(endCrystalGoal);
+        lateGameGoals.add(endCrystalGoal);
+
+        ItemStack tuffBricks = new ItemStack(Material.TUFF, 16);
+        List<Material> tuffBricksMaterials = new ArrayList<>();
+        tuffBricksMaterials.add(Material.TUFF);
+        CollectItemsAmountGoal tuffBricksGoal = new CollectItemsAmountGoal("Collect 16 Tuff Bricks", tuffBricks, tuffBricksMaterials, 16);
+        allGoals.add(tuffBricksGoal);
+
         ItemStack redMushroom = new ItemStack(Material.RED_MUSHROOM,1);
         BreedEntityGoal mooshroomBreedGoal = new BreedEntityGoal("Breed a Mooshroom", redMushroom, EntityType.MOOSHROOM,breedEntityListener);
         biomeGoals.put(Biome.MUSHROOM_FIELDS,mooshroomBreedGoal);
@@ -1613,6 +1700,29 @@ public class BingoUtil {
 
         TravelGoal boat1500Goal = new TravelGoal("Use a Boat to travel 1500 Blocks", boat, 1500.0, TravelListener.TYPE.BOAT, travelListener);
         allGoals.add(boat1500Goal);
+
+        ItemStack saddle = new ItemStack(Material.SADDLE,1);
+        TravelGoal pig50Goal = new TravelGoal("Use a Pig to travel 50 Blocks",saddle,50.0,TravelListener.TYPE.PIG,travelListener);
+        allGoals.add(pig50Goal);
+
+        TravelGoal pig100Goal = new TravelGoal("Use a Pig to travel 100 Blocks",saddle,100.0,TravelListener.TYPE.PIG,travelListener);
+        allGoals.add(pig100Goal);
+
+        ItemStack striderSaddle = new ItemStack(Material.WARPED_FUNGUS_ON_A_STICK, 1);
+
+        TravelGoal horse250Goal = new TravelGoal("Use a Horse to travel 50 Blocks", saddle, 250.0, TravelListener.TYPE.HORSE, travelListener);
+        allGoals.add(horse250Goal);
+
+        TravelGoal horse500Goal = new TravelGoal("Use a Horse to travel 100 Blocks", saddle, 500.0, TravelListener.TYPE.HORSE, travelListener);
+        allGoals.add(horse500Goal);
+
+        TravelGoal strider100Goal = new TravelGoal("Use a Strider to travel 50 Blocks", striderSaddle, 100.0, TravelListener.TYPE.STRIDER, travelListener);
+        allGoals.add(strider100Goal);
+        lateGameGoals.add(strider100Goal);
+
+        TravelGoal strider200Goal = new TravelGoal("Use a Strider to travel 100 Blocks", striderSaddle, 200.0, TravelListener.TYPE.STRIDER, travelListener);
+        allGoals.add(strider200Goal);
+        lateGameGoals.add(strider200Goal);
 
         /* Goal wasn't being detected by spigot
         ItemStack minecart = new ItemStack(Material.MINECART,1);
@@ -1668,19 +1778,19 @@ public class BingoUtil {
         CollectItemsAmountGoal railGoal = new CollectItemsAmountGoal("Collect 64 Rails of Any Type", rails, railTypes, 64);
         allGoals.add(railGoal);
 
-        ItemStack chainmailArmor = new ItemStack(Material.CHAINMAIL_HELMET, 1);
+        /*ItemStack chainmailArmor = new ItemStack(Material.CHAINMAIL_HELMET, 1);
         List<Material> chainmailArmors = new ArrayList<>();
         chainmailArmors.add(Material.CHAINMAIL_HELMET);
         chainmailArmors.add(Material.CHAINMAIL_CHESTPLATE);
         chainmailArmors.add(Material.CHAINMAIL_LEGGINGS);
         chainmailArmors.add(Material.CHAINMAIL_BOOTS);
         CollectItemsGoal chainmailArmorGoal = new CollectItemsGoal("Collect any piece of Chainmail Armor", chainmailArmor, chainmailArmors);
-        allGoals.add(chainmailArmorGoal);
+        allGoals.add(chainmailArmorGoal);*/
 
-        ItemStack mudBricks = new ItemStack(Material.MUD_BRICKS, 16);
+        ItemStack mudBricks = new ItemStack(Material.MUD_BRICKS, 4);
         List<Material> mudBrickList = new ArrayList<>();
         mudBrickList.add(Material.MUD_BRICKS);
-        CollectItemsAmountGoal mudBricksGoal = new CollectItemsAmountGoal("Collect 16 Mud Bricks", mudBricks, mudBrickList, 16);
+        CollectItemsAmountGoal mudBricksGoal = new CollectItemsAmountGoal("Collect 4 Mud Bricks", mudBricks, mudBrickList, 4);
         allGoals.add(mudBricksGoal);
 
         ItemStack encBook = new ItemStack(Material.ENCHANTED_BOOK,1);
@@ -1790,6 +1900,10 @@ public class BingoUtil {
         DeathGoal berryPokedGoal = new DeathGoal("Achieve the Death Message '<player> was poked to death by a sweet berry bush'",berries,"was poked to death by a sweet berry bush",deathListener);
         biomeGoals.put(Biome.TAIGA,berryPokedGoal);
 
+        ItemStack trident = new ItemStack(Material.TRIDENT,1);
+        DeathGoal tridentDeathGoal = new DeathGoal("Achieve the Death Message '<player> was impaled by Drowned'",trident,"was impaled by Drowned",deathListener);
+        allGoals.add(tridentDeathGoal);
+
         if (difficulty == Difficulty.INSANE)
         {
             biomeGoals.forEach((key,goal) ->
@@ -1798,7 +1912,7 @@ public class BingoUtil {
             });
         }
 
-        //testGoal = subspaceGoal;
+        //testGoal = horse250Goal;
     }
 
     public void goalAutoComplete(Player player, Class goalType)
