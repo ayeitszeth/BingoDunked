@@ -9,7 +9,7 @@ import org.zethcodes.bingodunked.util.BingoUtil;
 import java.util.List;
 
 public class CollectItemsAmountGoal extends CollectItemGoal {
-    private List<Material> items;
+    public List<Material> items;
     private int amount;
 
     public CollectItemsAmountGoal(String name, ItemStack itemToCollect, List<Material> items, int amount) {

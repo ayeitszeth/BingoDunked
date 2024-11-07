@@ -23,7 +23,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Team;
 import org.zethcodes.bingodunked.BingoDunked;
 import org.zethcodes.bingodunked.goals.*;
 import org.zethcodes.bingodunked.handlers.*;
@@ -83,6 +82,7 @@ public class BingoUtil {
     public static GameState gameState = GameState.FINISHED;
     boolean overTime = false;
     int goalsToWinOT = -1;
+    int animateCounter = 0;
 
     public enum Team {RED, BLUE, GREEN, YELLOW, ORANGE, PURPLE, CYAN, BROWN, NONE};
     public enum Mode { TEAM, FFA }
@@ -192,6 +192,7 @@ public class BingoUtil {
         isPvpEnabled = false;
         overTime = false;
         goalsToWinOT = -1;
+        animateCounter = 0;
         startBiomes = new ArrayList<>();
 
         activeFallGoal = false;
@@ -243,7 +244,7 @@ public class BingoUtil {
         BingoAnnounce("The board is being set up. Please wait one moment.");
 
         resetPlayerGoalsCompleted();
-        startBiomes = findBiomes(getServer().getWorld(WorldUtil.bingoWorldName).getSpawnLocation(), 150);
+        startBiomes = findBiomes(getServer().getWorld(WorldUtil.bingoWorldName).getSpawnLocation(), 250);
 
         if (pvp != PvP.NOPVP)
         {
@@ -253,7 +254,7 @@ public class BingoUtil {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     p.playSound(p, Sound.ENTITY_ENDER_DRAGON_GROWL, 3f, 0f);
                 }
-            }, 20L * 190).getTaskId());
+            }, 20L * (45 + 10)).getTaskId());
         }
 
         BingoAnnounce("Bingo will start in 10 seconds...");
@@ -404,9 +405,15 @@ public class BingoUtil {
                 activeBlockTypes.add(((BreakBlockTypeGoal) goal).requiredBlock);
             }
 
+            int col = (slot % 9) - 3;
+            int row = slot / 9;
+
             ItemStack item = goal.getItem();
             ItemMeta meta = item.getItemMeta();
-            meta.setDisplayName(goal.getName());
+            List<String> lore = new ArrayList<>();
+            lore.add(ChatColor.DARK_PURPLE + goal.getName());
+            meta.setLore(lore);
+            meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
             item.setItemMeta(meta);
 
             goals.put(slot, goal);
@@ -426,9 +433,74 @@ public class BingoUtil {
 
         gameState = GameState.STARTED;
 
+        animateBingoCard();
         BingoAnnounce("");
         BingoAnnounce("Bingo has begun!");
         BingoAnnounce("");
+
+        if (pvp != PvP.NOPVP)
+        {
+            BingoAnnounce("");
+            BingoAnnounce("The Grace Period will end in 45 seconds...");
+        }
+    }
+
+    public void animateBingoCard() {
+        if (gameState == GameState.STARTED) {
+            // Run the animation asynchronously
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep((long) (1.25f * 1000));
+                        animateCounter++;
+
+                        for (int slot : validSlots) {
+                            Goal goal = goals.get(slot);
+                            int col = (slot % 9) - 3;
+                            int row = slot / 9;
+                            List<Material> items = new ArrayList<>();
+
+                            if (goal instanceof CollectItemsAmountGoal) {
+                                CollectItemsAmountGoal newGoal = (CollectItemsAmountGoal) goal;
+                                items = newGoal.items;
+                            } else if (goal instanceof CollectItemSetAmountGoal) {
+                                CollectItemSetAmountGoal newGoal = (CollectItemSetAmountGoal) goal;
+                                items = newGoal.items;
+                            } else if (goal instanceof CollectItemSetGoal) {
+                                CollectItemSetGoal newGoal = (CollectItemSetGoal) goal;
+                                items = newGoal.items;
+                            } else if (goal instanceof CollectItemsGoal) {
+                                CollectItemsGoal newGoal = (CollectItemsGoal) goal;
+                                items = newGoal.items;
+                            } else {
+                                continue;
+                            }
+
+                            ItemStack item = new ItemStack(items.get(animateCounter % items.size()), 1);
+                            ItemMeta meta = item.getItemMeta();
+                            List<String> lore = new ArrayList<>();
+                            lore.add(ChatColor.DARK_PURPLE + goal.getName());
+                            meta.setLore(lore);
+                            meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
+                            item.setItemMeta(meta);
+
+                            // Schedule the UI update back to the main thread
+                            int finalSlot = slot;
+                            Bukkit.getScheduler().runTask(plugin, () -> {
+                                BingoCard.setItem(finalSlot, item);
+                            });
+                        }
+
+                        // Repeat the animation
+                        animateBingoCard();
+
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }.runTaskAsynchronously(plugin);
+        }
     }
 
     public List<Biome> findBiomes(Location location, int radius)
@@ -443,9 +515,10 @@ public class BingoUtil {
         {
             for (int z = centreZ - radius; z <= centreZ + radius; z += step)
             {
-                int y = world.getHighestBlockYAt(x,z);
-                Biome biome = world.getBiome(x,y,z);
-                uniqueBiomes.add(biome);
+                Biome biomeA = world.getBiome(x,64,z);
+                uniqueBiomes.add(biomeA);
+                Biome biomeB = world.getBiome(x,-32,z);
+                uniqueBiomes.add(biomeB);
             }
         }
         List<Biome> biomes = new ArrayList<>(uniqueBiomes);
@@ -482,6 +555,9 @@ public class BingoUtil {
         }
 
         goals.remove(slot);
+
+        int col = (slot % 9) - 3;
+        int row = slot / 9;
 
         Random random = new Random();
         Goal goal = allGoals.get(0);
@@ -577,7 +653,10 @@ public class BingoUtil {
 
         ItemStack item = goal.getItem();
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(goal.getName());
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.DARK_PURPLE + goal.getName());
+        meta.setLore(lore);
+        meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
         item.setItemMeta(meta);
 
         goals.put(slot,goal);
@@ -727,13 +806,17 @@ public class BingoUtil {
         CollectItemGoal heartOfTheSeaGoal = new CollectItemGoal("Collect a Heart of the Sea", heartOfTheSea);
         allGoals.add(heartOfTheSeaGoal);
 
+        ItemStack bundle = new ItemStack(Material.BUNDLE, 1);
+        CollectItemGoal bundleGoal = new CollectItemGoal("Collect a Bundle", bundle);
+        allGoals.add(bundleGoal);
+
         ItemStack magmacream = new ItemStack(Material.MAGMA_CREAM, 1);
         CollectItemGoal magmacreamGoal = new CollectItemGoal("Collect a Magma Cream", magmacream);
         biomeGoals.put(Biome.BASALT_DELTAS, magmacreamGoal);
         lateGameGoals.add(magmacreamGoal);
 
         ItemStack emeraldBlock = new ItemStack(Material.EMERALD_BLOCK, 1);
-        CollectItemGoal emeraldBlockGoal = new CollectItemGoal("Collect a Emerald Block", emeraldBlock);
+        CollectItemGoal emeraldBlockGoal = new CollectItemGoal("Collect an Emerald Block", emeraldBlock);
         allGoals.add(emeraldBlockGoal);
 
         ItemStack candle = new ItemStack(Material.CANDLE, 1);
@@ -822,7 +905,6 @@ public class BingoUtil {
         ItemStack goldenapple = new ItemStack(Material.GOLDEN_APPLE,1);
         BreedEntityGoal donkeyBreedGoal = new BreedEntityGoal("Breed Two Donkeys", goldenapple, EntityType.DONKEY, breedEntityListener);
         biomeGoals.put(Biome.MEADOW, donkeyBreedGoal);
-        lateGameGoals.add(donkeyBreedGoal);
 
         /*ItemStack leather = new ItemStack(Material.LEATHER, 1);
         BreedEntityGoal cowBreedGoal = new BreedEntityGoal("Breed Two Cows", leather, EntityType.COW, breedEntityListener);
@@ -1182,7 +1264,7 @@ public class BingoUtil {
         biomeGoals.put(Biome.JAGGED_PEAKS,goatHornGoal);
 
         ItemStack armascute = new ItemStack(Material.ARMADILLO_SCUTE, 1);
-        BreedEntityGoal armaBreedGoal = new BreedEntityGoal("Breed two Armadillos", armascute, EntityType.ARMADILLO, breedEntityListener);
+        BreedEntityGoal armaBreedGoal = new BreedEntityGoal("Breed Two Armadillos", armascute, EntityType.ARMADILLO, breedEntityListener);
         biomeGoals.put(Biome.SAVANNA, armaBreedGoal);
 
         ItemStack polarEgg = new ItemStack(Material.POLAR_BEAR_SPAWN_EGG, 1);
@@ -1259,7 +1341,6 @@ public class BingoUtil {
         bannerPatterns.add(Material.GUSTER_BANNER_PATTERN);
         CollectItemsGoal bannerPatternGoal = new CollectItemsGoal("Collect any Banner Pattern", bannerPattern, bannerPatterns);
         allGoals.add(bannerPatternGoal);
-        lateGameGoals.add(bannerPatternGoal);
 
         ItemStack fireCharge = new ItemStack(Material.FIRE_CHARGE,1);
         CompleteAdvancementGoal returnToSender = new CompleteAdvancementGoal("Complete the advancement Return to Sender", fireCharge, Bukkit.getAdvancement(new NamespacedKey("minecraft","nether/return_to_sender")));
@@ -1348,7 +1429,7 @@ public class BingoUtil {
         allGoals.add(catBreedGoal);*/
 
         ItemStack tnt = new ItemStack(Material.TNT,1);
-        CollectItemGoal tntGoal = new CollectItemGoal("Craft a block of TNT", tnt);
+        CollectItemGoal tntGoal = new CollectItemGoal("Craft a Block of TNT", tnt);
         allGoals.add(tntGoal);
 
         ItemStack lightningRod = new ItemStack(Material.LIGHTNING_ROD,1);
@@ -1662,13 +1743,6 @@ public class BingoUtil {
         BreedEntityGoal mooshroomBreedGoal = new BreedEntityGoal("Breed a Mooshroom", redMushroom, EntityType.MOOSHROOM,breedEntityListener);
         biomeGoals.put(Biome.MUSHROOM_FIELDS,mooshroomBreedGoal);
 
-        ItemStack birchFence = new ItemStack(Material.BIRCH_FENCE, 64);
-        List<Material> birchFences = new ArrayList<>();
-        birchFences.add(Material.BIRCH_FENCE);
-        birchFences.add(Material.BIRCH_FENCE_GATE);
-        CollectItemsAmountGoal birchFencesGoal = new CollectItemsAmountGoal("Collect 128 Birch Fences", birchFence, birchFences, 128);
-        biomeGoals.put(Biome.BIRCH_FOREST,birchFencesGoal);
-
         ItemStack seagrass = new ItemStack(Material.SEAGRASS, 64);
         List<Material> seagrassList = new ArrayList<>();
         seagrassList.add(Material.SEAGRASS);
@@ -1691,7 +1765,9 @@ public class BingoUtil {
         TravelGoal run3000Goal = new TravelGoal("Run 3000 Blocks", goldBoots, 3000.0, TravelListener.TYPE.RUNNING, travelListener);
         allGoals.add(run3000Goal);
 
-        ItemStack boat = new ItemStack(Material.OAK_BOAT,1);
+        // Boat broken in 1.21.3 >:(
+
+        /*ItemStack boat = new ItemStack(Material.OAK_BOAT,1);
         TravelGoal boat500Goal = new TravelGoal("Use a Boat to travel 500 Blocks", boat, 500.0, TravelListener.TYPE.BOAT, travelListener);
         allGoals.add(boat500Goal);
 
@@ -1699,7 +1775,7 @@ public class BingoUtil {
         allGoals.add(boat2000Goal);
 
         TravelGoal boat1500Goal = new TravelGoal("Use a Boat to travel 1500 Blocks", boat, 1500.0, TravelListener.TYPE.BOAT, travelListener);
-        allGoals.add(boat1500Goal);
+        allGoals.add(boat1500Goal);*/
 
         ItemStack saddle = new ItemStack(Material.SADDLE,1);
         TravelGoal pig50Goal = new TravelGoal("Use a Pig to travel 50 Blocks",saddle,50.0,TravelListener.TYPE.PIG,travelListener);
@@ -1710,10 +1786,10 @@ public class BingoUtil {
 
         ItemStack striderSaddle = new ItemStack(Material.WARPED_FUNGUS_ON_A_STICK, 1);
 
-        TravelGoal horse250Goal = new TravelGoal("Use a Horse to travel 50 Blocks", saddle, 250.0, TravelListener.TYPE.HORSE, travelListener);
+        TravelGoal horse250Goal = new TravelGoal("Use a Horse to travel 250 Blocks", saddle, 250.0, TravelListener.TYPE.HORSE, travelListener);
         allGoals.add(horse250Goal);
 
-        TravelGoal horse500Goal = new TravelGoal("Use a Horse to travel 100 Blocks", saddle, 500.0, TravelListener.TYPE.HORSE, travelListener);
+        TravelGoal horse500Goal = new TravelGoal("Use a Horse to travel 500 Blocks", saddle, 500.0, TravelListener.TYPE.HORSE, travelListener);
         allGoals.add(horse500Goal);
 
         TravelGoal strider100Goal = new TravelGoal("Use a Strider to travel 50 Blocks", striderSaddle, 100.0, TravelListener.TYPE.STRIDER, travelListener);
@@ -1745,7 +1821,7 @@ public class BingoUtil {
         allGoals.add(killSkeletonwithProjGoal);
 
         ItemStack spEye = new ItemStack(Material.SPIDER_EYE,1);
-        KillEntityWithCauseGoal killSpiderFallGoal = new KillEntityWithCauseGoal("Kill a Spider with a Fall Damage",spEye, EntityType.SPIDER, EntityDamageEvent.DamageCause.FALL, killEntityListener);
+        KillEntityWithCauseGoal killSpiderFallGoal = new KillEntityWithCauseGoal("Kill a Spider with Fall Damage",spEye, EntityType.SPIDER, EntityDamageEvent.DamageCause.FALL, killEntityListener);
         allGoals.add(killSpiderFallGoal);
 
         ItemStack batSpawnEgg = new ItemStack(Material.BAT_SPAWN_EGG,1);
@@ -1904,6 +1980,213 @@ public class BingoUtil {
         DeathGoal tridentDeathGoal = new DeathGoal("Achieve the Death Message '<player> was impaled by Drowned'",trident,"was impaled by Drowned",deathListener);
         allGoals.add(tridentDeathGoal);
 
+        ItemStack nameTag = new ItemStack(Material.NAME_TAG, 1);
+        CollectItemGoal nameTagGoal = new CollectItemGoal("Collect a Name Tag", nameTag);
+        allGoals.add(nameTagGoal);
+
+        ItemStack diaHelm = new ItemStack(Material.DIAMOND_HELMET, 1);
+        List<Material> diamondArmour = new ArrayList<>();
+        diamondArmour.add(Material.DIAMOND_HELMET);
+        diamondArmour.add(Material.DIAMOND_CHESTPLATE);
+        diamondArmour.add(Material.DIAMOND_LEGGINGS);
+        diamondArmour.add(Material.DIAMOND_BOOTS);
+        CollectItemSetGoal diamondArmourGoal = new CollectItemSetGoal("Collect a Full Set of Diamond Armour", diaHelm, diamondArmour);
+        allGoals.add(diamondArmourGoal);
+
+        ItemStack goldPickaxe = new ItemStack(Material.GOLDEN_PICKAXE, 1);
+        List<Material> goldenTools = new ArrayList<>();
+        goldenTools.add(Material.GOLDEN_PICKAXE);
+        goldenTools.add(Material.GOLDEN_AXE);
+        goldenTools.add(Material.GOLDEN_SHOVEL);
+        goldenTools.add(Material.GOLDEN_HOE);
+        CollectItemSetGoal goldenToolsGoal = new CollectItemSetGoal("Collect a Full Set of Golden Tools", goldPickaxe, goldenTools);
+        allGoals.add(goldenToolsGoal);
+
+        ItemStack goldHelm = new ItemStack(Material.GOLDEN_HELMET, 1);
+        List<Material> goldenArmour = new ArrayList<>();
+        goldenArmour.add(Material.GOLDEN_HELMET);
+        goldenArmour.add(Material.GOLDEN_CHESTPLATE);
+        goldenArmour.add(Material.GOLDEN_LEGGINGS);
+        goldenArmour.add(Material.GOLDEN_BOOTS);
+        CollectItemSetGoal goldenArmourGoal = new CollectItemSetGoal("Collect a Full Set of Golden Armour", goldHelm, goldenArmour);
+        allGoals.add(goldenArmourGoal);
+
+        ItemStack diamondPickaxe = new ItemStack(Material.DIAMOND_PICKAXE, 1);
+        List<Material> diamondTools = new ArrayList<>();
+        diamondTools.add(Material.DIAMOND_PICKAXE);
+        diamondTools.add(Material.DIAMOND_AXE);
+        diamondTools.add(Material.DIAMOND_SHOVEL);
+        diamondTools.add(Material.DIAMOND_HOE);
+        CollectItemSetGoal diamondToolsGoal = new CollectItemSetGoal("Collect a Full Set of Diamond Tools", diamondPickaxe, diamondTools);
+        allGoals.add(diamondToolsGoal);
+
+        ItemStack furnaceItem = new ItemStack(Material.FURNACE, 1);
+        List<Material> allFurnaces = new ArrayList<>();
+        allFurnaces.add(Material.FURNACE);
+        allFurnaces.add(Material.BLAST_FURNACE);
+        allFurnaces.add(Material.SMOKER);
+        CollectItemSetGoal furnaceGoal = new CollectItemSetGoal("Collect Every Type of Furnace", furnaceItem, allFurnaces);
+        allGoals.add(furnaceGoal);
+
+        ItemStack cobweb = new ItemStack(Material.COBWEB, 32);
+        List<Material> cobwebList = new ArrayList<>();
+        cobwebList.add(Material.COBWEB);
+        CollectItemsAmountGoal cobwebGoal = new CollectItemsAmountGoal("Collect 32 Cobwebs", cobweb, cobwebList, 32);
+        allGoals.add(cobwebGoal);
+
+        ItemStack strippedOakLog = new ItemStack(Material.STRIPPED_OAK_LOG, 1);
+        List<Material> oakWoodBlocks = new ArrayList<>();
+        oakWoodBlocks.add(Material.OAK_LOG);
+        oakWoodBlocks.add(Material.OAK_WOOD);
+        oakWoodBlocks.add(Material.STRIPPED_OAK_LOG);
+        oakWoodBlocks.add(Material.STRIPPED_OAK_WOOD);
+        oakWoodBlocks.add(Material.OAK_PLANKS);
+        oakWoodBlocks.add(Material.OAK_SLAB);
+        oakWoodBlocks.add(Material.OAK_STAIRS);
+        oakWoodBlocks.add(Material.OAK_FENCE);
+        oakWoodBlocks.add(Material.OAK_FENCE_GATE);
+        oakWoodBlocks.add(Material.OAK_DOOR);
+        oakWoodBlocks.add(Material.OAK_TRAPDOOR);
+        oakWoodBlocks.add(Material.OAK_BUTTON);
+        oakWoodBlocks.add(Material.OAK_PRESSURE_PLATE);
+        oakWoodBlocks.add(Material.OAK_SIGN);
+        CollectItemSetGoal oakWoodGoal = new CollectItemSetGoal("Collect All Oak Wood Related Blocks", strippedOakLog, oakWoodBlocks);
+        allGoals.add(oakWoodGoal);
+
+        ItemStack lilyOfValley = new ItemStack(Material.DANDELION, 1);
+        CollectItemSetAmountGoal flowerGoal = new CollectItemSetAmountGoal("Collect 5 Unique Types of Flowers", lilyOfValley, flowers, 5);
+        allGoals.add(flowerGoal);
+
+        ItemStack oakPressurePlate = new ItemStack(Material.OAK_PRESSURE_PLATE, 1);
+        List<Material> pressurePlates = new ArrayList<>();
+        pressurePlates.add(Material.OAK_PRESSURE_PLATE);
+        pressurePlates.add(Material.SPRUCE_PRESSURE_PLATE);
+        pressurePlates.add(Material.BIRCH_PRESSURE_PLATE);
+        pressurePlates.add(Material.JUNGLE_PRESSURE_PLATE);
+        pressurePlates.add(Material.ACACIA_PRESSURE_PLATE);
+        pressurePlates.add(Material.DARK_OAK_PRESSURE_PLATE);
+        pressurePlates.add(Material.CRIMSON_PRESSURE_PLATE);
+        pressurePlates.add(Material.WARPED_PRESSURE_PLATE);
+        pressurePlates.add(Material.STONE_PRESSURE_PLATE);
+        pressurePlates.add(Material.LIGHT_WEIGHTED_PRESSURE_PLATE);
+        pressurePlates.add(Material.HEAVY_WEIGHTED_PRESSURE_PLATE);
+        pressurePlates.add(Material.MANGROVE_PRESSURE_PLATE);
+        pressurePlates.add(Material.CHERRY_PRESSURE_PLATE);
+        CollectItemSetAmountGoal pressurePlateGoal = new CollectItemSetAmountGoal("Collect 5 Unique Types of Pressure Plates", oakPressurePlate, pressurePlates, 5);
+        allGoals.add(pressurePlateGoal);
+
+        ItemStack granite = new ItemStack(Material.GRANITE, 1);
+        List<Material> graniteBlocks = new ArrayList<>();
+        graniteBlocks.add(Material.GRANITE);
+        graniteBlocks.add(Material.POLISHED_GRANITE);
+        graniteBlocks.add(Material.GRANITE_SLAB);
+        graniteBlocks.add(Material.POLISHED_GRANITE_SLAB);
+        graniteBlocks.add(Material.GRANITE_STAIRS);
+        graniteBlocks.add(Material.POLISHED_GRANITE_STAIRS);
+        graniteBlocks.add(Material.GRANITE_WALL);
+        CollectItemSetAmountGoal graniteGoal = new CollectItemSetAmountGoal("Collect 7 Unique Types of Granite Blocks", granite, graniteBlocks, 7);
+        allGoals.add(graniteGoal);
+
+        ItemStack diorite = new ItemStack(Material.DIORITE, 1);
+        List<Material> dioriteBlocks = new ArrayList<>();
+        dioriteBlocks.add(Material.DIORITE);
+        dioriteBlocks.add(Material.POLISHED_DIORITE);
+        dioriteBlocks.add(Material.DIORITE_SLAB);
+        dioriteBlocks.add(Material.POLISHED_DIORITE_SLAB);
+        dioriteBlocks.add(Material.DIORITE_STAIRS);
+        dioriteBlocks.add(Material.POLISHED_DIORITE_STAIRS);
+        dioriteBlocks.add(Material.DIORITE_WALL);
+        CollectItemSetAmountGoal dioriteGoal = new CollectItemSetAmountGoal("Collect 7 Unique Types of Diorite Blocks", diorite, dioriteBlocks, 7);
+        allGoals.add(dioriteGoal);
+
+        ItemStack andesite = new ItemStack(Material.ANDESITE, 1);
+        List<Material> andesiteBlocks = new ArrayList<>();
+        andesiteBlocks.add(Material.ANDESITE);
+        andesiteBlocks.add(Material.POLISHED_ANDESITE);
+        andesiteBlocks.add(Material.ANDESITE_SLAB);
+        andesiteBlocks.add(Material.POLISHED_ANDESITE_SLAB);
+        andesiteBlocks.add(Material.ANDESITE_STAIRS);
+        andesiteBlocks.add(Material.POLISHED_ANDESITE_STAIRS);
+        andesiteBlocks.add(Material.ANDESITE_WALL);
+        CollectItemSetAmountGoal andesiteGoal = new CollectItemSetAmountGoal("Collect 7 Unique Types of Andesite Blocks", andesite, andesiteBlocks, 7);
+        allGoals.add(andesiteGoal);
+
+        ItemStack deepslate = new ItemStack(Material.DEEPSLATE, 64);
+        List<Material> deepslateList = new ArrayList<>();
+        deepslateList.add(Material.DEEPSLATE);
+        CollectItemsAmountGoal deepslateGoal = new CollectItemsAmountGoal("Collect 64 Deepslate Blocks", deepslate, deepslateList, 64);
+        allGoals.add(deepslateGoal);
+
+        ItemStack sand = new ItemStack(Material.SAND, 1);
+        List<Material> sandBlocks = new ArrayList<>();
+        sandBlocks.add(Material.SAND);
+        sandBlocks.add(Material.SANDSTONE);
+        sandBlocks.add(Material.SANDSTONE_SLAB);
+        sandBlocks.add(Material.SANDSTONE_STAIRS);
+        sandBlocks.add(Material.CHISELED_SANDSTONE);
+        sandBlocks.add(Material.CUT_SANDSTONE);
+        sandBlocks.add(Material.CUT_SANDSTONE_SLAB);
+        sandBlocks.add(Material.SMOOTH_SANDSTONE);
+        sandBlocks.add(Material.SMOOTH_SANDSTONE_SLAB);
+        sandBlocks.add(Material.SMOOTH_SANDSTONE_STAIRS);
+        sandBlocks.add(Material.SANDSTONE_WALL);
+        sandBlocks.add(Material.RED_SAND);
+        sandBlocks.add(Material.RED_SANDSTONE);
+        sandBlocks.add(Material.RED_SANDSTONE_SLAB);
+        sandBlocks.add(Material.RED_SANDSTONE_STAIRS);
+        sandBlocks.add(Material.CHISELED_RED_SANDSTONE);
+        sandBlocks.add(Material.CUT_RED_SANDSTONE);
+        sandBlocks.add(Material.CUT_RED_SANDSTONE_SLAB);
+        sandBlocks.add(Material.SMOOTH_RED_SANDSTONE);
+        sandBlocks.add(Material.SMOOTH_RED_SANDSTONE_SLAB);
+        sandBlocks.add(Material.SMOOTH_RED_SANDSTONE_STAIRS);
+        sandBlocks.add(Material.RED_SANDSTONE_WALL);
+        CollectItemSetAmountGoal sandGoal = new CollectItemSetAmountGoal("Collect 10 Unique Types of Sand Blocks", sand, sandBlocks, 20);
+        allGoals.add(sandGoal);
+
+        ItemStack redSand = new ItemStack(Material.RED_SAND, 1);
+        List<Material> gravityBlocks = new ArrayList<>();
+        gravityBlocks.add(Material.SAND);
+        gravityBlocks.add(Material.RED_SAND);
+        gravityBlocks.add(Material.POINTED_DRIPSTONE);
+        gravityBlocks.add(Material.GRAVEL);
+        gravityBlocks.add(Material.ANVIL);
+        CollectItemSetAmountGoal gravityGoal = new CollectItemSetAmountGoal("Collect 3 Unique Types of Gravity-Affected Blocks", redSand, gravityBlocks, 3);
+        allGoals.add(gravityGoal);
+
+        ItemStack redstoneTorch = new ItemStack(Material.REDSTONE_TORCH, 1);
+        List<Material> redstoneItems = new ArrayList<>();
+        redstoneItems.add(Material.REDSTONE_TORCH);
+        redstoneItems.add(Material.REDSTONE_BLOCK);
+        redstoneItems.add(Material.PISTON);
+        redstoneItems.add(Material.REPEATER);
+        redstoneItems.add(Material.COMPARATOR);
+        redstoneItems.add(Material.DISPENSER);
+        redstoneItems.add(Material.DROPPER);
+        redstoneItems.add(Material.OBSERVER);
+        redstoneItems.add(Material.DAYLIGHT_DETECTOR);
+        redstoneItems.add(Material.CRAFTER);
+        redstoneItems.add(Material.TARGET);
+        redstoneItems.add(Material.COPPER_BULB);
+        redstoneItems.add(Material.WAXED_COPPER_BULB);
+        redstoneItems.add(Material.POWERED_RAIL);
+        redstoneItems.add(Material.ACTIVATOR_RAIL);
+        redstoneItems.add(Material.DETECTOR_RAIL);
+        redstoneItems.add(Material.REDSTONE_LAMP);
+        CollectItemSetAmountGoal redstoneGoal = new CollectItemSetAmountGoal("Collect 7 Unique Items Crafted with Redstone", redstoneTorch, redstoneItems, 7);
+        allGoals.add(redstoneGoal);
+
+        List<Material> fish = new ArrayList<>();
+        fish.add(Material.COD);
+        fish.add(Material.COOKED_COD);
+        fish.add(Material.SALMON);
+        fish.add(Material.COOKED_SALMON);
+        fish.add(Material.TROPICAL_FISH);
+        fish.add(Material.PUFFERFISH);
+        CollectItemSetAmountGoal fishUniqueGoal = new CollectItemSetAmountGoal("Collect 5 Unique Fish", cod, fish, 5);
+        allGoals.add(fishUniqueGoal);
+
+
         if (difficulty == Difficulty.INSANE)
         {
             biomeGoals.forEach((key,goal) ->
@@ -1912,7 +2195,7 @@ public class BingoUtil {
             });
         }
 
-        //testGoal = horse250Goal;
+        //testGoal = andesiteGoal;
     }
 
     public void goalAutoComplete(Player player, Class goalType)
@@ -2099,7 +2382,10 @@ public class BingoUtil {
         }
 
         ItemMeta meta = teamWool.getItemMeta();
-        meta.setDisplayName(goals.get(slot).getName());
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.DARK_PURPLE + goals.get(slot).getName());
+        meta.setLore(lore);
+        meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
         teamWool.setItemMeta(meta);
         BingoCard.setItem(slot, teamWool);
 

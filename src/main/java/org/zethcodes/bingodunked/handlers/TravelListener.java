@@ -76,7 +76,7 @@ public class TravelListener implements Listener {
         double newDistance = Math.sqrt(Math.pow(event.getTo().getX()-event.getFrom().getX(),2) + Math.pow(event.getTo().getZ()-event.getFrom().getZ(),2));
         if (player.isInsideVehicle())
         {
-            if (player.getVehicle().getType() == EntityType.BOAT || player.getVehicle().getType() == EntityType.CHEST_BOAT)
+            if (false/*player.getVehicle().getType() == EntityType.BOAT || player.getVehicle().getType() == EntityType.CHEST_BOAT*/)
             {
                 playerBoatDistances.put(player.getUniqueId(), playerBoatDistances.getOrDefault(player.getUniqueId(), 0.0) + newDistance);
                 int dist = (int) Math.floor(playerBoatDistances.get(player.getUniqueId()));

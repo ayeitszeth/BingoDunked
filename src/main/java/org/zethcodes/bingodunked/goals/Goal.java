@@ -14,7 +14,7 @@ public abstract class Goal {
     }
 
     public String getName() {
-        return ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + name;
+        return name;
     }
 
     public ItemStack getItem() {

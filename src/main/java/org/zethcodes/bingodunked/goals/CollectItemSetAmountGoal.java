@@ -8,25 +8,41 @@ import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.List;
 
-public class CollectItemsGoal extends CollectItemGoal {
+public class CollectItemSetAmountGoal extends CollectItemGoal{
     public List<Material> items;
+    private int amount;
 
-    public CollectItemsGoal(String name, ItemStack itemToCollect, List<Material> items) {
+    public CollectItemSetAmountGoal(String name, ItemStack itemToCollect, List<Material> items, int amount) {
         super(name, itemToCollect);
         this.items = items;
+        this.amount = amount;
     }
 
     @Override
     public boolean isComplete(Player player) {
         ItemStack[] pInv = player.getInventory().getContents();
 
+        int count = 0;
+
+        for (Material itemMat : items)
+        {
+            if (doesInvContain(pInv, itemMat))
+            {
+                if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " has the item: " + itemMat);
+                count++;
+            }
+        }
+        return count >= amount;
+    }
+
+    public boolean doesInvContain(ItemStack[] pInv, Material targetItem)
+    {
         for (ItemStack item : pInv)
         {
             if (!(item == null))
             {
-                if (items.contains(item.getType()))
+                if (targetItem.equals(item.getType()))
                 {
-                    if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " has the item: " + item.getType());
                     return true;
                 }
             }
@@ -35,4 +51,3 @@ public class CollectItemsGoal extends CollectItemGoal {
         return false;
     }
 }
-

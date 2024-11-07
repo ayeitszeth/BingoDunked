@@ -88,6 +88,13 @@ public class BingoHandler implements Listener {
     }
 
     @EventHandler
+    public void onBucketEntity(PlayerBucketEntityEvent event)
+    {
+        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(event.getPlayer(), CollectItemGoal.class));
+    }
+
+    @EventHandler
     public void onBreakBlock(BlockBreakEvent event)
     {
         if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
