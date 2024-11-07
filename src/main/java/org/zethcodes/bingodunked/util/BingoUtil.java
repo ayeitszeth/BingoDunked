@@ -861,7 +861,7 @@ public class BingoUtil {
         CollectItemGoal loomGoal = new CollectItemGoal("Collect a Loom", loom);
         allGoals.add(loomGoal);
 
-        /* Disabled as villages are too strong
+        /* DISABLED - villages too strong
         ItemStack bell = new ItemStack(Material.BELL, 1);
         CollectItemGoal bellGoal = new CollectItemGoal("Collect a Bell", bell);
         allGoals.add(bellGoal);*/
@@ -906,9 +906,9 @@ public class BingoUtil {
         BreedEntityGoal donkeyBreedGoal = new BreedEntityGoal("Breed Two Donkeys", goldenapple, EntityType.DONKEY, breedEntityListener);
         biomeGoals.put(Biome.MEADOW, donkeyBreedGoal);
 
-        /*ItemStack leather = new ItemStack(Material.LEATHER, 1);
+        ItemStack leather = new ItemStack(Material.LEATHER, 1);
         BreedEntityGoal cowBreedGoal = new BreedEntityGoal("Breed Two Cows", leather, EntityType.COW, breedEntityListener);
-        allGoals.add(cowBreedGoal);*/
+        allGoals.add(cowBreedGoal);
 
         ItemStack honeyBlock = new ItemStack(Material.HONEY_BLOCK, 1);
         BreedEntityGoal beeBreedGoal = new BreedEntityGoal("Breed Two Bees", honeyBlock, EntityType.BEE, breedEntityListener);
@@ -1154,6 +1154,7 @@ public class BingoUtil {
         smithingTemplates.add(Material.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE);
         smithingTemplates.add(Material.FLOW_ARMOR_TRIM_SMITHING_TEMPLATE);
         smithingTemplates.add(Material.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE);
+        smithingTemplates.add(Material.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE);
         CollectItemsGoal smithingTemplateGoal = new CollectItemsGoal("Collect any Smithing Template", wardSmithTemp, smithingTemplates);
         allGoals.add(smithingTemplateGoal);
         lateGameGoals.add(smithingTemplateGoal);
@@ -1172,7 +1173,8 @@ public class BingoUtil {
         EatGoal cookedRabbitGoal = new EatGoal("Eat some Cooked Rabbit", cookedRabbit, eatListener);
         biomeGoals.put(Biome.BADLANDS, cookedRabbitGoal);
 
-        /*ItemStack rabbitStew = new ItemStack(Material.RABBIT_STEW, 1);
+        /* DISABLED - villages too strong
+        ItemStack rabbitStew = new ItemStack(Material.RABBIT_STEW, 1);
         EatGoal rabbitStewGoal = new EatGoal("Eat some Rabbit Stew", rabbitStew, eatListener);
         allGoals.add(rabbitStewGoal);*/
 
@@ -1339,6 +1341,8 @@ public class BingoUtil {
         bannerPatterns.add(Material.PIGLIN_BANNER_PATTERN);
         bannerPatterns.add(Material.FLOW_BANNER_PATTERN);
         bannerPatterns.add(Material.GUSTER_BANNER_PATTERN);
+        bannerPatterns.add(Material.FIELD_MASONED_BANNER_PATTERN);
+        bannerPatterns.add(Material.BORDURE_INDENTED_BANNER_PATTERN);
         CollectItemsGoal bannerPatternGoal = new CollectItemsGoal("Collect any Banner Pattern", bannerPattern, bannerPatterns);
         allGoals.add(bannerPatternGoal);
 
@@ -1419,12 +1423,8 @@ public class BingoUtil {
         BlockInteractGoal fillchiseledBookshelfGoal = new BlockInteractGoal("Completely fill a Chiseled Bookshelf", chiseledBookshelf, Material.CHISELED_BOOKSHELF, blockInteractListener);
         allGoals.add(fillchiseledBookshelfGoal);
 
-        /* Player needs to right-click campfire after making signal fire which is weird
-        ItemStack campfire = new ItemStack(Material.CAMPFIRE, 1);
-        BlockInteractGoal signalFireGoal = new BlockInteractGoal("Start a Signal Fire", campfire, Material.CAMPFIRE, blockInteractListener);
-        allGoals.add(signalFireGoal);*/
-
-        /*ItemStack rawCod = new ItemStack(Material.COD,1);
+        /* DISABLED - villages too storng
+        ItemStack rawCod = new ItemStack(Material.COD,1);
         BreedEntityGoal catBreedGoal = new BreedEntityGoal("Breed two Cats", rawCod, EntityType.CAT, breedEntityListener);
         allGoals.add(catBreedGoal);*/
 
@@ -1765,9 +1765,7 @@ public class BingoUtil {
         TravelGoal run3000Goal = new TravelGoal("Run 3000 Blocks", goldBoots, 3000.0, TravelListener.TYPE.RUNNING, travelListener);
         allGoals.add(run3000Goal);
 
-        // Boat broken in 1.21.3 >:(
-
-        /*ItemStack boat = new ItemStack(Material.OAK_BOAT,1);
+        ItemStack boat = new ItemStack(Material.OAK_BOAT,1);
         TravelGoal boat500Goal = new TravelGoal("Use a Boat to travel 500 Blocks", boat, 500.0, TravelListener.TYPE.BOAT, travelListener);
         allGoals.add(boat500Goal);
 
@@ -1775,7 +1773,7 @@ public class BingoUtil {
         allGoals.add(boat2000Goal);
 
         TravelGoal boat1500Goal = new TravelGoal("Use a Boat to travel 1500 Blocks", boat, 1500.0, TravelListener.TYPE.BOAT, travelListener);
-        allGoals.add(boat1500Goal);*/
+        allGoals.add(boat1500Goal);
 
         ItemStack saddle = new ItemStack(Material.SADDLE,1);
         TravelGoal pig50Goal = new TravelGoal("Use a Pig to travel 50 Blocks",saddle,50.0,TravelListener.TYPE.PIG,travelListener);
@@ -2344,7 +2342,9 @@ public class BingoUtil {
 
         if (isGoalKnockedOut(col, row, team)) {
             resetBoards(col, row);
-            BingoAnnounce(teamColor + player.getName() + ChatColor.WHITE + " has dunked the goal " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + goal.getName() + ChatColor.WHITE + "!");
+            String message = teamColor + player.getName() + ChatColor.WHITE + " has dunked the goal " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + goal.getName() + ChatColor.WHITE + "!";
+            BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "DUNKED!", teamColor + goal.getName());
+            BingoAnnounce(message);
             BingoAnnounce("");
 
             if (goal instanceof TravelGoal)
@@ -2389,7 +2389,9 @@ public class BingoUtil {
         teamWool.setItemMeta(meta);
         BingoCard.setItem(slot, teamWool);
 
-        BingoAnnounce(teamColor + player.getName() + ChatColor.WHITE + " has completed " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + goal.getName());
+        String message = teamColor + player.getName() + ChatColor.WHITE + " has completed " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + goal.getName();
+        BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "GOAL!", teamColor + goal.getName());
+        BingoAnnounce(message);
 
         if (checkBingo(team)) {
             BingoEnd(team);
@@ -2431,7 +2433,6 @@ public class BingoUtil {
                 return false;
         }
     }
-
 
     public void resetBoards(int col, int row) {
         redBoard[col][row] = false;
@@ -2497,7 +2498,9 @@ public class BingoUtil {
         }
         teamColor = getTeamChatColour(team);
 
-        BingoAnnounce(teamColor + "" + ChatColor.BOLD + teamName + " team has won Bingo!");
+        String message = teamColor + "" + ChatColor.BOLD + teamName + " team has won Bingo!";
+        BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "BINGO!",message);
+        BingoAnnounce(message);
         spawnFirework(Bukkit.getWorld(WorldUtil.bingoWorldName).getSpawnLocation(), fireworkColor, FireworkEffect.Type.BALL_LARGE);
 
         showStats();
@@ -2891,6 +2894,19 @@ public class BingoUtil {
             UUID playerUUID = entry.getKey();
             Team team = entry.getValue();
             if (BingoUtil.DEBUG) Bukkit.getLogger().info("Player UUID: " + playerUUID + ", Team: " + team);
+        }
+    }
+
+    public void BroadcastPlayerTitle(String title, String subtitle)
+    {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.sendTitle(
+                    ChatColor.LIGHT_PURPLE + title,
+                    subtitle,
+                    10, // Fade-in duration (ticks)
+                    70, // Stay duration (ticks)
+                    20  // Fade-out duration (ticks)
+            );
         }
     }
 

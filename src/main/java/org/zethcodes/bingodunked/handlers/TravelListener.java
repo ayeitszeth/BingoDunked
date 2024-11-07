@@ -76,7 +76,16 @@ public class TravelListener implements Listener {
         double newDistance = Math.sqrt(Math.pow(event.getTo().getX()-event.getFrom().getX(),2) + Math.pow(event.getTo().getZ()-event.getFrom().getZ(),2));
         if (player.isInsideVehicle())
         {
-            if (false/*player.getVehicle().getType() == EntityType.BOAT || player.getVehicle().getType() == EntityType.CHEST_BOAT*/)
+            if (player.getVehicle().getType() == EntityType.ACACIA_BOAT || player.getVehicle().getType() == EntityType.ACACIA_CHEST_BOAT
+                    || player.getVehicle().getType() == EntityType.BIRCH_BOAT || player.getVehicle().getType() == EntityType.BIRCH_CHEST_BOAT
+                    || player.getVehicle().getType() == EntityType.CHERRY_BOAT || player.getVehicle().getType() == EntityType.CHERRY_CHEST_BOAT
+                    || player.getVehicle().getType() == EntityType.DARK_OAK_BOAT || player.getVehicle().getType() == EntityType.DARK_OAK_CHEST_BOAT
+                    || player.getVehicle().getType() == EntityType.JUNGLE_BOAT || player.getVehicle().getType() == EntityType.JUNGLE_CHEST_BOAT
+                    || player.getVehicle().getType() == EntityType.OAK_BOAT || player.getVehicle().getType() == EntityType.OAK_CHEST_BOAT
+                    || player.getVehicle().getType() == EntityType.PALE_OAK_BOAT || player.getVehicle().getType() == EntityType.PALE_OAK_CHEST_BOAT
+                    || player.getVehicle().getType() == EntityType.SPRUCE_BOAT || player.getVehicle().getType() == EntityType.SPRUCE_CHEST_BOAT
+                    || player.getVehicle().getType() == EntityType.MANGROVE_BOAT || player.getVehicle().getType() == EntityType.MANGROVE_CHEST_BOAT
+                    || player.getVehicle().getType() == EntityType.BAMBOO_RAFT || player.getVehicle().getType() == EntityType.BAMBOO_CHEST_RAFT)
             {
                 playerBoatDistances.put(player.getUniqueId(), playerBoatDistances.getOrDefault(player.getUniqueId(), 0.0) + newDistance);
                 int dist = (int) Math.floor(playerBoatDistances.get(player.getUniqueId()));
