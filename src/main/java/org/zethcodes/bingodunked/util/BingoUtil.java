@@ -477,7 +477,12 @@ public class BingoUtil {
                                 continue;
                             }
 
-                            ItemStack item = new ItemStack(items.get(animateCounter % items.size()), 1);
+                            if (isGoalToBeDunked(col, row, Team.NONE) || items.size() <= 1)
+                            {
+                                continue;
+                            }
+
+                            ItemStack item = new ItemStack(items.get(animateCounter % items.size()), goal.getItem().getAmount());
                             ItemMeta meta = item.getItemMeta();
                             List<String> lore = new ArrayList<>();
                             lore.add(ChatColor.DARK_PURPLE + goal.getName());
@@ -684,8 +689,17 @@ public class BingoUtil {
             return;
         }
 
+        String playerName;
+
+        try {
+            playerName = player.getName();
+        } catch (Exception ex)
+        {
+            playerName = "<left server>";
+        }
+
         TeamMap.put(player.getUniqueId(),team);
-        BingoAnnounce(player.getName() + ChatColor.WHITE + " has joined the " + getTeamChatColour(team) + ChatColor.BOLD + team.name().charAt(0) + team.name().substring(1).toLowerCase() + " Team" + ChatColor.WHITE + ".");
+        BingoAnnounce(playerName + ChatColor.WHITE + " has joined the " + getTeamChatColour(team) + ChatColor.BOLD + team.name().charAt(0) + team.name().substring(1).toLowerCase() + " Team" + ChatColor.WHITE + ".");
         updatePlayerTabListName(player);
     }
 
@@ -1094,14 +1108,16 @@ public class BingoUtil {
         FallGoal fall225Goal = new FallGoal("Fall from 225 Blocks", feather, 225, fallHeightListener);
         allGoals.add(fall225Goal);
 
-        ItemStack xpBottle = new ItemStack(Material.EXPERIENCE_BOTTLE, 1);
-        ExperienceGoal exp10Goal = new ExperienceGoal("Get to Level 10", xpBottle, 10, experienceListener);
+        ItemStack xpBottle10 = new ItemStack(Material.EXPERIENCE_BOTTLE, 10);
+        ExperienceGoal exp10Goal = new ExperienceGoal("Get to Level 10", xpBottle10, 10, experienceListener);
         allGoals.add(exp10Goal);
 
-        ExperienceGoal exp15Goal = new ExperienceGoal("Get to Level 15", xpBottle, 15, experienceListener);
+        ItemStack xpBottle15 = new ItemStack(Material.EXPERIENCE_BOTTLE, 15);
+        ExperienceGoal exp15Goal = new ExperienceGoal("Get to Level 15", xpBottle15, 15, experienceListener);
         allGoals.add(exp15Goal);
 
-        ExperienceGoal exp20Goal = new ExperienceGoal("Get to Level 20", xpBottle, 20, experienceListener);
+        ItemStack xpBottle20 = new ItemStack(Material.EXPERIENCE_BOTTLE, 20);
+        ExperienceGoal exp20Goal = new ExperienceGoal("Get to Level 20", xpBottle20, 20, experienceListener);
         allGoals.add(exp20Goal);
         lateGameGoals.add(exp20Goal);
 
@@ -1880,7 +1896,7 @@ public class BingoUtil {
 
         ItemStack coarsedirt = new ItemStack(Material.COARSE_DIRT, 64);
         List<Material> coarsedirtList = new ArrayList<>();
-        mudBrickList.add(Material.COARSE_DIRT);
+        coarsedirtList.add(Material.COARSE_DIRT);
         CollectItemsAmountGoal coarseDirtGoal = new CollectItemsAmountGoal("Collect 64 Coarse Dirt Blocks", coarsedirt, coarsedirtList, 64);
         biomeGoals.put(Biome.OLD_GROWTH_SPRUCE_TAIGA,coarseDirtGoal);
 
@@ -2193,7 +2209,7 @@ public class BingoUtil {
             });
         }
 
-        //testGoal = andesiteGoal;
+        //testGoal = mudBricksGoal;
     }
 
     public void goalAutoComplete(Player player, Class goalType)
@@ -2340,9 +2356,18 @@ public class BingoUtil {
 
         teamBoard[col][row] = true;
 
-        if (isGoalKnockedOut(col, row, team)) {
+        if (isGoalToBeDunked(col, row, team)) {
             resetBoards(col, row);
-            String message = teamColor + player.getName() + ChatColor.WHITE + " has dunked the goal " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + goal.getName() + ChatColor.WHITE + "!";
+
+            String playerName;
+            try {
+                playerName = player.getName();
+            } catch (Exception ex)
+            {
+                playerName = "<left server>";
+            }
+
+            String message = teamColor + playerName + ChatColor.WHITE + " has dunked the goal " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + goal.getName() + ChatColor.WHITE + "!";
             BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "DUNKED!", teamColor + goal.getName());
             BingoAnnounce(message);
             BingoAnnounce("");
@@ -2389,7 +2414,15 @@ public class BingoUtil {
         teamWool.setItemMeta(meta);
         BingoCard.setItem(slot, teamWool);
 
-        String message = teamColor + player.getName() + ChatColor.WHITE + " has completed " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + goal.getName();
+        String playerName;
+        try {
+            playerName = player.getName();
+        } catch (Exception ex)
+        {
+            playerName = "<left server>";
+        }
+
+        String message = teamColor + playerName + ChatColor.WHITE + " has completed " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + goal.getName();
         BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "GOAL!", teamColor + goal.getName());
         BingoAnnounce(message);
 
@@ -2403,7 +2436,7 @@ public class BingoUtil {
         }
     }
 
-    private boolean isGoalKnockedOut(int col, int row, Team currentTeam) {
+    private boolean isGoalToBeDunked(int col, int row, Team currentTeam) {
         switch (currentTeam) {
             case RED:
                 return blueBoard[col][row] || greenBoard[col][row] || yellowBoard[col][row] ||
@@ -2429,6 +2462,9 @@ public class BingoUtil {
             case BROWN:
                 return redBoard[col][row] || blueBoard[col][row] || greenBoard[col][row] || yellowBoard[col][row] ||
                         orangeBoard[col][row] || purpleBoard[col][row] || cyanBoard[col][row];
+            case NONE:
+                return redBoard[col][row] || blueBoard[col][row] || greenBoard[col][row] || yellowBoard[col][row] ||
+                        orangeBoard[col][row] || purpleBoard[col][row] || cyanBoard[col][row] || brownBoard[col][row];
             default:
                 return false;
         }
@@ -2528,9 +2564,18 @@ public class BingoUtil {
 
             for (Map.Entry<UUID, Integer> entry : sortedEntries) {
                 Player player = getServer().getPlayer(entry.getKey());
+                String playerName;
+
+                try {
+                    playerName = player.getName();
+                } catch (Exception ex)
+                {
+                    playerName = "<left server>";
+                }
+
                 Integer goalsCompleted = entry.getValue();
                 ChatColor teamChatColour = getTeamChatColour(player);
-                Bukkit.broadcastMessage("    " + teamChatColour + player.getName() + ChatColor.WHITE + ": " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + goalsCompleted + ChatColor.WHITE + " goals completed");
+                Bukkit.broadcastMessage("    " + teamChatColour + playerName + ChatColor.WHITE + ": " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + goalsCompleted + ChatColor.WHITE + " goals completed");
             }
             Bukkit.broadcastMessage("");
             showSessionStats();
@@ -2547,9 +2592,18 @@ public class BingoUtil {
 
             for (Map.Entry<UUID, Integer> entry : sortedEntries) {
                 Player player = getServer().getPlayer(entry.getKey());
+                String playerName;
                 Integer goalsCompleted = entry.getValue();
                 ChatColor teamChatColour = getTeamChatColour(player);
-                Bukkit.broadcastMessage("    " + teamChatColour + player.getName() + ChatColor.WHITE + ": " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + goalsCompleted + ChatColor.WHITE + " goals completed");
+
+                try {
+                    playerName = player.getName();
+                } catch (Exception ex)
+                {
+                    playerName = "<left server>";
+                }
+
+                Bukkit.broadcastMessage("    " + teamChatColour + playerName + ChatColor.WHITE + ": " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + goalsCompleted + ChatColor.WHITE + " goals completed");
             }
             Bukkit.broadcastMessage("");
         }, 20L * 8).getTaskId());
@@ -2655,7 +2709,14 @@ public class BingoUtil {
 
     public Team getTeam(Player player)
     {
-        return TeamMap.getOrDefault(player.getUniqueId(), Team.NONE);
+        try {
+            UUID playerUUID = player.getUniqueId();
+            return TeamMap.getOrDefault(playerUUID, Team.NONE);
+        } catch (Exception ex)
+        {
+            return Team.NONE;
+        }
+
     }
 
     public void incrementPlayerGoalsCompleted(Player player) {
