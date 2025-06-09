@@ -11,8 +11,8 @@ import java.util.List;
 public class CollectItemSetGoal extends CollectItemGoal{
     public List<Material> items;
 
-    public CollectItemSetGoal(String name, ItemStack itemToCollect, List<Material> items) {
-        super(name, itemToCollect);
+    public CollectItemSetGoal(String name, List<Material> items) {
+        super(name, new ItemStack(items.get(0), 1));
         this.items = items;
     }
 
@@ -46,5 +46,10 @@ public class CollectItemSetGoal extends CollectItemGoal{
         }
         //if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " does not have the item: " + items);
         return false;
+    }
+
+    @Override
+    public boolean isCompleteItem(ItemStack item, Player player) {
+        return isComplete(player);
     }
 }

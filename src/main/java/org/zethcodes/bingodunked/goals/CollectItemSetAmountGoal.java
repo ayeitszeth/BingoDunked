@@ -12,8 +12,8 @@ public class CollectItemSetAmountGoal extends CollectItemGoal{
     public List<Material> items;
     private int amount;
 
-    public CollectItemSetAmountGoal(String name, ItemStack itemToCollect, List<Material> items, int amount) {
-        super(name, itemToCollect);
+    public CollectItemSetAmountGoal(String name, List<Material> items, int amount) {
+        super(name, new ItemStack(items.get(0), 1));
         this.items = items;
         this.amount = amount;
     }
@@ -49,5 +49,10 @@ public class CollectItemSetAmountGoal extends CollectItemGoal{
         }
         //if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " does not have the item: " + items);
         return false;
+    }
+
+    @Override
+    public boolean isCompleteItem(ItemStack item, Player player) {
+        return isComplete(player);
     }
 }

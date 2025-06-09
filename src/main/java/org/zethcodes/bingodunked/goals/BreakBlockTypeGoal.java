@@ -2,7 +2,7 @@ package org.zethcodes.bingodunked.goals;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.zethcodes.bingodunked.handlers.BreakBlockTypeListener;
+import org.zethcodes.bingodunked.listeners.BreakBlockTypeListener;
 
 public class BreakBlockTypeGoal extends Goal {
     public final BreakBlockTypeListener.BlockType requiredBlock;

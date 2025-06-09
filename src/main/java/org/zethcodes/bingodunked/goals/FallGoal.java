@@ -2,7 +2,7 @@ package org.zethcodes.bingodunked.goals;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.zethcodes.bingodunked.handlers.FallHeightListener;
+import org.zethcodes.bingodunked.listeners.FallHeightListener;
 
 public class FallGoal extends Goal {
     private final FallHeightListener fallHeightListener;

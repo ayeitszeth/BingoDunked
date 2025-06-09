@@ -11,8 +11,8 @@ import java.util.List;
 public class CollectItemsGoal extends CollectItemGoal {
     public List<Material> items;
 
-    public CollectItemsGoal(String name, ItemStack itemToCollect, List<Material> items) {
-        super(name, itemToCollect);
+    public CollectItemsGoal(String name, List<Material> items) {
+        super(name, new ItemStack(items.get(0), 1));
         this.items = items;
     }
 

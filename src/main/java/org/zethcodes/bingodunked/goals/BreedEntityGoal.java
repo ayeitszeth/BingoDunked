@@ -3,7 +3,7 @@ package org.zethcodes.bingodunked.goals;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
-import org.zethcodes.bingodunked.handlers.BreedEntityListener;
+import org.zethcodes.bingodunked.listeners.BreedEntityListener;
 
 public class BreedEntityGoal extends Goal {
     private EntityType requiredEntityType;

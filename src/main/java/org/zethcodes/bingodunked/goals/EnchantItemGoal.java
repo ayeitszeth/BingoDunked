@@ -3,7 +3,7 @@ package org.zethcodes.bingodunked.goals;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.zethcodes.bingodunked.handlers.EnchantListener;
+import org.zethcodes.bingodunked.listeners.EnchantListener;
 import org.zethcodes.bingodunked.util.Enchant;
 
 public class EnchantItemGoal extends Goal {

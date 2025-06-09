@@ -1,4 +1,4 @@
-package org.zethcodes.bingodunked.handlers;
+package org.zethcodes.bingodunked.listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;

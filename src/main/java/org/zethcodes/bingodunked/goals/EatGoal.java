@@ -3,7 +3,7 @@ package org.zethcodes.bingodunked.goals;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.zethcodes.bingodunked.handlers.EatListener;
+import org.zethcodes.bingodunked.listeners.EatListener;
 
 public class EatGoal extends Goal {
     private Material requiredFoodType;

@@ -4,8 +4,8 @@ import org.bukkit.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zethcodes.bingodunked.commands.*;
 import org.zethcodes.bingodunked.handlers.*;
+import org.zethcodes.bingodunked.listeners.*;
 import org.zethcodes.bingodunked.util.BingoUtil;
-import org.zethcodes.bingodunked.util.DelayedTask;
 import org.zethcodes.bingodunked.util.WorldUtil;
 
 public final class BingoDunked extends JavaPlugin {
@@ -73,8 +73,8 @@ public final class BingoDunked extends JavaPlugin {
         getCommand("all").setExecutor(allChat);
         getCommand("all").setTabCompleter(allChat);
         BingoTime bingoTime = new BingoTime(bingoUtil);
-        getCommand("time").setExecutor(bingoTime);
-        getCommand("time").setTabCompleter(bingoTime);
+        getCommand("bingotime").setExecutor(bingoTime);
+        getCommand("bingotime").setTabCompleter(bingoTime);
         BingoSettings bingoSettings = new BingoSettings(bingoUtil);
         getCommand("settings").setExecutor(bingoSettings);
         getCommand("settings").setTabCompleter(bingoSettings);

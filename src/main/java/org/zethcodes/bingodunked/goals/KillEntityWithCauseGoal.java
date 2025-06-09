@@ -4,7 +4,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
-import org.zethcodes.bingodunked.handlers.KillEntityListener;
+import org.zethcodes.bingodunked.listeners.KillEntityListener;
 
 public class KillEntityWithCauseGoal extends KillEntityGoal {
 

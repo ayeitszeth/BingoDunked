@@ -2,7 +2,7 @@ package org.zethcodes.bingodunked.goals;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.zethcodes.bingodunked.handlers.TravelListener;
+import org.zethcodes.bingodunked.listeners.TravelListener;
 
 public class TravelGoal extends Goal {
     private double distance;

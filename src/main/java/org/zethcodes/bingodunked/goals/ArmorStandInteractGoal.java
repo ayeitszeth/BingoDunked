@@ -3,7 +3,7 @@ package org.zethcodes.bingodunked.goals;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.zethcodes.bingodunked.handlers.ArmorStandInteractListener;
+import org.zethcodes.bingodunked.listeners.ArmorStandInteractListener;
 
 public class ArmorStandInteractGoal extends Goal {
     private final EntityType entityType;

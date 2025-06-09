@@ -3,7 +3,7 @@ package org.zethcodes.bingodunked.goals;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.zethcodes.bingodunked.handlers.FishingListener;
+import org.zethcodes.bingodunked.listeners.FishingListener;
 
 public class FishingGoal extends Goal {
     private final Material requiredCaught;

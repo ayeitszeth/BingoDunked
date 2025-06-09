@@ -1,7 +1,7 @@
 name: MinecraftDunked
-version: '1.3'
+version: '1.4'
 main: org.zethcodes.bingodunked.BingoDunked
-api-version: '1.21.3'
+api-version: '1.21.5'
 commands:
   bingocard:
     usage: /bingocard
@@ -20,6 +20,7 @@ commands:
     permission: bingo.newworld
     aliases: [ nw ]
   cheat:
+    permission: bingo.cheat
     usage: /cheat <slot>
   latejoin:
     usage: /latejoin
@@ -27,8 +28,8 @@ commands:
   all:
     usage: /all <message>
     permission: bingo.allchat
-  time:
-    usage: /time
+  bingotime:
+    usage: /bingotime
     permission: bingo.time
   settings:
     usage: /settings
@@ -36,6 +37,13 @@ commands:
   endgame:
     usage: /endgame
     permission: bingo.endgame
+  leaderboard:
+    usage: /leaderboard
+    permission: bingo.leaderboard
+    aliases: [ lb ]
+  rank:
+    usage: /rank
+    permission: bingo.rank
 permissions:
   bingo.bingocard:
     description: Open your team's bingo card.
@@ -63,4 +71,13 @@ permissions:
     default: true
   bingo.endgame:
     description: Ends bingo game.
+    default: op
+  bingo.cheat:
+    description: Allows to autocomplete bingo goals.
+    default: op
+  bingo.leaderboard:
+    description: Shows the player the ranked leaderboard.
+    default: true
+  bingo.rank:
+    description: Shows the player their rank.
     default: true

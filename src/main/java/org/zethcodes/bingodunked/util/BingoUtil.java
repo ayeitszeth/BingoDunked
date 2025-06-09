@@ -23,11 +23,13 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
+import org.checkerframework.checker.units.qual.K;
 import org.zethcodes.bingodunked.BingoDunked;
 import org.zethcodes.bingodunked.goals.*;
-import org.zethcodes.bingodunked.handlers.*;
+import org.zethcodes.bingodunked.listeners.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.bukkit.Bukkit.getServer;
 
@@ -833,7 +835,6 @@ public class BingoUtil {
         CollectItemGoal emeraldBlockGoal = new CollectItemGoal("Collect an Emerald Block", emeraldBlock);
         allGoals.add(emeraldBlockGoal);
 
-        ItemStack candle = new ItemStack(Material.CANDLE, 1);
         List<Material> candles = new ArrayList<>();
         candles.add(Material.CANDLE);
         candles.add(Material.WHITE_CANDLE);
@@ -852,10 +853,9 @@ public class BingoUtil {
         candles.add(Material.GREEN_CANDLE);
         candles.add(Material.RED_CANDLE);
         candles.add(Material.BLACK_CANDLE);
-        CollectItemsGoal candleGoal = new CollectItemsGoal("Collect any Candle", candle, candles);
+        CollectItemsGoal candleGoal = new CollectItemsGoal("Collect any Candle", candles);
         allGoals.add(candleGoal);
 
-        ItemStack hangingSign = new ItemStack(Material.OAK_HANGING_SIGN, 1);
         List<Material> hangingSigns = new ArrayList<>();
         hangingSigns.add(Material.OAK_HANGING_SIGN);
         hangingSigns.add(Material.ACACIA_HANGING_SIGN);
@@ -868,7 +868,8 @@ public class BingoUtil {
         hangingSigns.add(Material.OAK_HANGING_SIGN);
         hangingSigns.add(Material.SPRUCE_HANGING_SIGN);
         hangingSigns.add(Material.WARPED_HANGING_SIGN);
-        CollectItemsGoal hangingSignGoal = new CollectItemsGoal("Collect a Hanging Sign of Any Type", hangingSign, hangingSigns);
+        hangingSigns.add(Material.PALE_OAK_HANGING_SIGN);
+        CollectItemsGoal hangingSignGoal = new CollectItemsGoal("Collect a Hanging Sign of Any Type", hangingSigns);
         allGoals.add(hangingSignGoal);
 
         ItemStack loom = new ItemStack(Material.LOOM, 1);
@@ -1090,7 +1091,7 @@ public class BingoUtil {
         allGoals.add(logBreakGoal);
 
         ItemStack diamondOre = new ItemStack(Material.DIAMOND_ORE, 1);
-        BreakBlockTypeGoal oreBreakGoal = new BreakBlockTypeGoal("Break 125 Ore Blocks", diamondOre, BreakBlockTypeListener.BlockType.ORE, 125, blockTypeListener);
+        BreakBlockTypeGoal oreBreakGoal = new BreakBlockTypeGoal("Break 100 Ore Blocks", diamondOre, BreakBlockTypeListener.BlockType.ORE, 100, blockTypeListener);
         allGoals.add(oreBreakGoal);
 
         ItemStack netherGoldOre = new ItemStack(Material.NETHER_GOLD_ORE, 1);
@@ -1108,20 +1109,19 @@ public class BingoUtil {
         FallGoal fall225Goal = new FallGoal("Fall from 225 Blocks", feather, 225, fallHeightListener);
         allGoals.add(fall225Goal);
 
-        ItemStack xpBottle10 = new ItemStack(Material.EXPERIENCE_BOTTLE, 10);
-        ExperienceGoal exp10Goal = new ExperienceGoal("Get to Level 10", xpBottle10, 10, experienceListener);
-        allGoals.add(exp10Goal);
+        ItemStack xpBottle5 = new ItemStack(Material.EXPERIENCE_BOTTLE, 5);
+        ExperienceGoal exp5Goal = new ExperienceGoal("Get to Level 5", xpBottle5, 5, experienceListener);
+        allGoals.add(exp5Goal);
 
         ItemStack xpBottle15 = new ItemStack(Material.EXPERIENCE_BOTTLE, 15);
         ExperienceGoal exp15Goal = new ExperienceGoal("Get to Level 15", xpBottle15, 15, experienceListener);
         allGoals.add(exp15Goal);
 
-        ItemStack xpBottle20 = new ItemStack(Material.EXPERIENCE_BOTTLE, 20);
-        ExperienceGoal exp20Goal = new ExperienceGoal("Get to Level 20", xpBottle20, 20, experienceListener);
-        allGoals.add(exp20Goal);
-        lateGameGoals.add(exp20Goal);
+        ItemStack xpBottle30 = new ItemStack(Material.EXPERIENCE_BOTTLE, 30);
+        ExperienceGoal exp30Goal = new ExperienceGoal("Get to Level 30", xpBottle30, 30, experienceListener);
+        allGoals.add(exp30Goal);
+        lateGameGoals.add(exp30Goal);
 
-        ItemStack disc = new ItemStack(Material.MUSIC_DISC_CAT,1);
         List<Material> discs = new ArrayList<>();
         discs.add(Material.MUSIC_DISC_5);
         discs.add(Material.MUSIC_DISC_OTHERSIDE);
@@ -1142,19 +1142,17 @@ public class BingoUtil {
         discs.add(Material.MUSIC_DISC_CREATOR);
         discs.add(Material.MUSIC_DISC_CREATOR_MUSIC_BOX);
         discs.add(Material.MUSIC_DISC_PRECIPICE);
-        CollectItemsGoal discGoal = new CollectItemsGoal("Collect any Music Disc", disc,discs);
+        CollectItemsGoal discGoal = new CollectItemsGoal("Collect any Music Disc",discs);
         allGoals.add(discGoal);
 
-        ItemStack horseArmor = new ItemStack(Material.DIAMOND_HORSE_ARMOR,1);
         List<Material> horseArmors = new ArrayList<>();
         horseArmors.add(Material.IRON_HORSE_ARMOR);
         horseArmors.add(Material.LEATHER_HORSE_ARMOR);
         horseArmors.add(Material.GOLDEN_HORSE_ARMOR);
         horseArmors.add(Material.DIAMOND_HORSE_ARMOR);
-        CollectItemsGoal horseArmorGoal = new CollectItemsGoal("Collect any Horse Armor", horseArmor, horseArmors);
+        CollectItemsGoal horseArmorGoal = new CollectItemsGoal("Collect any Horse Armor", horseArmors);
         allGoals.add(horseArmorGoal);
 
-        ItemStack wardSmithTemp = new ItemStack(Material.WARD_ARMOR_TRIM_SMITHING_TEMPLATE,1);
         List<Material> smithingTemplates = new ArrayList<>();
         smithingTemplates.add(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
         smithingTemplates.add(Material.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE);
@@ -1171,7 +1169,7 @@ public class BingoUtil {
         smithingTemplates.add(Material.FLOW_ARMOR_TRIM_SMITHING_TEMPLATE);
         smithingTemplates.add(Material.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE);
         smithingTemplates.add(Material.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE);
-        CollectItemsGoal smithingTemplateGoal = new CollectItemsGoal("Collect any Smithing Template", wardSmithTemp, smithingTemplates);
+        CollectItemsGoal smithingTemplateGoal = new CollectItemsGoal("Collect any Smithing Template", smithingTemplates);
         allGoals.add(smithingTemplateGoal);
         lateGameGoals.add(smithingTemplateGoal);
 
@@ -1309,7 +1307,6 @@ public class BingoUtil {
         CollectColouredItemGoal greenConcreteGoal = new CollectColouredItemGoal("Collect a Block of Green Concrete", greenConcrete);
         biomeGoals.put(Biome.DESERT,greenConcreteGoal);
 
-        ItemStack potterySherd = new ItemStack(Material.ANGLER_POTTERY_SHERD, 1);
         List<Material> potterySherds = new ArrayList<>();
         potterySherds.add(Material.ANGLER_POTTERY_SHERD);
         potterySherds.add(Material.ARCHER_POTTERY_SHERD);
@@ -1331,7 +1328,10 @@ public class BingoUtil {
         potterySherds.add(Material.SHELTER_POTTERY_SHERD);
         potterySherds.add(Material.SKULL_POTTERY_SHERD);
         potterySherds.add(Material.SNORT_POTTERY_SHERD);
-        CollectItemsGoal potterySherdGoal = new CollectItemsGoal("Collect any Pottery Sherd", potterySherd, potterySherds);
+        potterySherds.add(Material.FLOW_POTTERY_SHERD);
+        potterySherds.add(Material.GUSTER_POTTERY_SHERD);
+        potterySherds.add(Material.SCRAPE_POTTERY_SHERD);
+        CollectItemsGoal potterySherdGoal = new CollectItemsGoal("Collect any Pottery Sherd", potterySherds);
         allGoals.add(potterySherdGoal);
 
         ItemStack anvil = new ItemStack(Material.ANVIL, 1);
@@ -1347,7 +1347,6 @@ public class BingoUtil {
         CollectItemGoal seaPickleGoal = new CollectItemGoal("Collect a Sea Pickle", seaCucum);
         biomeGoals.put(Biome.WARM_OCEAN, seaPickleGoal);
 
-        ItemStack bannerPattern = new ItemStack(Material.FLOWER_BANNER_PATTERN, 1);
         List<Material> bannerPatterns = new ArrayList<>();
         bannerPatterns.add(Material.FLOWER_BANNER_PATTERN);
         bannerPatterns.add(Material.CREEPER_BANNER_PATTERN);
@@ -1359,7 +1358,7 @@ public class BingoUtil {
         bannerPatterns.add(Material.GUSTER_BANNER_PATTERN);
         bannerPatterns.add(Material.FIELD_MASONED_BANNER_PATTERN);
         bannerPatterns.add(Material.BORDURE_INDENTED_BANNER_PATTERN);
-        CollectItemsGoal bannerPatternGoal = new CollectItemsGoal("Collect any Banner Pattern", bannerPattern, bannerPatterns);
+        CollectItemsGoal bannerPatternGoal = new CollectItemsGoal("Collect any Banner Pattern", bannerPatterns);
         allGoals.add(bannerPatternGoal);
 
         ItemStack fireCharge = new ItemStack(Material.FIRE_CHARGE,1);
@@ -1452,7 +1451,6 @@ public class BingoUtil {
         CollectItemGoal lightningRodGoal = new CollectItemGoal("Craft a Lightning Rod", lightningRod);
         allGoals.add(lightningRodGoal);
 
-        ItemStack dandelion = new ItemStack(Material.DANDELION,64);
         List<Material> flowers = new ArrayList<>();
         flowers.add(Material.DANDELION);
         flowers.add(Material.POPPY);
@@ -1472,10 +1470,12 @@ public class BingoUtil {
         flowers.add(Material.LILAC);
         flowers.add(Material.ROSE_BUSH);
         flowers.add(Material.PEONY);
-        CollectItemsAmountGoal flowersGoal = new CollectItemsAmountGoal("Collect 64 Flowers of Any Type",dandelion,flowers,64);
+        flowers.add(Material.CLOSED_EYEBLOSSOM);
+        flowers.add(Material.OPEN_EYEBLOSSOM);
+        flowers.add(Material.WILDFLOWERS);
+        CollectItemsAmountGoal flowersGoal = new CollectItemsAmountGoal("Collect 64 Flowers of Any Type", flowers,64);
         allGoals.add(flowersGoal);
 
-        ItemStack oakLeaves = new ItemStack(Material.OAK_LEAVES, 64);
         List<Material> leaves = new ArrayList<>();
         leaves.add(Material.OAK_LEAVES);
         leaves.add(Material.SPRUCE_LEAVES);
@@ -1487,10 +1487,9 @@ public class BingoUtil {
         leaves.add(Material.CHERRY_LEAVES);
         leaves.add(Material.AZALEA_LEAVES);
         leaves.add(Material.FLOWERING_AZALEA_LEAVES);
-        CollectItemsAmountGoal leavesGoal = new CollectItemsAmountGoal("Collect 128 Leaves of Any Type", oakLeaves, leaves, 128);
+        CollectItemsAmountGoal leavesGoal = new CollectItemsAmountGoal("Collect 64 Leaves of Any Type", leaves, 64);
         allGoals.add(leavesGoal);
 
-        ItemStack rottenFlesh = new ItemStack(Material.ROTTEN_FLESH, 32);
         List<Material> mobDrops = new ArrayList<>();
         mobDrops.add(Material.ROTTEN_FLESH);
         mobDrops.add(Material.BONE);
@@ -1506,15 +1505,14 @@ public class BingoUtil {
         mobDrops.add(Material.SHULKER_SHELL);
         mobDrops.add(Material.PRISMARINE_SHARD);
         mobDrops.add(Material.WITHER_SKELETON_SKULL);
-        CollectItemsAmountGoal mobDropsGoal = new CollectItemsAmountGoal("Collect 32 Hostile Mob Drops of Any Type", rottenFlesh, mobDrops,32);
+        CollectItemsAmountGoal mobDropsGoal = new CollectItemsAmountGoal("Collect 32 Hostile Mob Drops of Any Type", mobDrops,32);
         allGoals.add(mobDropsGoal);
 
-        ItemStack rawIronBlock = new ItemStack(Material.RAW_IRON_BLOCK, 16);
         List<Material> rawBlocks = new ArrayList<>();
         rawBlocks.add(Material.RAW_IRON_BLOCK);
         rawBlocks.add(Material.RAW_COPPER_BLOCK);
         rawBlocks.add(Material.RAW_GOLD_BLOCK);
-        CollectItemsAmountGoal rawBlocksGoal = new CollectItemsAmountGoal("Collect 16 Blocks of Any Raw Ore", rawIronBlock, rawBlocks, 16);
+        CollectItemsAmountGoal rawBlocksGoal = new CollectItemsAmountGoal("Collect 16 Blocks of Any Raw Ore", rawBlocks, 16);
         allGoals.add(rawBlocksGoal);
 
         ItemStack bread = new ItemStack(Material.BREAD, 32);
@@ -1563,38 +1561,30 @@ public class BingoUtil {
         foodItems.add(Material.GLOW_BERRIES);
         foodItems.add(Material.SUSPICIOUS_STEW);
         foodItems.add(Material.CHORUS_FRUIT);
-        CollectItemsAmountGoal foodGoal = new CollectItemsAmountGoal("Collect 32 Food of Any Type", bread, foodItems, 32);
+        CollectItemsAmountGoal foodGoal = new CollectItemsAmountGoal("Collect 32 Food of Any Type", foodItems, 32);
         allGoals.add(foodGoal);
 
         ItemStack fireworkRocket = new ItemStack(Material.FIREWORK_ROCKET, 16);
-        List<Material> fireworks = new ArrayList<>();
-        fireworks.add(Material.FIREWORK_ROCKET);
-        CollectItemsAmountGoal fireworksGoal = new CollectItemsAmountGoal("Collect 16 Fireworks", fireworkRocket, fireworks, 16);
+        CollectItemsAmountGoal fireworksGoal = new CollectItemsAmountGoal("Collect 16 Fireworks", fireworkRocket);
         allGoals.add(fireworksGoal);
 
         ItemStack spectralArrows = new ItemStack(Material.SPECTRAL_ARROW, 32);
-        List<Material> spectralArrowMaterials = new ArrayList<>();
-        spectralArrowMaterials.add(Material.SPECTRAL_ARROW);
-        CollectItemsAmountGoal spectralArrowsGoal = new CollectItemsAmountGoal("Collect 32 Spectral Arrows", spectralArrows, spectralArrowMaterials, 32);
+        CollectItemsAmountGoal spectralArrowsGoal = new CollectItemsAmountGoal("Collect 32 Spectral Arrows", spectralArrows);
         allGoals.add(spectralArrowsGoal);
         lateGameGoals.add(spectralArrowsGoal);
 
         ItemStack enderPearls = new ItemStack(Material.ENDER_PEARL, 16);
-        List<Material> enderPearlMaterials = new ArrayList<>();
-        enderPearlMaterials.add(Material.ENDER_PEARL);
-        CollectItemsAmountGoal enderPearlsGoal = new CollectItemsAmountGoal("Collect 16 Ender Pearls", enderPearls, enderPearlMaterials, 16);
+        CollectItemsAmountGoal enderPearlsGoal = new CollectItemsAmountGoal("Collect 16 Ender Pearls", enderPearls);
         allGoals.add(enderPearlsGoal);
         lateGameGoals.add(enderPearlsGoal);
 
-        ItemStack netherHyphae = new ItemStack(Material.CRIMSON_HYPHAE, 32);
         List<Material> netherHyphaeMaterials = new ArrayList<>();
         netherHyphaeMaterials.add(Material.CRIMSON_HYPHAE);
         netherHyphaeMaterials.add(Material.WARPED_HYPHAE);
-        CollectItemsAmountGoal netherHyphaeGoal = new CollectItemsAmountGoal("Collect 32 Nether Hyphae", netherHyphae, netherHyphaeMaterials, 32);
+        CollectItemsAmountGoal netherHyphaeGoal = new CollectItemsAmountGoal("Collect 32 Nether Hyphae", netherHyphaeMaterials, 32);
         allGoals.add(netherHyphaeGoal);
         lateGameGoals.add(netherHyphaeGoal);
 
-        ItemStack strippedLogs = new ItemStack(Material.STRIPPED_OAK_LOG, 64);
         List<Material> strippedLogsMaterials = new ArrayList<>();
         strippedLogsMaterials.add(Material.STRIPPED_OAK_LOG);
         strippedLogsMaterials.add(Material.STRIPPED_SPRUCE_LOG);
@@ -1604,16 +1594,13 @@ public class BingoUtil {
         strippedLogsMaterials.add(Material.STRIPPED_DARK_OAK_LOG);
         strippedLogsMaterials.add(Material.STRIPPED_MANGROVE_LOG);
         strippedLogsMaterials.add(Material.STRIPPED_CHERRY_LOG);
-        CollectItemsAmountGoal strippedLogsGoal = new CollectItemsAmountGoal("Collect 64 Stripped Logs of Any Variant", strippedLogs, strippedLogsMaterials, 64);
+        CollectItemsAmountGoal strippedLogsGoal = new CollectItemsAmountGoal("Collect 64 Stripped Logs of Any Variant", strippedLogsMaterials, 64);
         allGoals.add(strippedLogsGoal);
 
         ItemStack chiseledStoneBricks = new ItemStack(Material.CHISELED_STONE_BRICKS, 16);
-        List<Material> stoneBricks = new ArrayList<>();
-        stoneBricks.add(Material.CHISELED_STONE_BRICKS);
-        CollectItemsAmountGoal stoneBricksGoal = new CollectItemsAmountGoal("Collect 16 Chiseled Stone Bricks", chiseledStoneBricks, stoneBricks, 16);
+        CollectItemsAmountGoal stoneBricksGoal = new CollectItemsAmountGoal("Collect 16 Chiseled Stone Bricks", chiseledStoneBricks);
         allGoals.add(stoneBricksGoal);
 
-        ItemStack cobblestoneWall = new ItemStack(Material.COBBLESTONE_WALL, 64);
         List<Material> walls = new ArrayList<>();
         walls.add(Material.COBBLESTONE_WALL);
         walls.add(Material.MOSSY_COBBLESTONE_WALL);
@@ -1639,10 +1626,9 @@ public class BingoUtil {
         walls.add(Material.MUD_BRICK_WALL);
         walls.add(Material.TUFF_WALL);
         walls.add(Material.POLISHED_TUFF_WALL);
-        CollectItemsAmountGoal wallsGoal = new CollectItemsAmountGoal("Collect 64 Walls of Any Type", cobblestoneWall, walls, 64);
+        CollectItemsAmountGoal wallsGoal = new CollectItemsAmountGoal("Collect 64 Walls of Any Type", walls, 64);
         allGoals.add(wallsGoal);
 
-        ItemStack whiteConcrete = new ItemStack(Material.WHITE_CONCRETE, 64);
         List<Material> concreteBlocks = new ArrayList<>();
         concreteBlocks.add(Material.WHITE_CONCRETE);
         concreteBlocks.add(Material.ORANGE_CONCRETE);
@@ -1660,10 +1646,9 @@ public class BingoUtil {
         concreteBlocks.add(Material.GREEN_CONCRETE);
         concreteBlocks.add(Material.RED_CONCRETE);
         concreteBlocks.add(Material.BLACK_CONCRETE);
-        CollectItemsAmountGoal concreteGoal = new CollectItemsAmountGoal("Collect 64 Concrete of Any Colour", whiteConcrete, concreteBlocks, 64);
+        CollectItemsAmountGoal concreteGoal = new CollectItemsAmountGoal("Collect 64 Concrete of Any Colour", concreteBlocks, 64);
         allGoals.add(concreteGoal);
 
-        ItemStack glassBlock = new ItemStack(Material.GLASS, 32);
         List<Material> glassBlocks = new ArrayList<>();
         glassBlocks.add(Material.GLASS);
         glassBlocks.add(Material.WHITE_STAINED_GLASS);
@@ -1683,18 +1668,17 @@ public class BingoUtil {
         glassBlocks.add(Material.RED_STAINED_GLASS);
         glassBlocks.add(Material.BLACK_STAINED_GLASS);
         glassBlocks.add(Material.TINTED_GLASS);
-        CollectItemsAmountGoal glassGoal = new CollectItemsAmountGoal("Collect 32 of Any Glass Blocks", glassBlock, glassBlocks, 32);
+        CollectItemsAmountGoal glassGoal = new CollectItemsAmountGoal("Collect 64 of Any Glass Blocks", glassBlocks, 64);
         allGoals.add(glassGoal);
 
-        ItemStack torch = new ItemStack(Material.TORCH, 64);
+        /* Weird/Frustraing Goal
         List<Material> torches = new ArrayList<>();
         torches.add(Material.TORCH);
         torches.add(Material.SOUL_TORCH);
         torches.add(Material.REDSTONE_TORCH);
-        CollectItemsAmountGoal torchesGoal = new CollectItemsAmountGoal("Collect 128 Torches of Any Type", torch, torches, 128);
-        allGoals.add(torchesGoal);
+        CollectItemsAmountGoal torchesGoal = new CollectItemsAmountGoal("Collect 128 Torches of Any Type", torches, 128);
+        allGoals.add(torchesGoal); */
 
-        ItemStack netherrack = new ItemStack(Material.NETHERRACK, 64);
         List<Material> netherBlocks = new ArrayList<>();
         netherBlocks.add(Material.NETHERRACK);
         netherBlocks.add(Material.NETHER_BRICKS);
@@ -1713,11 +1697,10 @@ public class BingoUtil {
         netherBlocks.add(Material.POLISHED_BLACKSTONE_BRICKS);
         netherBlocks.add(Material.CRACKED_POLISHED_BLACKSTONE_BRICKS);
         netherBlocks.add(Material.CHISELED_POLISHED_BLACKSTONE);
-        CollectItemsAmountGoal netherBlocksGoal = new CollectItemsAmountGoal("Collect 64 Nether Blocks of Any Type", netherrack, netherBlocks, 64);
+        CollectItemsAmountGoal netherBlocksGoal = new CollectItemsAmountGoal("Collect 64 Nether Blocks of Any Type", netherBlocks, 64);
         allGoals.add(netherBlocksGoal);
         lateGameGoals.add(netherBlocksGoal);
 
-        ItemStack oakSapling = new ItemStack(Material.OAK_SAPLING, 16);
         List<Material> saplings = new ArrayList<>();
         saplings.add(Material.OAK_SAPLING);
         saplings.add(Material.SPRUCE_SAPLING);
@@ -1728,16 +1711,16 @@ public class BingoUtil {
         saplings.add(Material.MANGROVE_PROPAGULE);
         saplings.add(Material.CHERRY_SAPLING);
         saplings.add(Material.BAMBOO);
-        CollectItemsAmountGoal saplingsGoal = new CollectItemsAmountGoal("Collect 16 Saplings of Any Type", oakSapling, saplings, 16);
+        saplings.add(Material.PALE_OAK_SAPLING);
+        CollectItemsAmountGoal saplingsGoal = new CollectItemsAmountGoal("Collect 32 Saplings of Any Type", saplings, 32);
         allGoals.add(saplingsGoal);
 
-        ItemStack brownMushroom = new ItemStack(Material.BROWN_MUSHROOM, 16);
         List<Material> mushrooms = new ArrayList<>();
         mushrooms.add(Material.RED_MUSHROOM);
         mushrooms.add(Material.BROWN_MUSHROOM);
         mushrooms.add(Material.WARPED_FUNGUS);
         mushrooms.add(Material.CRIMSON_FUNGUS);
-        CollectItemsAmountGoal mushroomsGoal = new CollectItemsAmountGoal("Collect 16 Mushrooms of Any Type", brownMushroom, mushrooms, 16);
+        CollectItemsAmountGoal mushroomsGoal = new CollectItemsAmountGoal("Collect 32 Mushrooms of Any Type", mushrooms, 32);
         biomeGoals.put(Biome.DARK_FOREST, mushroomsGoal);
 
         ItemStack tintedGlass = new ItemStack(Material.TINTED_GLASS,1);
@@ -1750,9 +1733,7 @@ public class BingoUtil {
         lateGameGoals.add(endCrystalGoal);
 
         ItemStack tuffBricks = new ItemStack(Material.TUFF, 16);
-        List<Material> tuffBricksMaterials = new ArrayList<>();
-        tuffBricksMaterials.add(Material.TUFF);
-        CollectItemsAmountGoal tuffBricksGoal = new CollectItemsAmountGoal("Collect 16 Tuff Bricks", tuffBricks, tuffBricksMaterials, 16);
+        CollectItemsAmountGoal tuffBricksGoal = new CollectItemsAmountGoal("Collect 16 Tuff Bricks", tuffBricks);
         allGoals.add(tuffBricksGoal);
 
         ItemStack redMushroom = new ItemStack(Material.RED_MUSHROOM,1);
@@ -1760,15 +1741,11 @@ public class BingoUtil {
         biomeGoals.put(Biome.MUSHROOM_FIELDS,mooshroomBreedGoal);
 
         ItemStack seagrass = new ItemStack(Material.SEAGRASS, 64);
-        List<Material> seagrassList = new ArrayList<>();
-        seagrassList.add(Material.SEAGRASS);
-        CollectItemsAmountGoal seagrassGoal = new CollectItemsAmountGoal("Collect 64 Seagrass", seagrass, seagrassList, 64);
+        CollectItemsAmountGoal seagrassGoal = new CollectItemsAmountGoal("Collect 64 Seagrass", seagrass);
         allGoals.add(seagrassGoal);
 
         ItemStack sugarcane = new ItemStack(Material.SUGAR_CANE, 32);
-        List<Material> sugarcaneList = new ArrayList<>();
-        sugarcaneList.add(Material.SUGAR_CANE);
-        CollectItemsAmountGoal sugarcaneGoal = new CollectItemsAmountGoal("Collect 32 Sugar Cane", sugarcane, sugarcaneList, 32);
+        CollectItemsAmountGoal sugarcaneGoal = new CollectItemsAmountGoal("Collect 32 Sugar Cane", sugarcane);
         allGoals.add(sugarcaneGoal);
 
         ItemStack goldBoots = new ItemStack(Material.GOLDEN_BOOTS,1);
@@ -1850,22 +1827,20 @@ public class BingoUtil {
         BlockInteractGoal placeBookOnLecternGoal = new BlockInteractGoal("Place a Book on a Lectern", lecternItem, Material.LECTERN, blockInteractListener);
         allGoals.add(placeBookOnLecternGoal);
 
-        ItemStack cod = new ItemStack(Material.COD, 32);
         List<Material> fishTypes = new ArrayList<>();
         fishTypes.add(Material.COD);
         fishTypes.add(Material.SALMON);
         fishTypes.add(Material.TROPICAL_FISH);
         fishTypes.add(Material.PUFFERFISH);
-        CollectItemsAmountGoal fishGoal = new CollectItemsAmountGoal("Collect 32 Fish of Any Type", cod, fishTypes, 32);
+        CollectItemsAmountGoal fishGoal = new CollectItemsAmountGoal("Collect 32 Fish of Any Type", fishTypes, 32);
         allGoals.add(fishGoal);
 
-        ItemStack rails = new ItemStack(Material.RAIL, 64);
         List<Material> railTypes = new ArrayList<>();
         railTypes.add(Material.RAIL);
         railTypes.add(Material.POWERED_RAIL);
         railTypes.add(Material.DETECTOR_RAIL);
         railTypes.add(Material.ACTIVATOR_RAIL);
-        CollectItemsAmountGoal railGoal = new CollectItemsAmountGoal("Collect 64 Rails of Any Type", rails, railTypes, 64);
+        CollectItemsAmountGoal railGoal = new CollectItemsAmountGoal("Collect 64 Rails of Any Type", railTypes, 64);
         allGoals.add(railGoal);
 
         /*ItemStack chainmailArmor = new ItemStack(Material.CHAINMAIL_HELMET, 1);
@@ -1878,16 +1853,14 @@ public class BingoUtil {
         allGoals.add(chainmailArmorGoal);*/
 
         ItemStack mudBricks = new ItemStack(Material.MUD_BRICKS, 4);
-        List<Material> mudBrickList = new ArrayList<>();
-        mudBrickList.add(Material.MUD_BRICKS);
-        CollectItemsAmountGoal mudBricksGoal = new CollectItemsAmountGoal("Collect 4 Mud Bricks", mudBricks, mudBrickList, 4);
+        CollectItemsAmountGoal mudBricksGoal = new CollectItemsAmountGoal("Collect 4 Mud Bricks", mudBricks);
         allGoals.add(mudBricksGoal);
 
         ItemStack encBook = new ItemStack(Material.ENCHANTED_BOOK,1);
         CollectItemGoal encbookGoal = new CollectItemGoal("Collect Any Enchanted Book", encBook);
         allGoals.add(encbookGoal);
 
-        /* Goal wasnt't being detected by spigot
+        /* Goal wasn't being detected by spigot
         ItemStack berries = new ItemStack(Material.SWEET_BERRIES, 64);
         List<Material> berriesList = new ArrayList<>();
         mudBrickList.add(Material.SWEET_BERRIES);
@@ -1895,9 +1868,7 @@ public class BingoUtil {
         biomeGoals.put(Biome.TAIGA,berryGoal);*/
 
         ItemStack coarsedirt = new ItemStack(Material.COARSE_DIRT, 64);
-        List<Material> coarsedirtList = new ArrayList<>();
-        coarsedirtList.add(Material.COARSE_DIRT);
-        CollectItemsAmountGoal coarseDirtGoal = new CollectItemsAmountGoal("Collect 64 Coarse Dirt Blocks", coarsedirt, coarsedirtList, 64);
+        CollectItemsAmountGoal coarseDirtGoal = new CollectItemsAmountGoal("Collect 64 Coarse Dirt Blocks", coarsedirt);
         biomeGoals.put(Biome.OLD_GROWTH_SPRUCE_TAIGA,coarseDirtGoal);
 
         /* Disabled due to spigot
@@ -1908,12 +1879,10 @@ public class BingoUtil {
         biomeGoals.put(Biome.SNOWY_TAIGA,snowballGoal);*/
 
         ItemStack muddyMangroveRoots = new ItemStack(Material.MUDDY_MANGROVE_ROOTS, 16);
-        List<Material> mangroveRootsList = new ArrayList<>();
-        mangroveRootsList.add(Material.MUDDY_MANGROVE_ROOTS);
-        CollectItemsAmountGoal mangroveRootsGoal = new CollectItemsAmountGoal("Collect 16 Muddy Mangrove Roots", muddyMangroveRoots, mangroveRootsList, 16);
+        CollectItemsAmountGoal mangroveRootsGoal = new CollectItemsAmountGoal("Collect 16 Muddy Mangrove Roots", muddyMangroveRoots);
         biomeGoals.put(Biome.MANGROVE_SWAMP, mangroveRootsGoal);
 
-        ItemStack stairs = new ItemStack(Material.OAK_STAIRS, 64);
+        /* Frustraing Goal
         List<Material> stairsList = new ArrayList<>();
         stairsList.add(Material.OAK_STAIRS);
         stairsList.add(Material.STONE_STAIRS);
@@ -1953,9 +1922,9 @@ public class BingoUtil {
         stairsList.add(Material.POLISHED_DEEPSLATE_STAIRS);
         stairsList.add(Material.DEEPSLATE_BRICK_STAIRS);
         stairsList.add(Material.DEEPSLATE_TILE_STAIRS);
-        stairsList.add(Material.OAK_STAIRS);
-        CollectItemsAmountGoal stairsGoal = new CollectItemsAmountGoal("Collect 128 Stairs of Any Type", stairs, stairsList, 128);
-        allGoals.add(stairsGoal);
+        stairsList.add(Material.PALE_OAK_STAIRS);
+        CollectItemsAmountGoal stairsGoal = new CollectItemsAmountGoal("Collect 128 Stairs of Any Type", stairsList, 128);
+        allGoals.add(stairsGoal); */
 
         ItemStack waterBucket = new ItemStack(Material.WATER_BUCKET,1);
         DeathGoal drownGoal = new DeathGoal("Achieve the Death Message '<player> drowned'", waterBucket,"drowned",deathListener);
@@ -1998,57 +1967,49 @@ public class BingoUtil {
         CollectItemGoal nameTagGoal = new CollectItemGoal("Collect a Name Tag", nameTag);
         allGoals.add(nameTagGoal);
 
-        ItemStack diaHelm = new ItemStack(Material.DIAMOND_HELMET, 1);
         List<Material> diamondArmour = new ArrayList<>();
         diamondArmour.add(Material.DIAMOND_HELMET);
         diamondArmour.add(Material.DIAMOND_CHESTPLATE);
         diamondArmour.add(Material.DIAMOND_LEGGINGS);
         diamondArmour.add(Material.DIAMOND_BOOTS);
-        CollectItemSetGoal diamondArmourGoal = new CollectItemSetGoal("Collect a Full Set of Diamond Armour", diaHelm, diamondArmour);
+        CollectItemSetGoal diamondArmourGoal = new CollectItemSetGoal("Collect a Full Set of Diamond Armour", diamondArmour);
         allGoals.add(diamondArmourGoal);
 
-        ItemStack goldPickaxe = new ItemStack(Material.GOLDEN_PICKAXE, 1);
         List<Material> goldenTools = new ArrayList<>();
         goldenTools.add(Material.GOLDEN_PICKAXE);
         goldenTools.add(Material.GOLDEN_AXE);
         goldenTools.add(Material.GOLDEN_SHOVEL);
         goldenTools.add(Material.GOLDEN_HOE);
-        CollectItemSetGoal goldenToolsGoal = new CollectItemSetGoal("Collect a Full Set of Golden Tools", goldPickaxe, goldenTools);
+        CollectItemSetGoal goldenToolsGoal = new CollectItemSetGoal("Collect a Full Set of Golden Tools", goldenTools);
         allGoals.add(goldenToolsGoal);
 
-        ItemStack goldHelm = new ItemStack(Material.GOLDEN_HELMET, 1);
         List<Material> goldenArmour = new ArrayList<>();
         goldenArmour.add(Material.GOLDEN_HELMET);
         goldenArmour.add(Material.GOLDEN_CHESTPLATE);
         goldenArmour.add(Material.GOLDEN_LEGGINGS);
         goldenArmour.add(Material.GOLDEN_BOOTS);
-        CollectItemSetGoal goldenArmourGoal = new CollectItemSetGoal("Collect a Full Set of Golden Armour", goldHelm, goldenArmour);
+        CollectItemSetGoal goldenArmourGoal = new CollectItemSetGoal("Collect a Full Set of Golden Armour", goldenArmour);
         allGoals.add(goldenArmourGoal);
 
-        ItemStack diamondPickaxe = new ItemStack(Material.DIAMOND_PICKAXE, 1);
         List<Material> diamondTools = new ArrayList<>();
         diamondTools.add(Material.DIAMOND_PICKAXE);
         diamondTools.add(Material.DIAMOND_AXE);
         diamondTools.add(Material.DIAMOND_SHOVEL);
         diamondTools.add(Material.DIAMOND_HOE);
-        CollectItemSetGoal diamondToolsGoal = new CollectItemSetGoal("Collect a Full Set of Diamond Tools", diamondPickaxe, diamondTools);
+        CollectItemSetGoal diamondToolsGoal = new CollectItemSetGoal("Collect a Full Set of Diamond Tools", diamondTools);
         allGoals.add(diamondToolsGoal);
 
-        ItemStack furnaceItem = new ItemStack(Material.FURNACE, 1);
         List<Material> allFurnaces = new ArrayList<>();
         allFurnaces.add(Material.FURNACE);
         allFurnaces.add(Material.BLAST_FURNACE);
         allFurnaces.add(Material.SMOKER);
-        CollectItemSetGoal furnaceGoal = new CollectItemSetGoal("Collect Every Type of Furnace", furnaceItem, allFurnaces);
+        CollectItemSetGoal furnaceGoal = new CollectItemSetGoal("Collect Every Type of Furnace", allFurnaces);
         allGoals.add(furnaceGoal);
 
         ItemStack cobweb = new ItemStack(Material.COBWEB, 32);
-        List<Material> cobwebList = new ArrayList<>();
-        cobwebList.add(Material.COBWEB);
-        CollectItemsAmountGoal cobwebGoal = new CollectItemsAmountGoal("Collect 32 Cobwebs", cobweb, cobwebList, 32);
+        CollectItemsAmountGoal cobwebGoal = new CollectItemsAmountGoal("Collect 32 Cobwebs", cobweb);
         allGoals.add(cobwebGoal);
 
-        ItemStack strippedOakLog = new ItemStack(Material.STRIPPED_OAK_LOG, 1);
         List<Material> oakWoodBlocks = new ArrayList<>();
         oakWoodBlocks.add(Material.OAK_LOG);
         oakWoodBlocks.add(Material.OAK_WOOD);
@@ -2064,14 +2025,14 @@ public class BingoUtil {
         oakWoodBlocks.add(Material.OAK_BUTTON);
         oakWoodBlocks.add(Material.OAK_PRESSURE_PLATE);
         oakWoodBlocks.add(Material.OAK_SIGN);
-        CollectItemSetGoal oakWoodGoal = new CollectItemSetGoal("Collect All Oak Wood Related Blocks", strippedOakLog, oakWoodBlocks);
+        oakWoodBlocks.add(Material.OAK_HANGING_SIGN);
+        CollectItemSetGoal oakWoodGoal = new CollectItemSetGoal("Collect All Oak Wood Related Blocks", oakWoodBlocks);
         allGoals.add(oakWoodGoal);
 
-        ItemStack lilyOfValley = new ItemStack(Material.DANDELION, 1);
-        CollectItemSetAmountGoal flowerGoal = new CollectItemSetAmountGoal("Collect 5 Unique Types of Flowers", lilyOfValley, flowers, 5);
+        CollectItemSetAmountGoal flowerGoal = new CollectItemSetAmountGoal("Collect 5 Unique Types of Flowers", flowers, 5);
         allGoals.add(flowerGoal);
 
-        ItemStack oakPressurePlate = new ItemStack(Material.OAK_PRESSURE_PLATE, 1);
+        /* Frustrating Goal
         List<Material> pressurePlates = new ArrayList<>();
         pressurePlates.add(Material.OAK_PRESSURE_PLATE);
         pressurePlates.add(Material.SPRUCE_PRESSURE_PLATE);
@@ -2086,10 +2047,10 @@ public class BingoUtil {
         pressurePlates.add(Material.HEAVY_WEIGHTED_PRESSURE_PLATE);
         pressurePlates.add(Material.MANGROVE_PRESSURE_PLATE);
         pressurePlates.add(Material.CHERRY_PRESSURE_PLATE);
-        CollectItemSetAmountGoal pressurePlateGoal = new CollectItemSetAmountGoal("Collect 5 Unique Types of Pressure Plates", oakPressurePlate, pressurePlates, 5);
-        allGoals.add(pressurePlateGoal);
+        pressurePlates.add(Material.PALE_OAK_PRESSURE_PLATE);
+        CollectItemSetAmountGoal pressurePlateGoal = new CollectItemSetAmountGoal("Collect 5 Unique Types of Pressure Plates", pressurePlates, 5);
+        allGoals.add(pressurePlateGoal); */
 
-        ItemStack granite = new ItemStack(Material.GRANITE, 1);
         List<Material> graniteBlocks = new ArrayList<>();
         graniteBlocks.add(Material.GRANITE);
         graniteBlocks.add(Material.POLISHED_GRANITE);
@@ -2098,10 +2059,9 @@ public class BingoUtil {
         graniteBlocks.add(Material.GRANITE_STAIRS);
         graniteBlocks.add(Material.POLISHED_GRANITE_STAIRS);
         graniteBlocks.add(Material.GRANITE_WALL);
-        CollectItemSetAmountGoal graniteGoal = new CollectItemSetAmountGoal("Collect 7 Unique Types of Granite Blocks", granite, graniteBlocks, 7);
+        CollectItemSetAmountGoal graniteGoal = new CollectItemSetAmountGoal("Collect 7 Unique Types of Granite Blocks", graniteBlocks, 7);
         allGoals.add(graniteGoal);
 
-        ItemStack diorite = new ItemStack(Material.DIORITE, 1);
         List<Material> dioriteBlocks = new ArrayList<>();
         dioriteBlocks.add(Material.DIORITE);
         dioriteBlocks.add(Material.POLISHED_DIORITE);
@@ -2110,10 +2070,9 @@ public class BingoUtil {
         dioriteBlocks.add(Material.DIORITE_STAIRS);
         dioriteBlocks.add(Material.POLISHED_DIORITE_STAIRS);
         dioriteBlocks.add(Material.DIORITE_WALL);
-        CollectItemSetAmountGoal dioriteGoal = new CollectItemSetAmountGoal("Collect 7 Unique Types of Diorite Blocks", diorite, dioriteBlocks, 7);
+        CollectItemSetAmountGoal dioriteGoal = new CollectItemSetAmountGoal("Collect 7 Unique Types of Diorite Blocks", dioriteBlocks, 7);
         allGoals.add(dioriteGoal);
 
-        ItemStack andesite = new ItemStack(Material.ANDESITE, 1);
         List<Material> andesiteBlocks = new ArrayList<>();
         andesiteBlocks.add(Material.ANDESITE);
         andesiteBlocks.add(Material.POLISHED_ANDESITE);
@@ -2122,16 +2081,13 @@ public class BingoUtil {
         andesiteBlocks.add(Material.ANDESITE_STAIRS);
         andesiteBlocks.add(Material.POLISHED_ANDESITE_STAIRS);
         andesiteBlocks.add(Material.ANDESITE_WALL);
-        CollectItemSetAmountGoal andesiteGoal = new CollectItemSetAmountGoal("Collect 7 Unique Types of Andesite Blocks", andesite, andesiteBlocks, 7);
+        CollectItemSetAmountGoal andesiteGoal = new CollectItemSetAmountGoal("Collect 7 Unique Types of Andesite Blocks", andesiteBlocks, 7);
         allGoals.add(andesiteGoal);
 
         ItemStack deepslate = new ItemStack(Material.DEEPSLATE, 64);
-        List<Material> deepslateList = new ArrayList<>();
-        deepslateList.add(Material.DEEPSLATE);
-        CollectItemsAmountGoal deepslateGoal = new CollectItemsAmountGoal("Collect 64 Deepslate Blocks", deepslate, deepslateList, 64);
+        CollectItemsAmountGoal deepslateGoal = new CollectItemsAmountGoal("Collect 64 Deepslate Blocks", deepslate);
         allGoals.add(deepslateGoal);
 
-        ItemStack sand = new ItemStack(Material.SAND, 1);
         List<Material> sandBlocks = new ArrayList<>();
         sandBlocks.add(Material.SAND);
         sandBlocks.add(Material.SANDSTONE);
@@ -2155,20 +2111,18 @@ public class BingoUtil {
         sandBlocks.add(Material.SMOOTH_RED_SANDSTONE_SLAB);
         sandBlocks.add(Material.SMOOTH_RED_SANDSTONE_STAIRS);
         sandBlocks.add(Material.RED_SANDSTONE_WALL);
-        CollectItemSetAmountGoal sandGoal = new CollectItemSetAmountGoal("Collect 10 Unique Types of Sand Blocks", sand, sandBlocks, 20);
+        CollectItemSetAmountGoal sandGoal = new CollectItemSetAmountGoal("Collect 10 Unique Types of Sand Blocks", sandBlocks, 10);
         allGoals.add(sandGoal);
 
-        ItemStack redSand = new ItemStack(Material.RED_SAND, 1);
         List<Material> gravityBlocks = new ArrayList<>();
         gravityBlocks.add(Material.SAND);
         gravityBlocks.add(Material.RED_SAND);
         gravityBlocks.add(Material.POINTED_DRIPSTONE);
         gravityBlocks.add(Material.GRAVEL);
         gravityBlocks.add(Material.ANVIL);
-        CollectItemSetAmountGoal gravityGoal = new CollectItemSetAmountGoal("Collect 3 Unique Types of Gravity-Affected Blocks", redSand, gravityBlocks, 3);
+        CollectItemSetAmountGoal gravityGoal = new CollectItemSetAmountGoal("Collect 3 Unique Types of Gravity-Affected Blocks", gravityBlocks, 3);
         allGoals.add(gravityGoal);
 
-        ItemStack redstoneTorch = new ItemStack(Material.REDSTONE_TORCH, 1);
         List<Material> redstoneItems = new ArrayList<>();
         redstoneItems.add(Material.REDSTONE_TORCH);
         redstoneItems.add(Material.REDSTONE_BLOCK);
@@ -2187,7 +2141,9 @@ public class BingoUtil {
         redstoneItems.add(Material.ACTIVATOR_RAIL);
         redstoneItems.add(Material.DETECTOR_RAIL);
         redstoneItems.add(Material.REDSTONE_LAMP);
-        CollectItemSetAmountGoal redstoneGoal = new CollectItemSetAmountGoal("Collect 7 Unique Items Crafted with Redstone", redstoneTorch, redstoneItems, 7);
+        redstoneItems.add(Material.COMPASS);
+        redstoneItems.add(Material.CLOCK);
+        CollectItemSetAmountGoal redstoneGoal = new CollectItemSetAmountGoal("Collect 7 Unique Items Crafted with Redstone", redstoneItems, 7);
         allGoals.add(redstoneGoal);
 
         List<Material> fish = new ArrayList<>();
@@ -2197,9 +2153,67 @@ public class BingoUtil {
         fish.add(Material.COOKED_SALMON);
         fish.add(Material.TROPICAL_FISH);
         fish.add(Material.PUFFERFISH);
-        CollectItemSetAmountGoal fishUniqueGoal = new CollectItemSetAmountGoal("Collect 5 Unique Fish", cod, fish, 5);
+        CollectItemSetAmountGoal fishUniqueGoal = new CollectItemSetAmountGoal("Collect 5 Unique Fish", fish, 5);
         allGoals.add(fishUniqueGoal);
 
+        ItemStack breezeRod = new ItemStack(Material.BREEZE_ROD, 1);
+        KillEntityGoal killBreezeGoal = new KillEntityGoal("Kill a Breeze", breezeRod, EntityType.BREEZE, killEntityListener);
+        allGoals.add(killBreezeGoal);
+        lateGameGoals.add(killBreezeGoal);
+
+        ItemStack ominousBottle = new ItemStack(Material.OMINOUS_BOTTLE, 1);
+        PotionEffectGoal trialOmenGoal = new PotionEffectGoal("Get the Trial Omen Effect", ominousBottle, PotionEffectType.TRIAL_OMEN, potionEffectListener);
+        allGoals.add(trialOmenGoal);
+        lateGameGoals.add(trialOmenGoal);
+
+        ItemStack codBucket = new ItemStack(Material.COD_BUCKET, 1);
+        KillEntityWithCauseGoal codWithLavaGoal = new KillEntityWithCauseGoal("Kill a Cod with Lava", codBucket, EntityType.COD, EntityDamageEvent.DamageCause.LAVA, killEntityListener);
+        allGoals.add(codWithLavaGoal);
+
+        ItemStack creakingEgg = new ItemStack(Material.CREAKING_SPAWN_EGG, 1);
+        KillEntityGoal killCreakingGoal = new KillEntityGoal("Kill a Creaking", creakingEgg, EntityType.CREAKING, killEntityListener);
+        biomeGoals.put(Biome.PALE_GARDEN, killCreakingGoal);
+
+        ItemStack bush = new ItemStack(Material.BUSH, 16);
+        CollectItemsAmountGoal collectBushesGoal = new CollectItemsAmountGoal("Collect 16 Bushes", bush);
+        allGoals.add(collectBushesGoal);
+
+        ItemStack lodestone = new ItemStack(Material.LODESTONE, 1);
+        CollectItemGoal loadstoneGoal = new CollectItemGoal("Craft a Lodestone", lodestone);
+        allGoals.add(loadstoneGoal);
+
+        ItemStack ghastEgg = new ItemStack(Material.GHAST_SPAWN_EGG, 1);
+        KillEntityWithCauseGoal ghastWithSword = new KillEntityWithCauseGoal("Kill a Ghast with a Melee Attack", ghastEgg, EntityType.GHAST, EntityDamageEvent.DamageCause.ENTITY_ATTACK, killEntityListener);
+        allGoals.add(ghastWithSword);
+        lateGameGoals.add(ghastWithSword);
+
+        DeathGoal bangGoal = new DeathGoal("Achieve the Death Message '<player> went off with a bang'",fireworkRocket ,"went off with a bang",deathListener);
+        allGoals.add(bangGoal);
+
+        ItemStack shroomLight = new ItemStack(Material.SHROOMLIGHT, 32);
+        CollectItemsAmountGoal shroomLightGoal = new CollectItemsAmountGoal("Collect 32 Shroomlights", shroomLight);
+        allGoals.add(shroomLightGoal);
+        lateGameGoals.add(shroomLightGoal);
+
+        ItemStack snifferEgg = new ItemStack(Material.SNIFFER_EGG, 1);
+        CollectItemGoal snifferEggGoal = new CollectItemGoal("Find a Sniffer Egg", snifferEgg);
+        allGoals.add(snifferEggGoal);
+        lateGameGoals.add(snifferEggGoal);
+
+        ItemStack calibratedSculkSensor = new ItemStack(Material.CALIBRATED_SCULK_SENSOR, 1);
+        CollectItemGoal calibratedSculkSensorGoal = new CollectItemGoal("Craft a Calibrated Sculk Sensor", calibratedSculkSensor);
+        allGoals.add(calibratedSculkSensorGoal);
+        lateGameGoals.add(calibratedSculkSensorGoal);
+
+        ItemStack dragonEgg = new ItemStack(Material.DRAGON_EGG);
+        CollectItemGoal dragonEggGoal = new CollectItemGoal("Collect the Dragon Egg", dragonEgg);
+        allGoals.add(dragonEggGoal);
+        lateGameGoals.add(dragonEggGoal);
+
+        ItemStack dragonsBreath = new ItemStack(Material.DRAGON_BREATH, 1);
+        CollectItemGoal dragonsBreathGoal = new CollectItemGoal("Collect a Dragon's Breath", dragonsBreath);
+        allGoals.add(dragonsBreathGoal);
+        lateGameGoals.add(dragonsBreathGoal);
 
         if (difficulty == Difficulty.INSANE)
         {
@@ -2209,7 +2223,7 @@ public class BingoUtil {
             });
         }
 
-        //testGoal = mudBricksGoal;
+        //testGoal = graniteGoal;
     }
 
     public void goalAutoComplete(Player player, Class goalType)
@@ -2485,12 +2499,45 @@ public class BingoUtil {
     {
         cancelAllTasks();
         gameState = GameState.FINISHED;
-        gameMode = Mode.TEAM;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.teleport(Bukkit.getWorld(WorldUtil.bingoWorldName).getSpawnLocation());
             OpenInv(player);
         }
+
+        /* RANKED FOR FFA IS DISABLED FOR THE MOMENT
+
+        List<Player> winningTeamPlayers = TeamMap.entrySet().stream()
+                .filter(entry -> entry.getValue() == team)
+                .map(entry -> plugin.getServer().getPlayer(entry.getKey()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        Map<Team, List<Player>> losingTeamsPlayers = TeamMap.entrySet().stream()
+                .filter(entry -> entry.getValue() != team)
+                .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(entry -> plugin.getServer().getPlayer(entry.getKey()), Collectors.toList())));
+
+        for (List<Player> losingTeamPlayers : losingTeamsPlayers.values()) {
+            rankedUtil.calculateElo(winningTeamPlayers, losingTeamPlayers.stream().filter(Objects::nonNull).collect(Collectors.toList()));
+        }
+        rankedUtil.saveRanks();*/
+
+        if (gameMode == Mode.TEAM)
+        {
+            List<Player> winningTeamPlayers = TeamMap.entrySet().stream()
+                    .filter(entry -> entry.getValue() == team)
+                    .map(entry -> plugin.getServer().getPlayer(entry.getKey()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            List<Player> losingTeamPlayers = TeamMap.entrySet().stream()
+                    .filter(entry -> entry.getValue() != team)
+                    .map(entry -> plugin.getServer().getPlayer(entry.getKey()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        }
+
+        gameMode = Mode.TEAM;
 
         ChatColor teamColor;
         String teamName;
@@ -2554,7 +2601,7 @@ public class BingoUtil {
             Bukkit.broadcastMessage("");
             BingoAnnounce(ChatColor.LIGHT_PURPLE + "Made by " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "ayeitszeth");
             Bukkit.broadcastMessage("");
-        }, 20L * 8);
+        }, 20L * 5);
 
         addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
             BingoAnnounce("");
@@ -2578,35 +2625,7 @@ public class BingoUtil {
                 Bukkit.broadcastMessage("    " + teamChatColour + playerName + ChatColor.WHITE + ": " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + goalsCompleted + ChatColor.WHITE + " goals completed");
             }
             Bukkit.broadcastMessage("");
-            showSessionStats();
-        }, 20L * 15).getTaskId());
-    }
-
-    public void showSessionStats()
-    {
-        addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            BingoAnnounce("");
-            Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED SESSION STATS] ");
-            List<Map.Entry<UUID, Integer>> sortedEntries = new ArrayList<>(playerTotalGoalsCompleted.entrySet());
-            sortedEntries.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
-
-            for (Map.Entry<UUID, Integer> entry : sortedEntries) {
-                Player player = getServer().getPlayer(entry.getKey());
-                String playerName;
-                Integer goalsCompleted = entry.getValue();
-                ChatColor teamChatColour = getTeamChatColour(player);
-
-                try {
-                    playerName = player.getName();
-                } catch (Exception ex)
-                {
-                    playerName = "<left server>";
-                }
-
-                Bukkit.broadcastMessage("    " + teamChatColour + playerName + ChatColor.WHITE + ": " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + goalsCompleted + ChatColor.WHITE + " goals completed");
-            }
-            Bukkit.broadcastMessage("");
-        }, 20L * 8).getTaskId());
+        }, 20L * 10).getTaskId());
     }
 
     public boolean checkBingo(Team team) {

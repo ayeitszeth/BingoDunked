@@ -2,7 +2,7 @@ package org.zethcodes.bingodunked.goals;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.zethcodes.bingodunked.handlers.ExperienceListener;
+import org.zethcodes.bingodunked.listeners.ExperienceListener;
 
 public class ExperienceGoal extends Goal {
     private final ExperienceListener experienceListener;

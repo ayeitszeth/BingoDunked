@@ -2,7 +2,7 @@ package org.zethcodes.bingodunked.goals;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.zethcodes.bingodunked.handlers.DeathListener;
+import org.zethcodes.bingodunked.listeners.DeathListener;
 
 public class DeathGoal extends Goal {
     private String message;
