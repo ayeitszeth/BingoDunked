@@ -96,7 +96,7 @@ public class BingoUtil {
     public PvP pvp = PvP.PVP;
     private final List<Integer> taskIds = new ArrayList<>();
     BingoDunked plugin;
-    public static boolean DEBUG = true;
+    public static boolean DEBUG = false;
 
     boolean activeFallGoal = false;
     boolean activeExpGoal = false;
@@ -282,7 +282,7 @@ public class BingoUtil {
                 isPvpEnabled = true;
                 BingoAnnounce("The Grace Period has ended...");
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    p.playSound(p, Sound.ENTITY_ENDER_DRAGON_GROWL, 1f, 0f);
+                    p.playSound(p, Sound.ENTITY_ENDER_DRAGON_GROWL, 0.5f, 0f);
                 }
             }, 20L * (3 * 60 + 10)).getTaskId());
         }
@@ -440,8 +440,7 @@ public class BingoUtil {
 
             ItemStack item = goal.getItem();
             ItemMeta meta = item.getItemMeta();
-            List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.DARK_PURPLE + goal.getName());
+            List<String> lore = wrapAndColorLore(goal.getName(), 30, ChatColor.DARK_PURPLE);
             meta.setLore(lore);
             meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
             item.setItemMeta(meta);
@@ -514,8 +513,7 @@ public class BingoUtil {
 
                             ItemStack item = new ItemStack(items.get(animateCounter % items.size()), goal.getItem().getAmount());
                             ItemMeta meta = item.getItemMeta();
-                            List<String> lore = new ArrayList<>();
-                            lore.add(ChatColor.DARK_PURPLE + goal.getName());
+                            List<String> lore = wrapAndColorLore(goal.getName(), 30, ChatColor.DARK_PURPLE);
                             meta.setLore(lore);
                             meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
                             item.setItemMeta(meta);
@@ -688,8 +686,7 @@ public class BingoUtil {
 
         ItemStack item = goal.getItem();
         ItemMeta meta = item.getItemMeta();
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.DARK_PURPLE + goal.getName());
+        List<String> lore = wrapAndColorLore(goal.getName(), 30, ChatColor.DARK_PURPLE);
         meta.setLore(lore);
         meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
         item.setItemMeta(meta);
@@ -2251,7 +2248,7 @@ public class BingoUtil {
             });
         }
 
-        //testGoal = graniteGoal;
+        //testGoal = berryPokedGoal;
     }
 
     public void goalAutoComplete(Player player, Class goalType)
@@ -3148,4 +3145,22 @@ public class BingoUtil {
 
         return nearestPlayer.getLocation();
     }
+
+    public static List<String> wrapAndColorLore(String text, int wrapLength, ChatColor color) {
+        List<String> result = new ArrayList<>();
+        StringBuilder line = new StringBuilder();
+
+        for (String word : text.split(" ")) {
+            if (line.length() + word.length() + 1 > wrapLength) {
+                result.add(color + line.toString().trim());
+                line = new StringBuilder();
+            }
+            line.append(word).append(" ");
+        }
+        if (line.length() > 0) {
+            result.add(color + line.toString().trim());
+        }
+        return result;
+    }
+
 }
