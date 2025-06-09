@@ -251,12 +251,40 @@ public class BingoUtil {
         if (pvp != PvP.NOPVP)
         {
             addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                BingoAnnounce("The Grace Period has 2 minutes remaining...");
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 1.89f);
+                }
+            }, 20L * (1 * 60 + 10)).getTaskId());
+
+            addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                BingoAnnounce("The Grace Period has 1 minutes remaining...");
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 1.78f);
+                }
+            }, 20L * (2 * 60 + 10)).getTaskId());
+
+            addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                BingoAnnounce("The Grace Period has 30 seconds remaining...");
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 1.68f);
+                }
+            }, 20L * (2 * 60 + 30 + 10)).getTaskId());
+
+            addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                BingoAnnounce("The Grace Period has 10 seconds remaining...");
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 1.5f);
+                }
+            }, 20L * (2 * 60 + 50 + 10)).getTaskId());
+
+            addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 isPvpEnabled = true;
                 BingoAnnounce("The Grace Period has ended...");
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    p.playSound(p, Sound.ENTITY_ENDER_DRAGON_GROWL, 3f, 0f);
+                    p.playSound(p, Sound.ENTITY_ENDER_DRAGON_GROWL, 1f, 0f);
                 }
-            }, 20L * (45 + 10)).getTaskId());
+            }, 20L * (3 * 60 + 10)).getTaskId());
         }
 
         BingoAnnounce("Bingo will start in 10 seconds...");
@@ -443,7 +471,7 @@ public class BingoUtil {
         if (pvp != PvP.NOPVP)
         {
             BingoAnnounce("");
-            BingoAnnounce("The Grace Period will end in 45 seconds...");
+            BingoAnnounce("The Grace Period will end in 3 minutes...");
         }
     }
 
