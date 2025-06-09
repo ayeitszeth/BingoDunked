@@ -1,5 +1,5 @@
 name: MinecraftDunked
-version: '1.4'
+version: '1.4.1'
 main: org.zethcodes.bingodunked.BingoDunked
 api-version: '1.21.5'
 commands:
@@ -12,7 +12,7 @@ commands:
     permission: bingo.bingojoin
     aliases: [bj,join]
   bingostart:
-    usage: /bingostart <mode> [time]
+    usage: /bingostart [mode] [time]
     permission: bingo.bingostart
     aliases: [bs,start]
   newworld:
@@ -21,7 +21,7 @@ commands:
     aliases: [ nw ]
   cheat:
     permission: bingo.cheat
-    usage: /cheat <slot>
+    usage: /cheat <slot> [team] [player]
   latejoin:
     usage: /latejoin
     permission: bingo.latejoin
@@ -31,25 +31,19 @@ commands:
   bingotime:
     usage: /bingotime
     permission: bingo.time
+    aliases: [ bt ]
   settings:
     usage: /settings
     permission: bingo.settings
   endgame:
     usage: /endgame
     permission: bingo.endgame
-  leaderboard:
-    usage: /leaderboard
-    permission: bingo.leaderboard
-    aliases: [ lb ]
-  rank:
-    usage: /rank
-    permission: bingo.rank
 permissions:
   bingo.bingocard:
     description: Open your team's bingo card.
     default: true
   bingo.bingojoin:
-    description: Join a bingo team. Either 'red' or 'blue'.
+    description: Join a bingo team. Either 'red', 'blue', 'green' or 'yellow'.
     default: true
   bingo.bingostart:
     description: Start a game of bingo.
@@ -58,7 +52,7 @@ permissions:
     description: Generate a new world for bingo.
     default: true
   bingo.latejoin:
-    description: Joins a world later.
+    description: Joins a world late.
     default: true
   bingo.allchat:
     description: Send a message to all players while in-game.
@@ -75,9 +69,3 @@ permissions:
   bingo.cheat:
     description: Allows to autocomplete bingo goals.
     default: op
-  bingo.leaderboard:
-    description: Shows the player the ranked leaderboard.
-    default: true
-  bingo.rank:
-    description: Shows the player their rank.
-    default: true

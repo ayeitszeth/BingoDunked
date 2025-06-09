@@ -1984,7 +1984,7 @@ public class BingoUtil {
         allGoals.add(suffocationGoal);
 
         ItemStack berries = new ItemStack(Material.SWEET_BERRIES,1);
-        DeathGoal berryPokedGoal = new DeathGoal("Achieve the Death Message '<player> was poked to death by a sweet berry bush'",berries,"was poked to death by a sweet berry bush",deathListener);
+        DeathGoal berryPokedGoal = new DeathGoal("Achieve the Death Message \n'<player> was poked to death by a sweet berry bush'",berries,"was poked to death by a sweet berry bush",deathListener);
         biomeGoals.put(Biome.TAIGA,berryPokedGoal);
 
         ItemStack trident = new ItemStack(Material.TRIDENT,1);

@@ -43,13 +43,19 @@ public class WorldUtil {
             deleteWorldFolder(bingoNetherWorld);
         }
 
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            WorldCreator worldCreator = new WorldCreator(bingoWorldName);
-            worldCreator.environment(World.Environment.NORMAL);
-            Bukkit.createWorld(worldCreator);
-            Bukkit.createWorld(new WorldCreator(bingoWorldName + "_nether").environment(World.Environment.NETHER));
+        File bingoEndWorld = new File(bingoWorldName + "_the_end");
+        if (bingoEndWorld.exists())
+        {
+            Bukkit.getServer().unloadWorld(Bukkit.getServer().getWorld(bingoWorldName + "_the_end"), false);
+            deleteWorldFolder(bingoEndWorld);
+        }
 
-            bingoUtil.BingoAnnounce("A new world has been generated!");
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            Bukkit.createWorld(new WorldCreator(bingoWorldName).environment(World.Environment.NORMAL));
+            Bukkit.createWorld(new WorldCreator(bingoWorldName + "_nether").environment(World.Environment.NETHER));
+            Bukkit.createWorld(new WorldCreator(bingoWorldName + "_the_end").environment(World.Environment.THE_END));
+
+            bingoUtil.BingoAnnounce("All worlds have been generated!");
         });
     }
 
