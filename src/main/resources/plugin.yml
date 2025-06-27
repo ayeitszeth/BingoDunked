@@ -1,7 +1,7 @@
 name: MinecraftDunked
-version: '1.4.1'
+version: '1.4.3'
 main: org.zethcodes.bingodunked.BingoDunked
-api-version: '1.21.5'
+api-version: '1.21.6'
 commands:
   bingocard:
     usage: /bingocard

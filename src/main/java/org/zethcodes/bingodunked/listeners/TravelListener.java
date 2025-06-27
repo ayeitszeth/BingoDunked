@@ -138,23 +138,23 @@ public class TravelListener implements Listener {
     {
         if (type == TYPE.BOAT)
         {
-            if ((int) Math.floor(playerBoatDistances.getOrDefault(player.getUniqueId(), 0.0)) % 25 == 0) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerBoatDistances.getOrDefault(player.getUniqueId(),0.0)) + " in a boat");
+            if ((int) Math.floor(playerBoatDistances.getOrDefault(player.getUniqueId(), 0.0)) % 25 == 0 && BingoUtil.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerBoatDistances.getOrDefault(player.getUniqueId(),0.0)) + " in a boat");
             return playerBoatDistances.getOrDefault(player.getUniqueId(),0.0) > travelDistanceNeeded;
         } else if (type == TYPE.RUNNING)
         {
-            if ((int) Math.floor(playerNonVehicleDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerNonVehicleDistances.getOrDefault(player.getUniqueId(),0.0)) + " on foot");
+            if ((int) Math.floor(playerNonVehicleDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0 && BingoUtil.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerNonVehicleDistances.getOrDefault(player.getUniqueId(),0.0)) + " on foot");
             return playerNonVehicleDistances.getOrDefault(player.getUniqueId(),0.0) > travelDistanceNeeded;
         } else if (type == TYPE.PIG)
         {
-            if ((int) Math.floor(playerPigDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerPigDistances.getOrDefault(player.getUniqueId(),0.0)) + " on a pig.");
+            if ((int) Math.floor(playerPigDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0 && BingoUtil.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerPigDistances.getOrDefault(player.getUniqueId(),0.0)) + " on a pig.");
             return playerPigDistances.getOrDefault(player.getUniqueId(),0.0) > travelDistanceNeeded;
         } else if (type == TYPE.HORSE)
         {
-            if ((int) Math.floor(playerHorseDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerHorseDistances.getOrDefault(player.getUniqueId(),0.0)) + " on a horse.");
+            if ((int) Math.floor(playerHorseDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0 && BingoUtil.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerHorseDistances.getOrDefault(player.getUniqueId(),0.0)) + " on a horse.");
             return playerHorseDistances.getOrDefault(player.getUniqueId(),0.0) > travelDistanceNeeded;
         } else if (type == TYPE.STRIDER)
         {
-            if ((int) Math.floor(playerStriderDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerStriderDistances.getOrDefault(player.getUniqueId(),0.0)) + " on a strider.");
+            if ((int) Math.floor(playerStriderDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0 && BingoUtil.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerStriderDistances.getOrDefault(player.getUniqueId(),0.0)) + " on a strider.");
             return playerStriderDistances.getOrDefault(player.getUniqueId(),0.0) > travelDistanceNeeded;
         }
         return false;

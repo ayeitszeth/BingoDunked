@@ -73,7 +73,7 @@ public class KillEntityListener implements Listener {
                 }
             }
         }
-        return nearestPlayer;
+        return nearestPlayer.getLocation().distanceSquared(location) < 25 ? nearestPlayer : null;
     }
 }
 

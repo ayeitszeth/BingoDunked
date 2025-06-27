@@ -1167,6 +1167,7 @@ public class BingoUtil {
         discs.add(Material.MUSIC_DISC_CREATOR);
         discs.add(Material.MUSIC_DISC_CREATOR_MUSIC_BOX);
         discs.add(Material.MUSIC_DISC_PRECIPICE);
+        discs.add(Material.MUSIC_DISC_TEARS);
         CollectItemsGoal discGoal = new CollectItemsGoal("Collect any Music Disc",discs);
         allGoals.add(discGoal);
 
@@ -1828,9 +1829,10 @@ public class BingoUtil {
         KillEntityWithCauseGoal killCreeperWithTntGoal = new KillEntityWithCauseGoal("Kill a Creeper with a TNT Block",gunpowder, EntityType.CREEPER, EntityDamageEvent.DamageCause.BLOCK_EXPLOSION, killEntityListener);
         allGoals.add(killCreeperWithTntGoal);
 
-        ItemStack stalac = new ItemStack(Material.POINTED_DRIPSTONE,1);
-        KillEntityWithCauseGoal killZombieWithFallingGoal = new KillEntityWithCauseGoal("Kill a Zombie with a Falling Block",stalac, EntityType.ZOMBIE, EntityDamageEvent.DamageCause.FALLING_BLOCK, killEntityListener);
-        allGoals.add(killZombieWithFallingGoal);
+        // jack said it was broken
+//        ItemStack stalac = new ItemStack(Material.POINTED_DRIPSTONE,1);
+//        KillEntityWithCauseGoal killZombieWithFallingGoal = new KillEntityWithCauseGoal("Kill a Zombie with a Falling Block",stalac, EntityType.ZOMBIE, EntityDamageEvent.DamageCause.FALLING_BLOCK, killEntityListener);
+//        allGoals.add(killZombieWithFallingGoal);
 
         ItemStack bow = new ItemStack(Material.BOW,1);
         KillEntityWithCauseGoal killSkeletonwithProjGoal = new KillEntityWithCauseGoal("Kill a Skeleton with a Projectile",bow, EntityType.SKELETON, EntityDamageEvent.DamageCause.PROJECTILE, killEntityListener);
@@ -2139,14 +2141,15 @@ public class BingoUtil {
         CollectItemSetAmountGoal sandGoal = new CollectItemSetAmountGoal("Collect 10 Unique Types of Sand Blocks", sandBlocks, 10);
         allGoals.add(sandGoal);
 
-        List<Material> gravityBlocks = new ArrayList<>();
-        gravityBlocks.add(Material.SAND);
-        gravityBlocks.add(Material.RED_SAND);
-        gravityBlocks.add(Material.POINTED_DRIPSTONE);
-        gravityBlocks.add(Material.GRAVEL);
-        gravityBlocks.add(Material.ANVIL);
-        CollectItemSetAmountGoal gravityGoal = new CollectItemSetAmountGoal("Collect 3 Unique Types of Gravity-Affected Blocks", gravityBlocks, 3);
-        allGoals.add(gravityGoal);
+        // Disabled due to missing all on the powdered concrete blocks - will need further balancing
+//        List<Material> gravityBlocks = new ArrayList<>();
+//        gravityBlocks.add(Material.SAND);
+//        gravityBlocks.add(Material.RED_SAND);
+//        gravityBlocks.add(Material.POINTED_DRIPSTONE);
+//        gravityBlocks.add(Material.GRAVEL);
+//        gravityBlocks.add(Material.ANVIL);
+//        CollectItemSetAmountGoal gravityGoal = new CollectItemSetAmountGoal("Collect 3 Unique Types of Gravity-Affected Blocks", gravityBlocks, 3);
+//        allGoals.add(gravityGoal);
 
         List<Material> redstoneItems = new ArrayList<>();
         redstoneItems.add(Material.REDSTONE_TORCH);
@@ -2239,6 +2242,31 @@ public class BingoUtil {
         CollectItemGoal dragonsBreathGoal = new CollectItemGoal("Collect a Dragon's Breath", dragonsBreath);
         allGoals.add(dragonsBreathGoal);
         lateGameGoals.add(dragonsBreathGoal);
+
+        List<Material> harnesses = new ArrayList<>();
+        harnesses.add(Material.BLACK_HARNESS);
+        harnesses.add(Material.BLUE_HARNESS);
+        harnesses.add(Material.BROWN_HARNESS);
+        harnesses.add(Material.CYAN_HARNESS);
+        harnesses.add(Material.GRAY_HARNESS);
+        harnesses.add(Material.GREEN_HARNESS);
+        harnesses.add(Material.LIGHT_BLUE_HARNESS);
+        harnesses.add(Material.LIGHT_GRAY_HARNESS);
+        harnesses.add(Material.LIME_HARNESS);
+        harnesses.add(Material.MAGENTA_HARNESS);
+        harnesses.add(Material.ORANGE_HARNESS);
+        harnesses.add(Material.PINK_HARNESS);
+        harnesses.add(Material.PURPLE_HARNESS);
+        harnesses.add(Material.RED_HARNESS);
+        harnesses.add(Material.WHITE_HARNESS);
+        harnesses.add(Material.YELLOW_HARNESS);
+        CollectItemsGoal harnessGoal = new CollectItemsGoal("Craft a Harness", harnesses);
+        allGoals.add(harnessGoal);
+
+        ItemStack driedGhast = new ItemStack(Material.DRIED_GHAST, 1);
+        CompleteAdvancementGoal driedGhastGoal = new CompleteAdvancementGoal("Complete the advancedment 'Stay Hydrated!'", driedGhast, Bukkit.getAdvancement(new NamespacedKey("minecraft","husbandry/place_dried_ghast_in_water")));
+        allGoals.add(driedGhastGoal);
+        lateGameGoals.add(driedGhastGoal);
 
         if (difficulty == Difficulty.INSANE)
         {
