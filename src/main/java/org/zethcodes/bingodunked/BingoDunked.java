@@ -5,6 +5,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.zethcodes.bingodunked.commands.*;
 import org.zethcodes.bingodunked.handlers.*;
 import org.zethcodes.bingodunked.listeners.*;
+import org.zethcodes.bingodunked.managers.GameManager;
+import org.zethcodes.bingodunked.managers.SettingsManager;
+import org.zethcodes.bingodunked.managers.TaskManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 import org.zethcodes.bingodunked.util.WorldUtil;
 
@@ -25,7 +28,7 @@ public final class BingoDunked extends JavaPlugin {
         BlockInteractListener blockInteractListener = new BlockInteractListener();
         ArmorStandInteractListener armorStandInteractListener = new ArmorStandInteractListener();
         DeathListener deathListener = new DeathListener();
-        //new DelayedTask(this);
+
         getServer().getPluginManager().registerEvents(killEntityListener, this);
         getServer().getPluginManager().registerEvents(breedEntityListener, this);
         getServer().getPluginManager().registerEvents(potionEffectListener, this);
@@ -38,47 +41,49 @@ public final class BingoDunked extends JavaPlugin {
         getServer().getPluginManager().registerEvents(armorStandInteractListener, this);
         getServer().getPluginManager().registerEvents(deathListener,this);
 
-        BingoUtil bingoUtil = new BingoUtil(this,killEntityListener,breedEntityListener,potionEffectListener, enchantListener,
+        SettingsManager settingsManager = new SettingsManager();
+        TaskManager taskManager = new TaskManager();
+        GameManager gameManager = new GameManager(this,killEntityListener,breedEntityListener,potionEffectListener, enchantListener,
                 fishingListener,fallHeightListener,experienceListener, eatListener, blockInteractListener,
                 armorStandInteractListener, deathListener);
 
-        new BingoHandler(this,bingoUtil);
-        SettingsListener settingsListener = new SettingsListener(bingoUtil);
+        new BingoHandler(this);
+        SettingsListener settingsListener = new SettingsListener();
         getServer().getPluginManager().registerEvents(settingsListener, this);
 
-        TeamChatHandler teamChatHandler = new TeamChatHandler(bingoUtil);
+        TeamChatHandler teamChatHandler = new TeamChatHandler();
         getServer().getPluginManager().registerEvents(teamChatHandler, this);
 
         PortalListener portalListener = new PortalListener();
         getServer().getPluginManager().registerEvents(portalListener, this);
-        BingoCard bingoCard = new BingoCard(bingoUtil);
+        BingoCard bingoCard = new BingoCard();
         getCommand("bingocard").setExecutor(bingoCard);
         getCommand("bingocard").setTabCompleter(bingoCard);
-        BingoJoin bingoJoin = new BingoJoin(bingoUtil);
+        BingoJoin bingoJoin = new BingoJoin();
         getCommand("bingojoin").setExecutor(bingoJoin);
         getCommand("bingojoin").setTabCompleter(bingoJoin);
-        BingoStart bingoStart = new BingoStart(bingoUtil);
+        BingoStart bingoStart = new BingoStart();
         getCommand("bingostart").setExecutor(bingoStart);
         getCommand("bingostart").setTabCompleter(bingoStart);
-        NewWorld newWorld = new NewWorld(new WorldUtil(this,bingoUtil));
+        NewWorld newWorld = new NewWorld(new WorldUtil(this));
         getCommand("newworld").setExecutor(newWorld);
         getCommand("newworld").setTabCompleter(newWorld);
-        BingoCheat bingoCheat = new BingoCheat(bingoUtil);
+        BingoCheat bingoCheat = new BingoCheat();
         getCommand("cheat").setExecutor(bingoCheat);
         getCommand("cheat").setTabCompleter(bingoCheat);
-        BingoLateJoin bingoLateJoin = new BingoLateJoin(bingoUtil);
+        BingoLateJoin bingoLateJoin = new BingoLateJoin();
         getCommand("latejoin").setExecutor(bingoLateJoin);
         getCommand("latejoin").setTabCompleter(bingoLateJoin);
-        AllChat allChat = new AllChat(bingoUtil);
+        AllChat allChat = new AllChat();
         getCommand("all").setExecutor(allChat);
         getCommand("all").setTabCompleter(allChat);
-        BingoTime bingoTime = new BingoTime(bingoUtil);
+        BingoTime bingoTime = new BingoTime();
         getCommand("bingotime").setExecutor(bingoTime);
         getCommand("bingotime").setTabCompleter(bingoTime);
-        BingoSettings bingoSettings = new BingoSettings(bingoUtil);
+        BingoSettings bingoSettings = new BingoSettings();
         getCommand("settings").setExecutor(bingoSettings);
         getCommand("settings").setTabCompleter(bingoSettings);
-        EndGame endGame = new EndGame(bingoUtil);
+        EndGame endGame = new EndGame();
         getCommand("endgame").setExecutor(endGame);
         getCommand("endgame").setTabCompleter(endGame);
     }

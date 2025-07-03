@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 import org.zethcodes.bingodunked.util.WorldUtil;
 
@@ -27,10 +28,9 @@ public class TravelListener implements Listener {
     private HashMap<UUID, Integer> lastPigNotification;
     private HashMap<UUID, Integer> lastHorseNotification;
     private HashMap<UUID, Integer> lastStriderNotification;
-    private BingoUtil bingoUtil;
     public enum TYPE { BOAT, RUNNING, MINECART, PIG, HORSE, STRIDER };
 
-    public TravelListener(BingoUtil bingoUtil) {
+    public TravelListener() {
         this.playerNonVehicleDistances = new HashMap<>();
         this.playerBoatDistances = new HashMap<>();
         this.playerMinecartDistances = new HashMap<>();
@@ -43,7 +43,6 @@ public class TravelListener implements Listener {
         this.lastPigNotification = new HashMap<>();
         this.lastHorseNotification = new HashMap<>();
         this.lastStriderNotification = new HashMap<>();
-        this.bingoUtil = bingoUtil;
     }
 
     public void Reset()
@@ -65,7 +64,7 @@ public class TravelListener implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         Player player = event.getPlayer();
 
         if (!(event.getPlayer().getWorld().getName().equals(WorldUtil.bingoWorldName) || event.getPlayer().getWorld().getName().equals(WorldUtil.bingoWorldName + "_nether")))
@@ -89,7 +88,7 @@ public class TravelListener implements Listener {
             {
                 playerBoatDistances.put(player.getUniqueId(), playerBoatDistances.getOrDefault(player.getUniqueId(), 0.0) + newDistance);
                 int dist = (int) Math.floor(playerBoatDistances.get(player.getUniqueId()));
-                if (dist % 100 == 0 && dist > 0 && (!lastBoatNotification.containsKey(player.getUniqueId()) || lastBoatNotification.get(player.getUniqueId()) < dist) && bingoUtil.activeTravelType == TYPE.BOAT)
+                if (dist % 100 == 0 && dist > 0 && (!lastBoatNotification.containsKey(player.getUniqueId()) || lastBoatNotification.get(player.getUniqueId()) < dist) && GameManager.instance.activeTravelType == TYPE.BOAT)
                 {
                     player.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED WHISPER] " + ChatColor.GRAY + "You have travelled " + (dist) + " blocks on a boat.");
                     lastBoatNotification.put(player.getUniqueId(),dist);
@@ -98,7 +97,7 @@ public class TravelListener implements Listener {
             {
                 playerPigDistances.put(player.getUniqueId(), playerPigDistances.getOrDefault(player.getUniqueId(), 0.0) + newDistance);
                 int dist = (int) Math.floor(playerPigDistances.get(player.getUniqueId()));
-                if (dist % 25 == 0 && dist > 0 && (!lastPigNotification.containsKey(player.getUniqueId()) || lastPigNotification.get(player.getUniqueId()) < dist) && bingoUtil.activeTravelType == TYPE.PIG)
+                if (dist % 25 == 0 && dist > 0 && (!lastPigNotification.containsKey(player.getUniqueId()) || lastPigNotification.get(player.getUniqueId()) < dist) && GameManager.instance.activeTravelType == TYPE.PIG)
                 {
                     player.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED WHISPER] " + ChatColor.GRAY + "You have travelled " + (dist) + " blocks on a pig.");
                     lastPigNotification.put(player.getUniqueId(),dist);
@@ -107,7 +106,7 @@ public class TravelListener implements Listener {
             {
                 playerHorseDistances.put(player.getUniqueId(), playerHorseDistances.getOrDefault(player.getUniqueId(), 0.0) + newDistance);
                 int dist = (int) Math.floor(playerHorseDistances.get(player.getUniqueId()));
-                if (dist % 50 == 0 && dist > 0 && (!lastHorseNotification.containsKey(player.getUniqueId()) || lastHorseNotification.get(player.getUniqueId()) < dist) && bingoUtil.activeTravelType == TYPE.HORSE)
+                if (dist % 50 == 0 && dist > 0 && (!lastHorseNotification.containsKey(player.getUniqueId()) || lastHorseNotification.get(player.getUniqueId()) < dist) && GameManager.instance.activeTravelType == TYPE.HORSE)
                 {
                     player.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED WHISPER] " + ChatColor.GRAY + "You have travelled " + (dist) + " blocks on a horse.");
                     lastHorseNotification.put(player.getUniqueId(),dist);
@@ -116,7 +115,7 @@ public class TravelListener implements Listener {
             {
                 playerStriderDistances.put(player.getUniqueId(), playerStriderDistances.getOrDefault(player.getUniqueId(), 0.0) + newDistance);
                 int dist = (int) Math.floor(playerStriderDistances.get(player.getUniqueId()));
-                if (dist % 25 == 0 && dist > 0 && (!lastStriderNotification.containsKey(player.getUniqueId()) || lastStriderNotification.get(player.getUniqueId()) < dist) && bingoUtil.activeTravelType == TYPE.STRIDER)
+                if (dist % 25 == 0 && dist > 0 && (!lastStriderNotification.containsKey(player.getUniqueId()) || lastStriderNotification.get(player.getUniqueId()) < dist) && GameManager.instance.activeTravelType == TYPE.STRIDER)
                 {
                     player.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED WHISPER] " + ChatColor.GRAY + "You have travelled " + (dist) + " blocks on a strider.");
                     lastStriderNotification.put(player.getUniqueId(),dist);
@@ -126,7 +125,7 @@ public class TravelListener implements Listener {
         {
             playerNonVehicleDistances.put(player.getUniqueId(), playerNonVehicleDistances.getOrDefault(player.getUniqueId(), 0.0) + newDistance);
             int dist = (int) Math.floor(playerNonVehicleDistances.get(player.getUniqueId()));
-            if (dist % 250 == 0 && dist > 0 && (!lastRunningNotification.containsKey(player.getUniqueId()) || lastRunningNotification.get(player.getUniqueId()) < dist) && bingoUtil.activeTravelType == TYPE.RUNNING)
+            if (dist % 250 == 0 && dist > 0 && (!lastRunningNotification.containsKey(player.getUniqueId()) || lastRunningNotification.get(player.getUniqueId()) < dist) && GameManager.instance.activeTravelType == TYPE.RUNNING)
             {
                 player.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED WHISPER] " + ChatColor.GRAY + "You have travelled " + (dist) + " blocks on foot.");
                 lastRunningNotification.put(player.getUniqueId(),dist);
@@ -138,23 +137,23 @@ public class TravelListener implements Listener {
     {
         if (type == TYPE.BOAT)
         {
-            if ((int) Math.floor(playerBoatDistances.getOrDefault(player.getUniqueId(), 0.0)) % 25 == 0 && BingoUtil.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerBoatDistances.getOrDefault(player.getUniqueId(),0.0)) + " in a boat");
+            if ((int) Math.floor(playerBoatDistances.getOrDefault(player.getUniqueId(), 0.0)) % 25 == 0 && GameManager.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerBoatDistances.getOrDefault(player.getUniqueId(),0.0)) + " in a boat");
             return playerBoatDistances.getOrDefault(player.getUniqueId(),0.0) > travelDistanceNeeded;
         } else if (type == TYPE.RUNNING)
         {
-            if ((int) Math.floor(playerNonVehicleDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0 && BingoUtil.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerNonVehicleDistances.getOrDefault(player.getUniqueId(),0.0)) + " on foot");
+            if ((int) Math.floor(playerNonVehicleDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0 && GameManager.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerNonVehicleDistances.getOrDefault(player.getUniqueId(),0.0)) + " on foot");
             return playerNonVehicleDistances.getOrDefault(player.getUniqueId(),0.0) > travelDistanceNeeded;
         } else if (type == TYPE.PIG)
         {
-            if ((int) Math.floor(playerPigDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0 && BingoUtil.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerPigDistances.getOrDefault(player.getUniqueId(),0.0)) + " on a pig.");
+            if ((int) Math.floor(playerPigDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0 && GameManager.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerPigDistances.getOrDefault(player.getUniqueId(),0.0)) + " on a pig.");
             return playerPigDistances.getOrDefault(player.getUniqueId(),0.0) > travelDistanceNeeded;
         } else if (type == TYPE.HORSE)
         {
-            if ((int) Math.floor(playerHorseDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0 && BingoUtil.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerHorseDistances.getOrDefault(player.getUniqueId(),0.0)) + " on a horse.");
+            if ((int) Math.floor(playerHorseDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0 && GameManager.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerHorseDistances.getOrDefault(player.getUniqueId(),0.0)) + " on a horse.");
             return playerHorseDistances.getOrDefault(player.getUniqueId(),0.0) > travelDistanceNeeded;
         } else if (type == TYPE.STRIDER)
         {
-            if ((int) Math.floor(playerStriderDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0 && BingoUtil.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerStriderDistances.getOrDefault(player.getUniqueId(),0.0)) + " on a strider.");
+            if ((int) Math.floor(playerStriderDistances.getOrDefault(player.getUniqueId(),0.0)) % 25 == 0 && GameManager.DEBUG) Bukkit.getLogger().info(player + "has travelled " + Math.floor(playerStriderDistances.getOrDefault(player.getUniqueId(),0.0)) + " on a strider.");
             return playerStriderDistances.getOrDefault(player.getUniqueId(),0.0) > travelDistanceNeeded;
         }
         return false;

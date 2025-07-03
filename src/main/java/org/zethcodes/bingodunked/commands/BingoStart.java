@@ -5,19 +5,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.zethcodes.bingodunked.managers.GameManager;
+import org.zethcodes.bingodunked.managers.SettingsManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BingoStart implements CommandExecutor, TabExecutor {
-
-    BingoUtil bingoUtil;
-
-    public BingoStart(BingoUtil bingoUtil)
-    {
-        this.bingoUtil = bingoUtil;
-    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
@@ -32,7 +27,7 @@ public class BingoStart implements CommandExecutor, TabExecutor {
 
         if (args.length == 0)
         {
-            bingoUtil.BingoSetUp(bingoUtil.gameMode,time);
+            GameManager.instance.BingoSetUp(SettingsManager.gameMode, time);
             return true;
         }
 
@@ -40,8 +35,8 @@ public class BingoStart implements CommandExecutor, TabExecutor {
 
         if (mode.equals("team") || mode.equals("ffa"))
         {
-            BingoUtil.Mode m = mode.equals("team") ? BingoUtil.Mode.TEAM : BingoUtil.Mode.FFA;
-            if (m == BingoUtil.Mode.FFA)
+            SettingsManager.Mode m = mode.equals("team") ? SettingsManager.Mode.TEAM : SettingsManager.Mode.FFA;
+            if (m == SettingsManager.Mode.FFA)
             {
                 try
                 {
@@ -49,10 +44,10 @@ public class BingoStart implements CommandExecutor, TabExecutor {
                 } catch (Exception ignored) {}
             }
 
-            bingoUtil.BingoSetUp(m,time);
+            GameManager.instance.BingoSetUp(m, time);
         } else
         {
-            bingoUtil.BingoWhisper(player, "Incorrect Mode name. Input either 'team' or 'ffa'");
+            BingoUtil.BingoWhisper(player, "Incorrect Mode name. Input either 'team' or 'ffa'");
         }
         return true;
     }

@@ -7,7 +7,13 @@ import java.util.List;
 
 public class TaskManager {
 
-    private final List<Integer> taskIds = new ArrayList<>();
+    public static TaskManager instance;
+    private List<Integer> taskIds = new ArrayList<>();
+
+    public TaskManager()
+    {
+        instance = this;
+    }
 
     public void cancelAllTasks()
     {

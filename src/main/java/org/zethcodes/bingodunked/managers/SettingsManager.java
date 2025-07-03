@@ -8,9 +8,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.zethcodes.bingodunked.util.BingoUtil;
+
+import static org.zethcodes.bingodunked.util.BingoUtil.BingoAnnounce;
+import static org.zethcodes.bingodunked.util.BingoUtil.updatePlayerTabListName;
 
 public class SettingsManager {
+
+    public enum Mode { TEAM, FFA }
+    public enum Difficulty { NORMAL, INSANE }
+    public enum PvP { NOPVP, PVP, GLOWING_PVP, TRACKING_PVP }
 
     Inventory settingsGUI;
     public static boolean isPvpEnabled;
@@ -18,11 +24,11 @@ public class SettingsManager {
     ItemStack enabled = new ItemStack(Material.LIME_WOOL, 1);
     ItemStack disabled = new ItemStack(Material.RED_WOOL, 1);
 
-    public BingoUtil.Mode gameMode = BingoUtil.Mode.TEAM;
-    public BingoUtil.Difficulty difficulty = BingoUtil.Difficulty.NORMAL;
-    public BingoUtil.PvP pvp = BingoUtil.PvP.PVP;
+    public static Mode gameMode = Mode.TEAM;
+    public static Difficulty difficulty = Difficulty.NORMAL;
+    public static PvP pvp = PvP.PVP;
 
-    public void SettingsSetUp() {
+    public SettingsManager() {
         settingsGUI = Bukkit.createInventory(null, 45, "Bingo Settings");
 
         ItemMeta enabledMeta = enabled.getItemMeta();
@@ -96,15 +102,15 @@ public class SettingsManager {
         settingsGUI.setItem(34, trackingPvP);
     }
 
-    public void updateGameMode(BingoUtil.Mode mode) {
+    public void updateGameMode(Mode mode) {
         if (mode == null) return;
         gameMode = mode;
 
-        if (mode == BingoUtil.Mode.TEAM)
+        if (mode == Mode.TEAM)
         {
             settingsGUI.setItem(12,enabled);
             settingsGUI.setItem(15,disabled);
-        } else if (mode == BingoUtil.Mode.FFA)
+        } else if (mode == Mode.FFA)
         {
             settingsGUI.setItem(12,disabled);
             settingsGUI.setItem(15,enabled);
@@ -117,15 +123,14 @@ public class SettingsManager {
         BingoAnnounce("The game mode has been updated to " + ChatColor.BOLD + gameMode.name() + "!");
     }
 
-    public void updateDifficulty(BingoUtil.Difficulty difficulty) {
+    public void updateDifficulty(Difficulty difficulty) {
         if (difficulty == null) return;
-        this.difficulty = difficulty;
 
-        if (difficulty == BingoUtil.Difficulty.NORMAL)
+        if (difficulty == Difficulty.NORMAL)
         {
             settingsGUI.setItem(21,enabled);
             settingsGUI.setItem(24,disabled);
-        } else if (difficulty == BingoUtil.Difficulty.INSANE)
+        } else if (difficulty == Difficulty.INSANE)
         {
             settingsGUI.setItem(21,disabled);
             settingsGUI.setItem(24,enabled);
@@ -135,33 +140,32 @@ public class SettingsManager {
             p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 2.0f);
         }
 
-        BingoUtil.BingoAnnounce("The difficulty has been updated to " + ChatColor.BOLD + difficulty.name() + "!");
+        BingoAnnounce("The difficulty has been updated to " + ChatColor.BOLD + difficulty.name() + "!");
     }
 
-    public void updatePvp(BingoUtil.PvP pvp)
+    public void updatePvp(PvP pvp)
     {
         if (pvp == null) return;
-        this.pvp = pvp;
 
-        if (pvp == BingoUtil.PvP.NOPVP)
+        if (pvp == PvP.NOPVP)
         {
             settingsGUI.setItem(28,enabled);
             settingsGUI.setItem(30,disabled);
             settingsGUI.setItem(33,disabled);
             settingsGUI.setItem(35,disabled);
-        } else if (pvp == BingoUtil.PvP.PVP)
+        } else if (pvp == PvP.PVP)
         {
             settingsGUI.setItem(28,disabled);
             settingsGUI.setItem(30,enabled);
             settingsGUI.setItem(33,disabled);
             settingsGUI.setItem(35,disabled);
-        } else if (pvp == BingoUtil.PvP.GLOWING_PVP)
+        } else if (pvp == PvP.GLOWING_PVP)
         {
             settingsGUI.setItem(28,disabled);
             settingsGUI.setItem(30,disabled);
             settingsGUI.setItem(33,enabled);
             settingsGUI.setItem(35,disabled);
-        } else if (pvp == BingoUtil.PvP.TRACKING_PVP)
+        } else if (pvp == PvP.TRACKING_PVP)
         {
             settingsGUI.setItem(28,disabled);
             settingsGUI.setItem(30,disabled);
@@ -174,7 +178,7 @@ public class SettingsManager {
             updatePlayerTabListName(p);
         }
 
-        BingoUtil.BingoAnnounce("The difficulty has been updated to " + ChatColor.BOLD + pvp.name() + "!");
+        BingoAnnounce("The difficulty has been updated to " + ChatColor.BOLD + pvp.name() + "!");
 
     }
 

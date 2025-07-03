@@ -11,6 +11,8 @@ import org.zethcodes.bingodunked.util.BingoUtil;
 import java.util.*;
 
 public class TeamsManager {
+    public enum Team {RED, BLUE, GREEN, YELLOW, ORANGE, PURPLE, CYAN, BROWN, NONE};
+
     // WOOL
     ItemStack redWool = new ItemStack(Material.RED_WOOL, 1);
     ItemStack blueWool = new ItemStack(Material.BLUE_WOOL, 1);
@@ -21,7 +23,7 @@ public class TeamsManager {
     ItemStack cyanWool = new ItemStack(Material.CYAN_WOOL, 1);
     ItemStack brownWool = new ItemStack(Material.BROWN_WOOL, 1);
 
-    Map<UUID, BingoUtil.Team> TeamMap = new HashMap<>();
+    Map<UUID, Team> TeamMap = new HashMap<>();
 
     //region Setup
 
@@ -31,7 +33,7 @@ public class TeamsManager {
         Player[] players = Bukkit.getOnlinePlayers().toArray(new Player[0]);
         int numOfPlayers = players.length;
         if (numOfPlayers <= 8) {
-            BingoUtil.Team[] teams = BingoUtil.Team.values();
+            Team[] teams = Team.values();
 
             for (int i = 0; i < numOfPlayers; ++i) {
                 TeamMap.put(players[i].getUniqueId(), teams[i]);
@@ -47,7 +49,7 @@ public class TeamsManager {
 
     //region Team Joining
 
-    public void JoinTeam(Player player, BingoUtil.Team team)
+    public void JoinTeam(Player player, Team team)
     {
 //        if (gameMode == BingoUtil.Mode.FFA)
 //        {
@@ -75,7 +77,7 @@ public class TeamsManager {
         int numOfPlayers = players.length;
         if (numOfPlayers <= 8)
         {
-            BingoUtil.Team[] teams = BingoUtil.Team.values();
+            Team[] teams = Team.values();
 
             for (int i = 0; i < numOfPlayers; ++i)
             {
@@ -94,11 +96,11 @@ public class TeamsManager {
 
     //region Getters/Setters
 
-    public Map<UUID, BingoUtil.Team> GetTeamMap() { return TeamMap; }
+    public Map<UUID, Team> GetTeamMap() { return TeamMap; }
 
     public ChatColor getTeamChatColour(Player player)
     {
-        BingoUtil.Team team = getTeam(player);
+        Team team = getTeam(player);
 
         switch (team) {
             case RED:
@@ -122,7 +124,7 @@ public class TeamsManager {
         }
     }
 
-    public ChatColor getTeamChatColour(BingoUtil.Team team)
+    public ChatColor getTeamChatColour(Team team)
     {
         switch (team) {
             case RED:
@@ -146,23 +148,23 @@ public class TeamsManager {
         }
     }
 
-    public BingoUtil.Team getTeam(Player player)
+    public Team getTeam(Player player)
     {
         try {
             UUID playerUUID = player.getUniqueId();
-            return TeamMap.getOrDefault(playerUUID, BingoUtil.Team.NONE);
+            return TeamMap.getOrDefault(playerUUID, Team.NONE);
         } catch (Exception ex)
         {
-            return BingoUtil.Team.NONE;
+            return Team.NONE;
         }
 
     }
 
-    public List<Player> GetPlayersOnTeam(BingoUtil.Team team)
+    public List<Player> GetPlayersOnTeam(Team team)
     {
         List<Player> pList = new ArrayList<>();
 
-        for (Map.Entry<UUID, BingoUtil.Team> entry : TeamMap.entrySet()) {
+        for (Map.Entry<UUID, Team> entry : TeamMap.entrySet()) {
             if (entry.getValue().equals(team)) {
                 pList.add(Bukkit.getPlayer(entry.getKey()));
             }
@@ -177,10 +179,10 @@ public class TeamsManager {
 
     public void PrintTeams()
     {
-        for (Map.Entry<UUID, BingoUtil.Team> entry : TeamMap.entrySet()) {
+        for (Map.Entry<UUID, Team> entry : TeamMap.entrySet()) {
             UUID playerUUID = entry.getKey();
-            BingoUtil.Team team = entry.getValue();
-            if (BingoUtil.DEBUG) Bukkit.getLogger().info("Player UUID: " + playerUUID + ", Team: " + team);
+            Team team = entry.getValue();
+            if (GameManager.DEBUG) Bukkit.getLogger().info("Player UUID: " + playerUUID + ", Team: " + team);
         }
     }
 

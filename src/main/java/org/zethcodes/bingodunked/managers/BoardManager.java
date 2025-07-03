@@ -3,6 +3,8 @@ package org.zethcodes.bingodunked.managers;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -11,7 +13,9 @@ import org.zethcodes.bingodunked.goals.*;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import static org.zethcodes.bingodunked.managers.GameManager.gameState;
 import static org.zethcodes.bingodunked.managers.GameManager.plugin;
@@ -21,6 +25,7 @@ public class BoardManager {
     // INV
     Inventory BingoCard;
     List<Integer> validSlots = new ArrayList<>();
+    public HashMap<Integer, Goal> goals = new HashMap<>();
 
     // TEAMS
     boolean[][] redBoard = new boolean[3][3];
@@ -53,6 +58,143 @@ public class BoardManager {
         for (int col = 0; col < 3; ++col) {
             for (int row = 0; row < 3; ++row) {
                 validSlots.add(row * 9 + col + 3);
+            }
+        }
+    }
+
+    public void FillCard()
+    {
+        for (int i = 0; i < 9; ++i)
+        {
+            newGoal(i);
+        }
+
+        AnimateBingoCard();
+    }
+
+    public void newGoal(int slot)
+    {
+        if (allGoals.isEmpty()) {
+            SetGoals();
+        }
+
+        goals.remove(slot);
+
+        int col = (slot % 9) - 3;
+        int row = slot / 9;
+
+        Random random = new Random();
+        Goal goal = allGoals.get(0);
+        int ranGoal = 0;
+
+        if (random.nextInt(4) != 3 && difficulty == BingoUtil.Difficulty.NORMAL) { // 75/25 flip if it's a biome goal
+            if (!startBiomes.isEmpty())
+            {
+                Biome biome = startBiomes.get(0);
+                startBiomes.remove(biome);
+                if (biomeGoals.containsKey(biome)) {
+                    goal = biomeGoals.get(biome);
+                    biomeGoals.remove(biome);
+                    allGoals.remove(biome);
+                } else {
+                    ranGoal = random.nextInt(allGoals.size());
+                    goal = allGoals.get(ranGoal);
+                    allGoals.remove(goal);
+                }
+            } else
+            {
+                Player player = getPlayerWithLeastGoals();
+                Biome biome = player.getLocation().getBlock().getBiome();
+
+                if (biomeGoals.containsKey(biome)) {
+                    goal = biomeGoals.get(biome);
+                    biomeGoals.remove(biome);
+                } else {
+                    ranGoal = random.nextInt(allGoals.size());
+                    goal = allGoals.get(ranGoal);
+                    allGoals.remove(goal);
+                }
+            }
+
+        } else {
+            ranGoal = random.nextInt(allGoals.size());
+            goal = allGoals.get(ranGoal);
+            allGoals.remove(goal);
+        }
+
+        while (((goal instanceof FallGoal && activeFallGoal) ||
+                (goal instanceof ExperienceGoal && activeExpGoal) ||
+                (goal instanceof PotionEffectGoal && activeEffectGoal) ||
+                (goal instanceof FishingGoal && activeFishGoal) ||
+                (goal instanceof EnchantItemGoal && activeEncGoal) ||
+                (goal instanceof CollectColouredItemGoal && activeColouredGoal) ||
+                (goal instanceof CompleteAdvancementGoal && activeAdvancementGoal) ||
+                (goal instanceof TravelGoal && activeTravelGoal) ||
+                (gameMode == BingoUtil.Mode.FFA && difficulty == BingoUtil.Difficulty.NORMAL && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12) ||
+                (gameMode == BingoUtil.Mode.TEAM && difficulty == BingoUtil.Difficulty.NORMAL && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12 - Math.min(playerGoalsCompleted.size(),12)) ||
+                (goals.containsValue(goal))) &&
+                difficulty == BingoUtil.Difficulty.NORMAL) {
+            if (allGoals.isEmpty()) {
+                SetGoals();
+            }
+
+            ranGoal = random.nextInt(allGoals.size());
+            goal = allGoals.get(ranGoal);
+
+            if ((gameMode == BingoUtil.Mode.FFA && difficulty == BingoUtil.Difficulty.NORMAL && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12) ||
+                    (gameMode == BingoUtil.Mode.TEAM && difficulty == BingoUtil.Difficulty.NORMAL && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12 - Math.min(playerGoalsCompleted.size(),12)))
+            {
+                continue;
+            }
+            allGoals.remove(goal);
+        }
+
+        // force test goal
+        //goal = testGoal;
+
+        if (goal instanceof FallGoal) {
+            activeFallGoal = true;
+        } else if (goal instanceof ExperienceGoal) {
+            activeExpGoal = true;
+        } else if (goal instanceof PotionEffectGoal) {
+            activeEffectGoal = true;
+        } else if (goal instanceof FishingGoal) {
+            activeFishGoal = true;
+        } else if (goal instanceof EnchantItemGoal) {
+            activeEncGoal = true;
+        } else if (goal instanceof CollectColouredItemGoal) {
+            activeColouredGoal = true;
+        } else if (goal instanceof CompleteAdvancementGoal) {
+            activeAdvancementGoal = true;
+        } else if (goal instanceof TravelGoal)
+        {
+            activeTravelGoal = true;
+            activeTravelType = ((TravelGoal) goal).type;
+        } else if (goal instanceof BreakBlockTypeGoal)
+        {
+            activeBlockTypes.add(((BreakBlockTypeGoal) goal).requiredBlock);
+        }
+
+        ItemStack item = goal.getItem();
+        ItemMeta meta = item.getItemMeta();
+        List<String> lore = wrapAndColorLore(goal.getName(), 30, ChatColor.DARK_PURPLE);
+        meta.setLore(lore);
+        meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
+        item.setItemMeta(meta);
+
+        goals.put(slot,goal);
+        BingoCard.setItem(slot, item);
+        BingoAnnounce("The new goal is " + ChatColor.BOLD + goal.getName() + "!");
+
+        for (Player player : Bukkit.getOnlinePlayers())
+        {
+            if (goal instanceof CollectItemGoal || goal instanceof ExperienceGoal ||
+                    goal instanceof CompleteAdvancementGoal || goal instanceof BreakBlockTypeGoal ||
+                    goal instanceof TravelGoal)
+            {
+                if (goal.isComplete(player)) {
+                    completeGoal(slot, teamsManager.getTeam(player), player);
+                }
             }
         }
     }
@@ -205,5 +347,10 @@ public class BoardManager {
                 }
             }.runTaskAsynchronously(plugin);
         }
+    }
+
+    public void OpenInv(Player player)
+    {
+        player.openInventory(BingoCard);
     }
 }

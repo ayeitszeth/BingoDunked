@@ -3,50 +3,44 @@ package org.zethcodes.bingodunked.managers;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
-import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.zethcodes.bingodunked.BingoDunked;
 import org.zethcodes.bingodunked.goals.*;
 import org.zethcodes.bingodunked.listeners.*;
-import org.zethcodes.bingodunked.util.BingoUtil;
 import org.zethcodes.bingodunked.util.WorldUtil;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.bukkit.Bukkit.getServer;
 import static org.zethcodes.bingodunked.util.BingoUtil.*;
 
 public class GameManager {
 
-    KillEntityListener killEntityListener;
-    BreedEntityListener breedEntityListener;
-    PotionEffectListener potionEffectListener;
-    EnchantListener enchantListener;
-    FishingListener fishingListener;
-    BreakBlockTypeListener blockTypeListener;
-    FallHeightListener fallHeightListener;
-    ExperienceListener experienceListener;
-    EatListener eatListener;
-    BlockInteractListener blockInteractListener;
-    ArmorStandInteractListener armorStandInteractListener;
-    TravelListener travelListener;
-    DeathListener deathListener;
+    public static GameManager instance;
+    public enum GameState { LOADING, STARTED, FINISHED }
+
+    public KillEntityListener killEntityListener;
+    public BreedEntityListener breedEntityListener;
+    public PotionEffectListener potionEffectListener;
+    public EnchantListener enchantListener;
+    public FishingListener fishingListener;
+    public BreakBlockTypeListener blockTypeListener;
+    public FallHeightListener fallHeightListener;
+    public ExperienceListener experienceListener;
+    public EatListener eatListener;
+    public BlockInteractListener blockInteractListener;
+    public ArmorStandInteractListener armorStandInteractListener;
+    public TravelListener travelListener;
+    public DeathListener deathListener;
     public static BingoDunked plugin;
     public static boolean DEBUG = false;
 
     TeamsManager teamsManager;
     BoardManager boardManager;
-    TaskManager taskManager;
-    SettingsManager settingsManager;
-    GoalFactory goalFactory;
 
-    HashMap<Integer, Goal> goals = new HashMap<>();
-    public static BingoUtil.GameState gameState = BingoUtil.GameState.FINISHED;
+    public static GameState gameState = GameState.FINISHED;
     int numOfGoalsCompleted = 0;
     private final Map<UUID, Integer> playerGoalsCompleted = new HashMap<>();
     private int timeLeft;
@@ -60,7 +54,8 @@ public class GameManager {
                      EnchantListener enchantListener, FishingListener fishingListener, FallHeightListener fallHeightListener,
                      ExperienceListener experienceListener, EatListener eatListener, BlockInteractListener blockInteractListener,
                      ArmorStandInteractListener armorStandInteractListener, DeathListener deathListener) {
-        this.plugin = plugin;
+        instance = this;
+        GameManager.plugin = plugin;
         this.killEntityListener = killEntityListener;
         this.breedEntityListener = breedEntityListener;
         this.potionEffectListener = potionEffectListener;
@@ -73,14 +68,11 @@ public class GameManager {
         this.armorStandInteractListener = armorStandInteractListener;
         this.deathListener = deathListener;
 
-        this.travelListener = new TravelListener(this);
-        this.blockTypeListener = new BreakBlockTypeListener(this);
+        this.travelListener = new TravelListener();
+        this.blockTypeListener = new BreakBlockTypeListener();
 
         teamsManager = new TeamsManager();
         boardManager = new BoardManager();
-        taskManager = new TaskManager();
-        settingsManager = new SettingsManager();
-        goalFactory = new GoalFactory();
 
         getServer().getPluginManager().registerEvents(travelListener, plugin);
         getServer().getPluginManager().registerEvents(blockTypeListener, plugin);
@@ -88,22 +80,12 @@ public class GameManager {
 
     //region Bingo Processes
 
-    public void BingoSetUp(BingoUtil.Mode mode, int time) {
-        taskManager.cancelAllTasks();
-        settingsManager.gameMode = mode;
-        gameState = BingoUtil.GameState.LOADING;
-
-        if (settingsManager.gameMode == BingoUtil.Mode.TEAM) {
-            settingsManager.setGUI(12, true);
-            settingsManager.setGUI(15, false);
-        } else if (mode == BingoUtil.Mode.FFA) {
-            settingsManager.setGUI(12, false);
-            settingsManager.setGUI(15, true);
-        }
+    public void BingoSetUp(SettingsManager.Mode mode, int time) {
+        TaskManager.instance.cancelAllTasks();
+        SettingsManager.gameMode = mode;
+        gameState = GameState.LOADING;
 
         boardManager.BoardSetUp();
-
-        goalFactory.SetGoals();
         killEntityListener.Reset();
         breedEntityListener.Reset();
         potionEffectListener.Reset();
@@ -124,7 +106,7 @@ public class GameManager {
         activeTravelType = null;
         activeBlockTypes.clear();
 
-        if (settingsManager.gameMode == BingoUtil.Mode.FFA) {
+        if (SettingsManager.gameMode == SettingsManager.Mode.FFA) {
             teamsManager.FFATeamsSetUp();
         }
 
@@ -148,37 +130,37 @@ public class GameManager {
 
         resetPlayerGoalsCompleted();
 
-        if (settingsManager.pvp != BingoUtil.PvP.NOPVP)
+        if (SettingsManager.pvp != SettingsManager.PvP.NOPVP)
         {
-            taskManager.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            TaskManager.instance.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 BingoAnnounce("The Grace Period has 2 minutes remaining...");
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 1.89f);
                 }
             }, 20L * (1 * 60 + 10)).getTaskId());
 
-            taskManager.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            TaskManager.instance.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 BingoAnnounce("The Grace Period has 1 minutes remaining...");
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 1.78f);
                 }
             }, 20L * (2 * 60 + 10)).getTaskId());
 
-            taskManager.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            TaskManager.instance.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 BingoAnnounce("The Grace Period has 30 seconds remaining...");
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 1.68f);
                 }
             }, 20L * (2 * 60 + 30 + 10)).getTaskId());
 
-            taskManager.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            TaskManager.instance.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 BingoAnnounce("The Grace Period has 10 seconds remaining...");
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 1.5f);
                 }
             }, 20L * (2 * 60 + 50 + 10)).getTaskId());
 
-            taskManager.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            TaskManager.instance.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 SettingsManager.isPvpEnabled = true;
                 BingoAnnounce("The Grace Period has ended...");
                 for (Player p : Bukkit.getOnlinePlayers()) {
@@ -187,9 +169,9 @@ public class GameManager {
             }, 20L * (3 * 60 + 10)).getTaskId());
         }
 
-        BingoAnnounce("Bingo will start in 10 seconds...");
+        BingoAnnounce("Bingo will start in 15 seconds...");
 
-        Map<UUID, BingoUtil.Team> TeamMap = teamsManager.GetTeamMap();
+        Map<UUID, TeamsManager.Team> TeamMap = teamsManager.GetTeamMap();
 
         Bukkit.getWorld(WorldUtil.bingoWorldName).setTime(0);
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -217,207 +199,76 @@ public class GameManager {
                 }
             }
 
-            if (settingsManager.gameMode == BingoUtil.Mode.TEAM && !TeamMap.containsKey(player.getUniqueId())) {
+            if (SettingsManager.gameMode == SettingsManager.Mode.TEAM && !TeamMap.containsKey(player.getUniqueId())) {
                 BingoWhisper(player,"Psst... You haven't joined a team yet...");
             }
         }
 
-        taskManager.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        TaskManager.instance.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
             BingoAnnounce("Bingo will start in 5 seconds...");
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 1.5f);
             }
-        }, 20L * 5).getTaskId());
+        }, 20L * 10).getTaskId());
 
-        taskManager.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        TaskManager.instance.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
             BingoAnnounce("Bingo will start in 3!");
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 1.68f);
             }
-        }, 20L * 7).getTaskId());
+        }, 20L * 12).getTaskId());
 
-        taskManager.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        TaskManager.instance.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
             BingoAnnounce("Bingo will start in 2!");
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 1.78f);
             }
-        }, 20L * 8).getTaskId());
+        }, 20L * 13).getTaskId());
 
-        taskManager.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        TaskManager.instance.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
             BingoAnnounce("Bingo will start in 1!");
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.playSound(p, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 1.89f);
             }
-        }, 20L * 9).getTaskId());
+        }, 20L * 14).getTaskId());
 
-        taskManager.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        TaskManager.instance.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
             BingoStart();
-            if (settingsManager.gameMode == BingoUtil.Mode.FFA)
+            if (SettingsManager.gameMode == SettingsManager.Mode.FFA)
             {
                 startTimer();
             }
-        }, 20L * 10).getTaskId());
+        }, 20L * 15).getTaskId());
     }
 
     public void BingoStart() {
-        Random random = new Random();
-        goals = new HashMap<>();
+        boardManager.FillCard();
 
-        for (int slot : validSlots) {
-            Goal goal = allGoals.get(0);
-            int ranGoal = 0;
-            if (random.nextInt(2) == 0 && !startBiomes.isEmpty() && difficulty == BingoUtil.Difficulty.NORMAL) { // 50/50 coin flip if it's a biome goal
-                Biome biome = startBiomes.get(0);
-                startBiomes.remove(biome);
-                if (biomeGoals.containsKey(biome)) {
-                    goal = biomeGoals.get(biome);
-                    biomeGoals.remove(biome);
-                    allGoals.remove(biome);
-                } else {
-                    ranGoal = random.nextInt(allGoals.size());
-                    goal = allGoals.get(ranGoal);
-                    allGoals.remove(goal);
-                }
-            } else {
-                ranGoal = random.nextInt(allGoals.size());
-                goal = allGoals.get(ranGoal);
-                allGoals.remove(goal);
-            }
+        gameState = GameState.STARTED;
 
-            while (((goal instanceof FallGoal && activeFallGoal) ||
-                    (goal instanceof ExperienceGoal && activeExpGoal) ||
-                    (goal instanceof PotionEffectGoal && activeEffectGoal) ||
-                    (goal instanceof FishingGoal && activeFishGoal) ||
-                    (goal instanceof EnchantItemGoal && activeEncGoal) ||
-                    (goal instanceof CollectColouredItemGoal && activeColouredGoal) ||
-                    (goal instanceof CompleteAdvancementGoal && activeAdvancementGoal) ||
-                    (goal instanceof TravelGoal && activeTravelGoal) ||
-                    (lateGameGoals.contains(goal)) ||
-                    (goals.containsValue(goal))) &&
-                    difficulty == BingoUtil.Difficulty.NORMAL) {
-
-                if (allGoals.isEmpty()) SetGoals();
-
-                ranGoal = random.nextInt(allGoals.size());
-                goal = allGoals.get(ranGoal);
-
-                if (lateGameGoals.contains(goal) && difficulty == BingoUtil.Difficulty.NORMAL)
-                {
-                    continue;
-                }
-
-                allGoals.remove(goal);
-            }
-
-            if (testGoal != null && slot == 13)
-            {
-                goal = testGoal;
-            }
-
-            if (goal instanceof FallGoal) {
-                activeFallGoal = true;
-            } else if (goal instanceof ExperienceGoal) {
-                activeExpGoal = true;
-            } else if (goal instanceof PotionEffectGoal) {
-                activeEffectGoal = true;
-            } else if (goal instanceof FishingGoal) {
-                activeFishGoal = true;
-            } else if (goal instanceof EnchantItemGoal) {
-                activeEncGoal = true;
-            } else if (goal instanceof CollectColouredItemGoal) {
-                activeColouredGoal = true;
-            } else if (goal instanceof CompleteAdvancementGoal) {
-                activeAdvancementGoal = true;
-            } else if (goal instanceof TravelGoal)
-            {
-                activeTravelGoal = true;
-                activeTravelType = ((TravelGoal) goal).type;
-            } else if (goal instanceof BreakBlockTypeGoal)
-            {
-                activeBlockTypes.add(((BreakBlockTypeGoal) goal).requiredBlock);
-            }
-
-            int col = (slot % 9) - 3;
-            int row = slot / 9;
-
-            ItemStack item = goal.getItem();
-            ItemMeta meta = item.getItemMeta();
-            List<String> lore = wrapAndColorLore(goal.getName(), 30, ChatColor.DARK_PURPLE);
-            meta.setLore(lore);
-            meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
-            item.setItemMeta(meta);
-
-            goals.put(slot, goal);
-            BingoCard.setItem(slot, item);
-        }
-
-        activeTravelGoal = true;
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            OpenInv(player);
-            player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 10f, 2f);
-            if (pvp == BingoUtil.PvP.TRACKING_PVP)
-            {
-                player.getInventory().addItem(new ItemStack(Material.COMPASS,1));
-            }
-        }
-
-        gameState = BingoUtil.GameState.STARTED;
-
-        animateBingoCard();
         BingoAnnounce("");
         BingoAnnounce("Bingo has begun!");
         BingoAnnounce("");
 
-        if (pvp != BingoUtil.PvP.NOPVP)
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            boardManager.OpenInv(player);
+        }
+
+        if (SettingsManager.pvp != SettingsManager.PvP.NOPVP)
         {
             BingoAnnounce("");
             BingoAnnounce("The Grace Period will end in 3 minutes...");
         }
     }
 
-    public void BingoEnd(BingoUtil.Team team) {
-        cancelAllTasks();
-        gameState = BingoUtil.GameState.FINISHED;
+    public void BingoEnd(TeamsManager.Team team) {
+        TaskManager.instance.cancelAllTasks();
+        gameState = GameState.FINISHED;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.teleport(Bukkit.getWorld(WorldUtil.bingoWorldName).getSpawnLocation());
-            OpenInv(player);
+            boardManager.OpenInv(player);
         }
-
-        /* RANKED FOR FFA IS DISABLED FOR THE MOMENT
-
-        List<Player> winningTeamPlayers = TeamMap.entrySet().stream()
-                .filter(entry -> entry.getValue() == team)
-                .map(entry -> plugin.getServer().getPlayer(entry.getKey()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        Map<Team, List<Player>> losingTeamsPlayers = TeamMap.entrySet().stream()
-                .filter(entry -> entry.getValue() != team)
-                .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(entry -> plugin.getServer().getPlayer(entry.getKey()), Collectors.toList())));
-
-        for (List<Player> losingTeamPlayers : losingTeamsPlayers.values()) {
-            rankedUtil.calculateElo(winningTeamPlayers, losingTeamPlayers.stream().filter(Objects::nonNull).collect(Collectors.toList()));
-        }
-        rankedUtil.saveRanks();*/
-
-        if (gameMode == BingoUtil.Mode.TEAM)
-        {
-            List<Player> winningTeamPlayers = TeamMap.entrySet().stream()
-                    .filter(entry -> entry.getValue() == team)
-                    .map(entry -> plugin.getServer().getPlayer(entry.getKey()))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-
-            List<Player> losingTeamPlayers = TeamMap.entrySet().stream()
-                    .filter(entry -> entry.getValue() != team)
-                    .map(entry -> plugin.getServer().getPlayer(entry.getKey()))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-        }
-
-        gameMode = BingoUtil.Mode.TEAM;
 
         ChatColor teamColor;
         String teamName;
@@ -459,13 +310,13 @@ public class GameManager {
             default:
                 return;
         }
-        teamColor = getTeamChatColour(team);
+        teamColor = teamsManager.getTeamChatColour(team);
 
         String message = teamColor + "" + ChatColor.BOLD + teamName + " team has won Bingo!";
         BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "BINGO!",message);
         BingoAnnounce(message);
-        spawnFirework(Bukkit.getWorld(WorldUtil.bingoWorldName).getSpawnLocation(), fireworkColor, FireworkEffect.Type.BALL_LARGE);
 
+        spawnFirework(Bukkit.getWorld(WorldUtil.bingoWorldName).getSpawnLocation(), fireworkColor, FireworkEffect.Type.BALL_LARGE);
         showStats();
     }
 
@@ -491,7 +342,7 @@ public class GameManager {
 
     private void startTimer() {
         final float[] pitch = {0.7f};
-        taskManager.addTaskId(new BukkitRunnable() {
+        TaskManager.instance.addTaskId(new BukkitRunnable() {
             @Override
             public void run() {
                 if (timeLeft % 300 == 0 && timeLeft > 60) {
@@ -543,19 +394,19 @@ public class GameManager {
     }
 
     public void determineWinner() {
-        Map<Team, Integer> teamGoalsCompleted = new HashMap<>();
-        Team winner = null;
+        Map<TeamsManager.Team, Integer> teamGoalsCompleted = new HashMap<>();
+        TeamsManager.Team winner = null;
         int maxGoals = 0;
         boolean tie = false;
 
         for (Map.Entry<UUID, Integer> entry : playerGoalsCompleted.entrySet()) {
-            Team team = teamsManager.TeamMap.get(entry.getKey());
-            if (team != null && team != Team.NONE) {
+            TeamsManager.Team team = teamsManager.TeamMap.get(entry.getKey());
+            if (team != null && team != TeamsManager.Team.NONE) {
                 teamGoalsCompleted.put(team, teamGoalsCompleted.getOrDefault(team, 0) + entry.getValue());
             }
         }
 
-        for (Map.Entry<Team, Integer> entry : teamGoalsCompleted.entrySet()) {
+        for (Map.Entry<TeamsManager.Team, Integer> entry : teamGoalsCompleted.entrySet()) {
             if (entry.getValue() > maxGoals) {
                 winner = entry.getKey();
                 maxGoals = entry.getValue();

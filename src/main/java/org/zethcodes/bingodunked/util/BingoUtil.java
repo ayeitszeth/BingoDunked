@@ -38,12 +38,6 @@ import static org.zethcodes.bingodunked.managers.GameManager.plugin;
 
 public class BingoUtil {
 
-    public enum Team {RED, BLUE, GREEN, YELLOW, ORANGE, PURPLE, CYAN, BROWN, NONE};
-    public enum Mode { TEAM, FFA }
-    public enum Difficulty { NORMAL, INSANE }
-    public enum PvP { NOPVP, PVP, GLOWING_PVP, TRACKING_PVP }
-    public enum GameState { LOADING, STARTED, FINISHED }
-
     Goal testGoal = null;
 
     public List<Biome> findBiomes(Location location, int radius, int step)
@@ -66,133 +60,6 @@ public class BingoUtil {
         List<Biome> biomes = new ArrayList<>(uniqueBiomes);
         Collections.shuffle(biomes);
         return biomes;
-    }
-
-    public void newGoal(int slot)
-    {
-        if (allGoals.isEmpty()) {
-            SetGoals();
-        }
-
-        goals.remove(slot);
-
-        int col = (slot % 9) - 3;
-        int row = slot / 9;
-
-        Random random = new Random();
-        Goal goal = allGoals.get(0);
-        int ranGoal = 0;
-
-        if (random.nextInt(4) != 3 && difficulty == Difficulty.NORMAL) { // 75/25 flip if it's a biome goal
-            if (!startBiomes.isEmpty())
-            {
-                Biome biome = startBiomes.get(0);
-                startBiomes.remove(biome);
-                if (biomeGoals.containsKey(biome)) {
-                    goal = biomeGoals.get(biome);
-                    biomeGoals.remove(biome);
-                    allGoals.remove(biome);
-                } else {
-                    ranGoal = random.nextInt(allGoals.size());
-                    goal = allGoals.get(ranGoal);
-                    allGoals.remove(goal);
-                }
-            } else
-            {
-                Player player = getPlayerWithLeastGoals();
-                Biome biome = player.getLocation().getBlock().getBiome();
-
-                if (biomeGoals.containsKey(biome)) {
-                    goal = biomeGoals.get(biome);
-                    biomeGoals.remove(biome);
-                } else {
-                    ranGoal = random.nextInt(allGoals.size());
-                    goal = allGoals.get(ranGoal);
-                    allGoals.remove(goal);
-                }
-            }
-
-        } else {
-            ranGoal = random.nextInt(allGoals.size());
-            goal = allGoals.get(ranGoal);
-            allGoals.remove(goal);
-        }
-
-        while (((goal instanceof FallGoal && activeFallGoal) ||
-                    (goal instanceof ExperienceGoal && activeExpGoal) ||
-                    (goal instanceof PotionEffectGoal && activeEffectGoal) ||
-                    (goal instanceof FishingGoal && activeFishGoal) ||
-                    (goal instanceof EnchantItemGoal && activeEncGoal) ||
-                    (goal instanceof CollectColouredItemGoal && activeColouredGoal) ||
-                    (goal instanceof CompleteAdvancementGoal && activeAdvancementGoal) ||
-                    (goal instanceof TravelGoal && activeTravelGoal) ||
-                    (gameMode == Mode.FFA && difficulty == Difficulty.NORMAL && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12) ||
-                    (gameMode == Mode.TEAM && difficulty == Difficulty.NORMAL && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12 - Math.min(playerGoalsCompleted.size(),12)) ||
-                    (goals.containsValue(goal))) &&
-                    difficulty == Difficulty.NORMAL) {
-            if (allGoals.isEmpty()) {
-                SetGoals();
-            }
-
-            ranGoal = random.nextInt(allGoals.size());
-            goal = allGoals.get(ranGoal);
-
-            if ((gameMode == Mode.FFA && difficulty == Difficulty.NORMAL && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12) ||
-                    (gameMode == Mode.TEAM && difficulty == Difficulty.NORMAL && lateGameGoals.contains(goal) && numOfGoalsCompleted < 12 - Math.min(playerGoalsCompleted.size(),12)))
-            {
-                continue;
-            }
-            allGoals.remove(goal);
-        }
-
-        // force test goal
-        //goal = testGoal;
-
-        if (goal instanceof FallGoal) {
-            activeFallGoal = true;
-        } else if (goal instanceof ExperienceGoal) {
-            activeExpGoal = true;
-        } else if (goal instanceof PotionEffectGoal) {
-            activeEffectGoal = true;
-        } else if (goal instanceof FishingGoal) {
-            activeFishGoal = true;
-        } else if (goal instanceof EnchantItemGoal) {
-            activeEncGoal = true;
-        } else if (goal instanceof CollectColouredItemGoal) {
-            activeColouredGoal = true;
-        } else if (goal instanceof CompleteAdvancementGoal) {
-            activeAdvancementGoal = true;
-        } else if (goal instanceof TravelGoal)
-        {
-            activeTravelGoal = true;
-            activeTravelType = ((TravelGoal) goal).type;
-        } else if (goal instanceof BreakBlockTypeGoal)
-        {
-            activeBlockTypes.add(((BreakBlockTypeGoal) goal).requiredBlock);
-        }
-
-        ItemStack item = goal.getItem();
-        ItemMeta meta = item.getItemMeta();
-        List<String> lore = wrapAndColorLore(goal.getName(), 30, ChatColor.DARK_PURPLE);
-        meta.setLore(lore);
-        meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
-        item.setItemMeta(meta);
-
-        goals.put(slot,goal);
-        BingoCard.setItem(slot, item);
-        BingoAnnounce("The new goal is " + ChatColor.BOLD + goal.getName() + "!");
-
-        for (Player player : Bukkit.getOnlinePlayers())
-        {
-            if (goal instanceof CollectItemGoal || goal instanceof ExperienceGoal ||
-            goal instanceof CompleteAdvancementGoal || goal instanceof BreakBlockTypeGoal ||
-            goal instanceof TravelGoal)
-            {
-                if (goal.isComplete(player)) {
-                    completeGoal(slot, teamsManager.getTeam(player), player);
-                }
-            }
-        }
     }
 
     public void goalAutoComplete(Player player, Class goalType)
@@ -392,7 +259,7 @@ public class BingoUtil {
         }
     }
 
-    public void showStats()
+    public static void showStats()
     {
         playerGoalsCompleted.forEach((uuid, numOfGoals) ->
         {
@@ -490,12 +357,7 @@ public class BingoUtil {
         return false;
     }
 
-    public void OpenInv(Player player)
-    {
-        player.openInventory(BingoCard);
-    }
-
-    private void spawnFirework(Location location, Color color, FireworkEffect.Type type) {
+    public static void spawnFirework(Location location, Color color, FireworkEffect.Type type) {
         Firework firework = location.getWorld().spawn(location, Firework.class);
         FireworkMeta fireworkMeta = firework.getFireworkMeta();
 
