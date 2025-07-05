@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.HashMap;
@@ -25,13 +26,13 @@ public class EatListener implements Listener {
 
     @EventHandler
     public void onPlayerEat(PlayerItemConsumeEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         Player player = event.getPlayer();
         playerEats.put(player.getUniqueId(), event.getItem().getType());
     }
 
     public boolean hasPlayerAteItem(Player player, Material foodType) {
-        if (BingoUtil.DEBUG) Bukkit.getLogger().info("The most recent food " + player + " ate was a " + playerEats.get(player.getUniqueId()));
+        if (GameManager.DEBUG) Bukkit.getLogger().info("The most recent food " + player + " ate was a " + playerEats.get(player.getUniqueId()));
         return foodType.equals(playerEats.get(player.getUniqueId()));
     }
 }

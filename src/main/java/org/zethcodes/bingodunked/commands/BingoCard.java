@@ -5,19 +5,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BingoCard implements CommandExecutor, TabExecutor {
-
-    BingoUtil bingoUtil;
-
-    public BingoCard (BingoUtil bingoUtil)
-    {
-        this.bingoUtil = bingoUtil;
-    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
@@ -29,7 +23,7 @@ public class BingoCard implements CommandExecutor, TabExecutor {
 
         Player player = (Player) sender;
 
-        bingoUtil.OpenInv(player);
+        GameManager.instance.boardManager.OpenInv(player);
 
         return true;
     }

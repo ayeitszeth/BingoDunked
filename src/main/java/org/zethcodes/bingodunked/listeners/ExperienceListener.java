@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLevelChangeEvent;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.HashMap;
@@ -24,14 +25,14 @@ public class ExperienceListener implements Listener {
 
     @EventHandler
     public void onLevelChanged(PlayerLevelChangeEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         Player player = event.getPlayer();
         int level = player.getLevel();
         playerExperience.put(player.getUniqueId(), level);
     }
 
     public boolean hasPlayerReachedLevel(Player player, int level) {
-        if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " is level " + playerExperience.get(player.getUniqueId()));
+        if (GameManager.DEBUG) Bukkit.getLogger().info(player + " is level " + playerExperience.get(player.getUniqueId()));
         return level <= playerExperience.get(player.getUniqueId());
     }
 }

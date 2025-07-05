@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class CollectItemSetAmountGoal extends CollectItemGoal{
         {
             if (doesInvContain(pInv, itemMat))
             {
-                if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " has the item: " + itemMat);
+                if (GameManager.DEBUG) Bukkit.getLogger().info(player + " has the item: " + itemMat);
                 count++;
             }
         }

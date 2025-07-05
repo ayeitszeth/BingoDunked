@@ -41,13 +41,15 @@ public final class BingoDunked extends JavaPlugin {
         getServer().getPluginManager().registerEvents(armorStandInteractListener, this);
         getServer().getPluginManager().registerEvents(deathListener,this);
 
-        SettingsManager settingsManager = new SettingsManager();
-        TaskManager taskManager = new TaskManager();
+        new SettingsManager();
+        new TaskManager();
+
         GameManager gameManager = new GameManager(this,killEntityListener,breedEntityListener,potionEffectListener, enchantListener,
                 fishingListener,fallHeightListener,experienceListener, eatListener, blockInteractListener,
                 armorStandInteractListener, deathListener);
 
-        new BingoHandler(this);
+        new BingoHandler();
+
         SettingsListener settingsListener = new SettingsListener();
         getServer().getPluginManager().registerEvents(settingsListener, this);
 
@@ -65,7 +67,7 @@ public final class BingoDunked extends JavaPlugin {
         BingoStart bingoStart = new BingoStart();
         getCommand("bingostart").setExecutor(bingoStart);
         getCommand("bingostart").setTabCompleter(bingoStart);
-        NewWorld newWorld = new NewWorld(new WorldUtil(this));
+        NewWorld newWorld = new NewWorld(new WorldUtil());
         getCommand("newworld").setExecutor(newWorld);
         getCommand("newworld").setTabCompleter(newWorld);
         BingoCheat bingoCheat = new BingoCheat();

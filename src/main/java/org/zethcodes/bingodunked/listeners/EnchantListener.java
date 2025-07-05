@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 import org.zethcodes.bingodunked.util.Enchant;
 
@@ -25,7 +26,7 @@ public class EnchantListener implements Listener {
 
     @EventHandler
     public void onEnchant(EnchantItemEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         Player player = event.getEnchanter();
         List<Enchant> latestEnchants = new ArrayList<>();
         Map<Enchantment, Integer> encMap = event.getEnchantsToAdd();
@@ -43,7 +44,7 @@ public class EnchantListener implements Listener {
         {
             if (enc.enchantment.equals(enchant.enchantment) && enc.level <= enchant.level)
             {
-                if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " got the enchant: " + enc);
+                if (GameManager.DEBUG) Bukkit.getLogger().info(player + " got the enchant: " + enc);
                 return true;
             }
         }

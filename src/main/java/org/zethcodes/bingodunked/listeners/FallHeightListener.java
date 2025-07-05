@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 import org.zethcodes.bingodunked.util.WorldUtil;
 
@@ -29,7 +30,7 @@ public class FallHeightListener implements Listener {
     @EventHandler
     public void onPlayerFall(PlayerMoveEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         Player player = event.getPlayer();
 
         if (!(event.getPlayer().getWorld().getName().equals(WorldUtil.bingoWorldName) || event.getPlayer().getWorld().getName().equals(WorldUtil.bingoWorldName + "_nether")))
@@ -52,7 +53,7 @@ public class FallHeightListener implements Listener {
             if (fallHeight > playerLargestFall.getOrDefault(player.getUniqueId(),0))
             {
                 playerLargestFall.put(player.getUniqueId(), fallHeight);
-                if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + "'s new largest fall is " + playerLargestFall.getOrDefault(player.getUniqueId(),0));
+                if (GameManager.DEBUG) Bukkit.getLogger().info(player + "'s new largest fall is " + playerLargestFall.getOrDefault(player.getUniqueId(),0));
             }
 
             playerLastFallHeight.put(player.getUniqueId(),player.getLocation().getBlockY());

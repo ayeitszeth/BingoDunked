@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public class CollectItemsGoal extends CollectItemGoal {
             {
                 if (items.contains(item.getType()))
                 {
-                    if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " has the item: " + item.getType());
+                    if (GameManager.DEBUG) Bukkit.getLogger().info(player + " has the item: " + item.getType());
                     return true;
                 }
             }

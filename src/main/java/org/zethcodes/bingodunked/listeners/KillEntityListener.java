@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.entity.Player;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class KillEntityListener implements Listener {
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         EntityType entityType = event.getEntity().getType();
 
         if (entityType == EntityType.PLAYER) return;
@@ -50,12 +51,12 @@ public class KillEntityListener implements Listener {
     }
 
     public boolean hasPlayerKilledEntity(Player player, EntityType entityType) {
-        if (BingoUtil.DEBUG)Bukkit.getLogger().info(player + "'s most recent kill is " + playerKills.get(player.getUniqueId()));
+        if (GameManager.DEBUG)Bukkit.getLogger().info(player + "'s most recent kill is " + playerKills.get(player.getUniqueId()));
         return entityType.equals(playerKills.get(player.getUniqueId()));
     }
 
     public boolean hasPlayerKilledEntity(Player player, EntityType entityType, EntityDamageEvent.DamageCause damageCause) {
-        if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + "'s most recent kill is " + playerKills.get(player.getUniqueId()) + " with cause " + playerCauses.get(player.getUniqueId()));
+        if (GameManager.DEBUG) Bukkit.getLogger().info(player + "'s most recent kill is " + playerKills.get(player.getUniqueId()) + " with cause " + playerCauses.get(player.getUniqueId()));
         return entityType.equals(playerKills.get(player.getUniqueId())) && damageCause.equals(playerCauses.get(player.getUniqueId()));
     }
 

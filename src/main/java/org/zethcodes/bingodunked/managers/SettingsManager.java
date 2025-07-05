@@ -14,6 +14,8 @@ import static org.zethcodes.bingodunked.util.BingoUtil.updatePlayerTabListName;
 
 public class SettingsManager {
 
+    public static SettingsManager instance;
+
     public enum Mode { TEAM, FFA }
     public enum Difficulty { NORMAL, INSANE }
     public enum PvP { NOPVP, PVP, GLOWING_PVP, TRACKING_PVP }
@@ -29,6 +31,7 @@ public class SettingsManager {
     public static PvP pvp = PvP.PVP;
 
     public SettingsManager() {
+        instance = this;
         settingsGUI = Bukkit.createInventory(null, 45, "Bingo Settings");
 
         ItemMeta enabledMeta = enabled.getItemMeta();

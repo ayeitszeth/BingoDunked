@@ -124,6 +124,30 @@ public class TeamsManager {
         }
     }
 
+    public ItemStack getTeamWool(Team team)
+    {
+        switch (team) {
+            case RED:
+                return redWool;
+            case BLUE:
+                return blueWool;
+            case GREEN:
+                return greenWool;
+            case YELLOW:
+                return yellowWool;
+            case ORANGE:
+                return orangeWool;
+            case PURPLE:
+                return purpleWool;
+            case CYAN:
+                return cyanWool;
+            case BROWN:
+                return brownWool;
+            default:
+                return new ItemStack(Material.WHITE_WOOL, 1);
+        }
+    }
+
     public ChatColor getTeamChatColour(Team team)
     {
         switch (team) {

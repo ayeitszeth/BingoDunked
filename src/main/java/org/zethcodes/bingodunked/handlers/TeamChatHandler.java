@@ -6,43 +6,39 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.zethcodes.bingodunked.managers.GameManager;
+import org.zethcodes.bingodunked.managers.SettingsManager;
+import org.zethcodes.bingodunked.managers.TeamsManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 import java.util.List;
 
 public class TeamChatHandler implements Listener {
 
-    BingoUtil bingoUtil;
-
-    public TeamChatHandler(BingoUtil bingoUtil)
-    {
-        this.bingoUtil = bingoUtil;
-    }
-
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.STARTED)
+        if (GameManager.gameState == GameManager.GameState.STARTED)
         {
-            if (bingoUtil.gameMode == BingoUtil.Mode.TEAM)
+            if (SettingsManager.gameMode == SettingsManager.Mode.TEAM)
             {
-                BingoUtil.Team team = bingoUtil.getTeam(event.getPlayer());
-                List<Player> teammatesList = bingoUtil.GetPlayersOnTeam(team);
+                TeamsManager.Team team = GameManager.instance.teamsManager.getTeam(event.getPlayer());
+                List<Player> teammatesList = GameManager.instance.teamsManager.GetPlayersOnTeam(team);
 
                 for (Player p : teammatesList)
                 {
                     if (p == null) continue;
-                    p.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [TEAM CHAT] " + bingoUtil.getTeamChatColour(team) + ChatColor.BOLD + event.getPlayer().getName() + ChatColor.WHITE + ": " + event.getMessage());
+                    p.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [TEAM CHAT] " + GameManager.instance.teamsManager.getTeamChatColour(team) + ChatColor.BOLD + event.getPlayer().getName() + ChatColor.WHITE + ": " + event.getMessage());
 
                 }
 
-            } else if (bingoUtil.gameMode == BingoUtil.Mode.FFA)
+            } else if (SettingsManager.gameMode == SettingsManager.Mode.FFA)
             {
-                ChatColor teamChatColour = bingoUtil.getTeamChatColour(event.getPlayer());
+                ChatColor teamChatColour = GameManager.instance.teamsManager.getTeamChatColour(event.getPlayer());
                 Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [ALL CHAT] " + teamChatColour + ChatColor.BOLD + event.getPlayer().getName() + ChatColor.WHITE + ": " + event.getMessage());
             }
         } else
         {
-            ChatColor teamChatColour = bingoUtil.getTeamChatColour(event.getPlayer());
+            ChatColor teamChatColour = GameManager.instance.teamsManager.getTeamChatColour(event.getPlayer());
             Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [ALL CHAT] " + teamChatColour + ChatColor.BOLD + event.getPlayer().getName() + ChatColor.WHITE + ": " + event.getMessage());
         }
 

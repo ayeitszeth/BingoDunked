@@ -44,7 +44,7 @@ public class BreakBlockTypeListener implements Listener {
         HashMap<UUID, Integer> counts = playerBlockCounts.get(type);
         int curCount = counts.getOrDefault(playerId, 0);
         curCount++;
-        if (curCount % 25 == 0 && GameManager.instance.activeBlockTypes.contains(type)) {
+        if (curCount % 25 == 0 && GameManager.instance.boardManager.activeBlockTypes.contains(type)) {
             player.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED WHISPER] " + ChatColor.GRAY + "You have broken " + curCount + " " + type.name().toLowerCase() + " blocks.");
         }
         counts.put(playerId, curCount);

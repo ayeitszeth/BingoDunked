@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.HashMap;
@@ -19,7 +20,7 @@ public class BlockInteractListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         Player player = event.getPlayer();
         Block block = event.getClickedBlock();
         if (block == null) return;
@@ -40,16 +41,16 @@ public class BlockInteractListener implements Listener {
 
         switch (blockType) {
             case COMPOSTER:
-                if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " interacted with a composter and it has a level of " + ((Levelled) block.getBlockData()).getLevel());
+                if (GameManager.DEBUG) Bukkit.getLogger().info(player + " interacted with a composter and it has a level of " + ((Levelled) block.getBlockData()).getLevel());
                 return ((Levelled) block.getBlockData()).getLevel() == 7;
             case CHISELED_BOOKSHELF:
-                if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " interacted with a chiseled bookshelf and it has " + ((ChiseledBookshelf) block.getBlockData()).getOccupiedSlots().size() + " books on the shelf");
+                if (GameManager.DEBUG) Bukkit.getLogger().info(player + " interacted with a chiseled bookshelf and it has " + ((ChiseledBookshelf) block.getBlockData()).getOccupiedSlots().size() + " books on the shelf");
                 return ((ChiseledBookshelf) block.getBlockData()).getOccupiedSlots().size() == 6;
             case CAMPFIRE:
-                if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " interacted with a campfire and has started a campfire: " + ((Campfire) block.getBlockData()).isSignalFire());
+                if (GameManager.DEBUG) Bukkit.getLogger().info(player + " interacted with a campfire and has started a campfire: " + ((Campfire) block.getBlockData()).isSignalFire());
                 return ((Campfire) block.getBlockData()).isSignalFire();
             case LECTERN:
-                if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " interacted with a lecturn and it has a book: " + ((Lectern) block.getBlockData()).hasBook());
+                if (GameManager.DEBUG) Bukkit.getLogger().info(player + " interacted with a lecturn and it has a book: " + ((Lectern) block.getBlockData()).hasBook());
                 return ((Lectern) block.getBlockData()).hasBook();
             case DISPENSER:
                 return ((Dispenser) block.getBlockData()).isTriggered();

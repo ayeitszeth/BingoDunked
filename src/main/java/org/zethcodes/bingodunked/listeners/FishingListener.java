@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.HashMap;
@@ -46,7 +47,7 @@ public class FishingListener implements Listener {
 
     @EventHandler
     public void onPlayerFish(PlayerFishEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         if (event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
             Player player = event.getPlayer();
             playerFishItemsCaught.put(player.getUniqueId(), ((Item) event.getCaught()).getItemStack().getType());
@@ -54,7 +55,7 @@ public class FishingListener implements Listener {
     }
 
     public boolean hasPlayerGotFishItem(Player player, Material caughtItem) {
-        if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " most recent item caught from fishing is: " + playerFishItemsCaught.get(player.getUniqueId()));
+        if (GameManager.DEBUG) Bukkit.getLogger().info(player + " most recent item caught from fishing is: " + playerFishItemsCaught.get(player.getUniqueId()));
         if (caughtItem.equals(Material.NAUTILUS_SHELL))
         {
             return treasure.contains(playerFishItemsCaught.get(player.getUniqueId()));

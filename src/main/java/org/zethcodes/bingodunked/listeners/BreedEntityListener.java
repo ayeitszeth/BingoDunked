@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.EntityType;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.HashMap;
@@ -25,7 +26,7 @@ public class BreedEntityListener implements Listener {
 
     @EventHandler
     public void onEntityBreed(EntityBreedEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         EntityType entityType = event.getEntity().getType();
         if (event.getBreeder() instanceof Player) {
             Player breeder = (Player) event.getBreeder();
@@ -34,7 +35,7 @@ public class BreedEntityListener implements Listener {
     }
 
     public boolean hasPlayerBredEntity(Player player, EntityType entityType) {
-        if (BingoUtil.DEBUG) Bukkit.getLogger().info("The most recent entity " + player + " has bred is a " + playerBreeds.get(player.getUniqueId()));
+        if (GameManager.DEBUG) Bukkit.getLogger().info("The most recent entity " + player + " has bred is a " + playerBreeds.get(player.getUniqueId()));
         return entityType.equals(playerBreeds.get(player.getUniqueId()));
     }
 }

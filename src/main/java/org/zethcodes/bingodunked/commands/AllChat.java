@@ -7,19 +7,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AllChat implements CommandExecutor, TabExecutor {
-
-    BingoUtil bingoUtil;
-
-    public AllChat(BingoUtil bingoUtil)
-    {
-        this.bingoUtil = bingoUtil;
-    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
@@ -35,7 +29,7 @@ public class AllChat implements CommandExecutor, TabExecutor {
             message += s + " ";
         }
 
-        ChatColor teamChatColour = bingoUtil.getTeamChatColour((Player) sender);
+        ChatColor teamChatColour = GameManager.instance.teamsManager.getTeamChatColour((Player) sender);
 
         Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [ALL CHAT] " + teamChatColour + ChatColor.BOLD + sender.getName() + ChatColor.WHITE + ": " + message);
 

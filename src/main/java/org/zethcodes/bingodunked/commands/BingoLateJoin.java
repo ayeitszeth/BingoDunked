@@ -9,6 +9,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
+import org.zethcodes.bingodunked.managers.GameManager;
+import org.zethcodes.bingodunked.managers.SettingsManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 import org.zethcodes.bingodunked.util.WorldUtil;
 
@@ -17,13 +19,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class BingoLateJoin implements CommandExecutor, TabExecutor {
-
-    BingoUtil bingoUtil;
-
-    public BingoLateJoin(BingoUtil bingoUtil)
-    {
-        this.bingoUtil = bingoUtil;
-    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
@@ -40,7 +35,7 @@ public class BingoLateJoin implements CommandExecutor, TabExecutor {
             spawnLoc = Bukkit.getWorld(WorldUtil.bingoWorldName).getSpawnLocation();
         } catch (NullPointerException e)
         {
-            bingoUtil.BingoWhisper(player, "A new world is yet to be generated for a game of Bingo.");
+            BingoUtil.BingoWhisper(player, "A new world is yet to be generated for a game of Bingo.");
             return true;
         }
 
@@ -68,9 +63,9 @@ public class BingoLateJoin implements CommandExecutor, TabExecutor {
             }
         }
 
-        if (bingoUtil.gameMode == BingoUtil.Mode.FFA)
+        if (SettingsManager.gameMode == SettingsManager.Mode.FFA)
         {
-            bingoUtil.FFALateJoin(player);
+            GameManager.instance.teamsManager.FFALateJoin(player);
         }
 
         return true;

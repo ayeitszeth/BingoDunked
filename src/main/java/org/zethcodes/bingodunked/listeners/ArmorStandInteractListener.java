@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.inventory.ItemStack;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.HashMap;
@@ -21,7 +22,7 @@ public class ArmorStandInteractListener implements Listener {
 
     @EventHandler
     public void onPlayerInteractAtEntity(PlayerArmorStandManipulateEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         Player player = event.getPlayer();
         Entity entity = event.getRightClicked();
 
@@ -46,7 +47,7 @@ public class ArmorStandInteractListener implements Listener {
                     ItemStack chestplate = armorStand.getEquipment().getChestplate();
                     ItemStack leggings = armorStand.getEquipment().getLeggings();
                     ItemStack boots = armorStand.getEquipment().getBoots();
-                    if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " has interacted with an armour stand with pieces: " + helmet + " " + chestplate + " " + leggings + " " + boots);
+                    if (GameManager.DEBUG) Bukkit.getLogger().info(player + " has interacted with an armour stand with pieces: " + helmet + " " + chestplate + " " + leggings + " " + boots);
                     return helmet.getType() != Material.AIR && chestplate.getType() != Material.AIR && leggings.getType() != Material.AIR && boots.getType() != Material.AIR;
                 }
                 break;

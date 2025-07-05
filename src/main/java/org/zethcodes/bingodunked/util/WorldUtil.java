@@ -3,27 +3,26 @@ package org.zethcodes.bingodunked.util;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.zethcodes.bingodunked.managers.TaskManager;
 
 import java.io.File;
+
+import static org.zethcodes.bingodunked.managers.GameManager.plugin;
 
 public class WorldUtil {
 
     public static World lobbyWorld;
     public static String bingoWorldName;
-    private Plugin plugin;
-    private BingoUtil bingoUtil;
 
-    public WorldUtil(Plugin plugin, BingoUtil bingoUtil) {
-        this.plugin = plugin;
-        this.bingoUtil = bingoUtil;
+    public WorldUtil() {
         lobbyWorld = Bukkit.getWorld("world");
         bingoWorldName = "world";
     }
 
     public void createNewWorld() {
-        bingoUtil.cancelAllTasks();
+        TaskManager.instance.cancelAllTasks();
         lobbyWorld = Bukkit.getWorld("world");
-        bingoUtil.BingoAnnounce("A new world is being generated!");
+        BingoUtil.BingoAnnounce("A new world is being generated!");
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.teleport(lobbyWorld.getSpawnLocation());
         }
@@ -55,7 +54,7 @@ public class WorldUtil {
             Bukkit.createWorld(new WorldCreator(bingoWorldName + "_nether").environment(World.Environment.NETHER));
             Bukkit.createWorld(new WorldCreator(bingoWorldName + "_the_end").environment(World.Environment.THE_END));
 
-            bingoUtil.BingoAnnounce("All worlds have been generated!");
+            BingoUtil.BingoAnnounce("All worlds have been generated!");
         });
     }
 

@@ -37,18 +37,15 @@ public class GameManager {
     public static BingoDunked plugin;
     public static boolean DEBUG = false;
 
-    TeamsManager teamsManager;
-    BoardManager boardManager;
+    public TeamsManager teamsManager;
+    public BoardManager boardManager;
 
     public static GameState gameState = GameState.FINISHED;
     int numOfGoalsCompleted = 0;
-    private final Map<UUID, Integer> playerGoalsCompleted = new HashMap<>();
+    public Map<UUID, Integer> playerGoalsCompleted = new HashMap<>();
     private int timeLeft;
     boolean overTime = false;
     int goalsToWinOT = -1;
-
-    public TravelListener.TYPE activeTravelType = null;
-    public Set<BreakBlockTypeListener.BlockType> activeBlockTypes = new HashSet<>();
 
     public GameManager(BingoDunked plugin, KillEntityListener killEntityListener, BreedEntityListener breedEntityListener, PotionEffectListener potionEffectListener,
                      EnchantListener enchantListener, FishingListener fishingListener, FallHeightListener fallHeightListener,
@@ -103,8 +100,6 @@ public class GameManager {
         overTime = false;
         goalsToWinOT = -1;
 
-        activeTravelType = null;
-        activeBlockTypes.clear();
 
         if (SettingsManager.gameMode == SettingsManager.Mode.FFA) {
             teamsManager.FFATeamsSetUp();
@@ -393,6 +388,11 @@ public class GameManager {
         }
     }
 
+    public void CheckOverTime()
+    {
+        if (overTime) determineWinner();
+    }
+
     public void determineWinner() {
         Map<TeamsManager.Team, Integer> teamGoalsCompleted = new HashMap<>();
         TeamsManager.Team winner = null;
@@ -429,6 +429,12 @@ public class GameManager {
         } else {
             BingoAnnounce("No winner can be determined...");
         }
+    }
+
+    public void incrementPlayerGoalsCompleted(Player player) {
+        numOfGoalsCompleted++;
+        playerGoalsCompleted.put(player.getUniqueId(), playerGoalsCompleted.getOrDefault(player.getUniqueId(), 0) + 1);
+        updatePlayerTabListName(player);
     }
 
     //endregion

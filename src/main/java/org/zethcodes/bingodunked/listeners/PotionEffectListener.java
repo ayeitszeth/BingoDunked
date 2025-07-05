@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.HashMap;
@@ -25,7 +26,7 @@ public class PotionEffectListener implements Listener {
 
     @EventHandler
     public void onPotionEffect(EntityPotionEffectEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
             PotionEffectType effectType = event.getModifiedType();
@@ -34,7 +35,7 @@ public class PotionEffectListener implements Listener {
     }
 
     public boolean hasPlayerReceivedPotionEffect(Player player, PotionEffectType effectType) {
-        if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + "'s most recent potion effect is " + playerPotionEffects.get(player.getUniqueId()));
+        if (GameManager.DEBUG) Bukkit.getLogger().info(player + "'s most recent potion effect is " + playerPotionEffects.get(player.getUniqueId()));
         return effectType.equals(playerPotionEffects.get(player.getUniqueId()));
     }
 }

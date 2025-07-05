@@ -88,7 +88,7 @@ public class TravelListener implements Listener {
             {
                 playerBoatDistances.put(player.getUniqueId(), playerBoatDistances.getOrDefault(player.getUniqueId(), 0.0) + newDistance);
                 int dist = (int) Math.floor(playerBoatDistances.get(player.getUniqueId()));
-                if (dist % 100 == 0 && dist > 0 && (!lastBoatNotification.containsKey(player.getUniqueId()) || lastBoatNotification.get(player.getUniqueId()) < dist) && GameManager.instance.activeTravelType == TYPE.BOAT)
+                if (dist % 100 == 0 && dist > 0 && (!lastBoatNotification.containsKey(player.getUniqueId()) || lastBoatNotification.get(player.getUniqueId()) < dist) && GameManager.instance.boardManager.activeTravelType == TYPE.BOAT)
                 {
                     player.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED WHISPER] " + ChatColor.GRAY + "You have travelled " + (dist) + " blocks on a boat.");
                     lastBoatNotification.put(player.getUniqueId(),dist);
@@ -97,7 +97,7 @@ public class TravelListener implements Listener {
             {
                 playerPigDistances.put(player.getUniqueId(), playerPigDistances.getOrDefault(player.getUniqueId(), 0.0) + newDistance);
                 int dist = (int) Math.floor(playerPigDistances.get(player.getUniqueId()));
-                if (dist % 25 == 0 && dist > 0 && (!lastPigNotification.containsKey(player.getUniqueId()) || lastPigNotification.get(player.getUniqueId()) < dist) && GameManager.instance.activeTravelType == TYPE.PIG)
+                if (dist % 25 == 0 && dist > 0 && (!lastPigNotification.containsKey(player.getUniqueId()) || lastPigNotification.get(player.getUniqueId()) < dist) && GameManager.instance.boardManager.activeTravelType == TYPE.PIG)
                 {
                     player.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED WHISPER] " + ChatColor.GRAY + "You have travelled " + (dist) + " blocks on a pig.");
                     lastPigNotification.put(player.getUniqueId(),dist);
@@ -106,7 +106,7 @@ public class TravelListener implements Listener {
             {
                 playerHorseDistances.put(player.getUniqueId(), playerHorseDistances.getOrDefault(player.getUniqueId(), 0.0) + newDistance);
                 int dist = (int) Math.floor(playerHorseDistances.get(player.getUniqueId()));
-                if (dist % 50 == 0 && dist > 0 && (!lastHorseNotification.containsKey(player.getUniqueId()) || lastHorseNotification.get(player.getUniqueId()) < dist) && GameManager.instance.activeTravelType == TYPE.HORSE)
+                if (dist % 50 == 0 && dist > 0 && (!lastHorseNotification.containsKey(player.getUniqueId()) || lastHorseNotification.get(player.getUniqueId()) < dist) && GameManager.instance.boardManager.activeTravelType == TYPE.HORSE)
                 {
                     player.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED WHISPER] " + ChatColor.GRAY + "You have travelled " + (dist) + " blocks on a horse.");
                     lastHorseNotification.put(player.getUniqueId(),dist);
@@ -115,7 +115,7 @@ public class TravelListener implements Listener {
             {
                 playerStriderDistances.put(player.getUniqueId(), playerStriderDistances.getOrDefault(player.getUniqueId(), 0.0) + newDistance);
                 int dist = (int) Math.floor(playerStriderDistances.get(player.getUniqueId()));
-                if (dist % 25 == 0 && dist > 0 && (!lastStriderNotification.containsKey(player.getUniqueId()) || lastStriderNotification.get(player.getUniqueId()) < dist) && GameManager.instance.activeTravelType == TYPE.STRIDER)
+                if (dist % 25 == 0 && dist > 0 && (!lastStriderNotification.containsKey(player.getUniqueId()) || lastStriderNotification.get(player.getUniqueId()) < dist) && GameManager.instance.boardManager.activeTravelType == TYPE.STRIDER)
                 {
                     player.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED WHISPER] " + ChatColor.GRAY + "You have travelled " + (dist) + " blocks on a strider.");
                     lastStriderNotification.put(player.getUniqueId(),dist);
@@ -125,7 +125,7 @@ public class TravelListener implements Listener {
         {
             playerNonVehicleDistances.put(player.getUniqueId(), playerNonVehicleDistances.getOrDefault(player.getUniqueId(), 0.0) + newDistance);
             int dist = (int) Math.floor(playerNonVehicleDistances.get(player.getUniqueId()));
-            if (dist % 250 == 0 && dist > 0 && (!lastRunningNotification.containsKey(player.getUniqueId()) || lastRunningNotification.get(player.getUniqueId()) < dist) && GameManager.instance.activeTravelType == TYPE.RUNNING)
+            if (dist % 250 == 0 && dist > 0 && (!lastRunningNotification.containsKey(player.getUniqueId()) || lastRunningNotification.get(player.getUniqueId()) < dist) && GameManager.instance.boardManager.activeTravelType == TYPE.RUNNING)
             {
                 player.sendMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED WHISPER] " + ChatColor.GRAY + "You have travelled " + (dist) + " blocks on foot.");
                 lastRunningNotification.put(player.getUniqueId(),dist);

@@ -16,25 +16,22 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.meta.CompassMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zethcodes.bingodunked.goals.*;
+import org.zethcodes.bingodunked.managers.GameManager;
+import org.zethcodes.bingodunked.managers.SettingsManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 import org.zethcodes.bingodunked.util.WorldUtil;
 
 public class BingoHandler implements Listener {
 
-    JavaPlugin plugin;
-    BingoUtil bingoUtil;
-
-    public BingoHandler(JavaPlugin plugin, BingoUtil bingoUtil) {
-        Bukkit.getPluginManager().registerEvents(this, plugin);
-        if (bingoUtil.DEBUG) Bukkit.getLogger().info(plugin + "");
-        this.plugin = plugin;
-        this.bingoUtil = bingoUtil;
+    public BingoHandler() {
+        Bukkit.getPluginManager().registerEvents(this, GameManager.plugin);
+        if (GameManager.DEBUG) Bukkit.getLogger().info(GameManager.plugin + "");
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)
     {
-        bingoUtil.updatePlayerTabListName(event.getPlayer());
+        BingoUtil.updatePlayerTabListName(event.getPlayer());
     }
 
 
@@ -54,7 +51,7 @@ public class BingoHandler implements Listener {
         player.setFoodLevel(20);
         player.setSaturation(20);
 
-        if (event.getPlayer().getWorld().equals(WorldUtil.lobbyWorld) || bingoUtil.gameState == BingoUtil.GameState.FINISHED)
+        if (event.getPlayer().getWorld().equals(WorldUtil.lobbyWorld) || GameManager.gameState == GameManager.GameState.FINISHED)
         {
             Location spawnLoc = WorldUtil.lobbyWorld.getSpawnLocation();
             player.setBedSpawnLocation(spawnLoc, true);
@@ -73,130 +70,130 @@ public class BingoHandler implements Listener {
     @EventHandler
     public void onPickUpItem(EntityPickupItemEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         if (event.getEntity() instanceof Player)
         {
-            Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete((Player) event.getEntity(), CollectItemGoal.class));
+            Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete((Player) event.getEntity(), CollectItemGoal.class));
         }
     }
 
     @EventHandler
     public void onBucketItem(PlayerBucketFillEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
-        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(event.getPlayer(), CollectItemGoal.class));
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(event.getPlayer(), CollectItemGoal.class));
     }
 
     @EventHandler
     public void onBucketEntity(PlayerBucketEntityEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
-        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(event.getPlayer(), CollectItemGoal.class));
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(event.getPlayer(), CollectItemGoal.class));
     }
 
     @EventHandler
     public void onBreakBlock(BlockBreakEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
-        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(event.getPlayer(), BreakBlockTypeGoal.class));
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(event.getPlayer(), BreakBlockTypeGoal.class));
     }
 
     @EventHandler
     public void onCraftItem(CraftItemEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
-        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.craftGoalAutoComplete((Player) event.getWhoClicked(), event.getCursor()));
-        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete((Player) event.getWhoClicked(), CollectItemGoal.class));
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.craftGoalAutoComplete((Player) event.getWhoClicked(), event.getCursor()));
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete((Player) event.getWhoClicked(), CollectItemGoal.class));
     }
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
-        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete((Player) event.getPlayer(), CollectItemGoal.class));
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete((Player) event.getPlayer(), CollectItemGoal.class));
     }
 
     @EventHandler
     public void onPlayerEat(PlayerItemConsumeEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
-        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(event.getPlayer(), EatGoal.class));
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(event.getPlayer(), EatGoal.class));
     }
 
     @EventHandler
     public void onEntityBreed(EntityBreedEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         Entity breeder = event.getBreeder();
         if (event.getBreeder() instanceof Player) {
-            Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete((Player) breeder, BreedEntityGoal.class));
+            Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete((Player) breeder, BreedEntityGoal.class));
         }
     }
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         if (event.getEntity().getKiller() != null) {
             Player killer = event.getEntity().getKiller();
-            Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(killer, KillEntityGoal.class));
+            Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(killer, KillEntityGoal.class));
         } else if (event.getEntity().getLastDamageCause().getCause().equals(EntityDamageEvent.DamageCause.FALLING_BLOCK)||
                 event.getEntity().getLastDamageCause().getCause().equals(EntityDamageEvent.DamageCause.FALL))
         {
             for (Player player : Bukkit.getOnlinePlayers())
             {
-                Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(player, KillEntityGoal.class));
+                Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(player, KillEntityGoal.class));
             }
         }
     }
 
     @EventHandler
     public void onEnchant(EnchantItemEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         Player player = event.getEnchanter();
-        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(player, EnchantItemGoal.class));
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(player, EnchantItemGoal.class));
     }
 
     @EventHandler
     public void onExperienceChange(PlayerExpChangeEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         Player player = event.getPlayer();
-        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(player, ExperienceGoal.class));
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(player, ExperienceGoal.class));
     }
 
     @EventHandler
     public void onPotionEffect(EntityPotionEffectEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
-            Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(player, PotionEffectGoal.class));
+            Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(player, PotionEffectGoal.class));
         }
     }
 
     @EventHandler
     public void onPlayerFish(PlayerFishEvent event) {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         if (event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
             Player player = event.getPlayer();
-            Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(player, FishingGoal.class));
+            Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(player, FishingGoal.class));
         }
     }
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         Player player = event.getPlayer();
-        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(player, TravelGoal.class));
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(player, TravelGoal.class));
 
         if (player.getVelocity().getY() < 0)
         {
-            Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(player, FallGoal.class));
+            Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(player, FallGoal.class));
         }
     }
 
     @EventHandler
     public void onPlayerHit(EntityDamageByEntityEvent event)
     {
-        if (!bingoUtil.isPvpEnabled || bingoUtil.pvp == BingoUtil.PvP.NOPVP)
+        if (!SettingsManager.isPvpEnabled || SettingsManager.pvp == SettingsManager.PvP.NOPVP)
         {
             if (event.getEntity() instanceof Player && event.getDamager() instanceof Player)
             {
@@ -208,7 +205,7 @@ public class BingoHandler implements Listener {
     @EventHandler
     public void onPlayerHitProj(ProjectileHitEvent event)
     {
-        if (!bingoUtil.isPvpEnabled || bingoUtil.pvp == BingoUtil.PvP.NOPVP)
+        if (!SettingsManager.isPvpEnabled || SettingsManager.pvp == SettingsManager.PvP.NOPVP)
         {
             if (event.getHitEntity() instanceof Player && event.getEntity().getShooter() instanceof Player && event.getHitEntity() != event.getEntity().getShooter())
             {
@@ -220,14 +217,14 @@ public class BingoHandler implements Listener {
     @EventHandler
     public void InteractWithCompass(PlayerInteractEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.STARTED && bingoUtil.pvp == BingoUtil.PvP.TRACKING_PVP)
+        if (GameManager.gameState == GameManager.GameState.STARTED && SettingsManager.pvp == SettingsManager.PvP.TRACKING_PVP)
         {
             if (event.hasItem())
             {
                 if (event.getItem().getType() == Material.COMPASS)
                 {
                     CompassMeta meta = (CompassMeta) event.getItem().getItemMeta();
-                    meta.setLodestone(bingoUtil.getNearestPlayerNotOnTeam(event.getPlayer()));
+                    meta.setLodestone(BingoUtil.getNearestPlayerNotOnTeam(event.getPlayer()));
                     meta.setLodestoneTracked(false);
                     event.getItem().setItemMeta(meta);
                 }
@@ -238,28 +235,28 @@ public class BingoHandler implements Listener {
     @EventHandler
     public void onPlayerAdvancement(PlayerAdvancementDoneEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
-        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(event.getPlayer(), CompleteAdvancementGoal.class));
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(event.getPlayer(), CompleteAdvancementGoal.class));
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
-        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(event.getPlayer(), BlockInteractGoal.class));
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(event.getPlayer(), BlockInteractGoal.class));
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerArmorStandManipulateEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
-        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(event.getPlayer(), ArmorStandInteractGoal.class));
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(event.getPlayer(), ArmorStandInteractGoal.class));
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event)
     {
-        if (BingoUtil.gameState == BingoUtil.GameState.FINISHED) return;
-        Bukkit.getScheduler().runTask(plugin, () -> bingoUtil.goalAutoComplete(event.getEntity(), DeathGoal.class));
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(event.getEntity(), DeathGoal.class));
     }
 }

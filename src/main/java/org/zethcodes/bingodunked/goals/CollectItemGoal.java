@@ -3,6 +3,7 @@ package org.zethcodes.bingodunked.goals;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
 
 public class CollectItemGoal extends Goal {
@@ -27,7 +28,7 @@ public class CollectItemGoal extends Goal {
             {
                 if (item.getType().equals(itemToCollect.getType()))
                 {
-                    if (BingoUtil.DEBUG) Bukkit.getLogger().info(player + " has the item: " + itemToCollect.getType());
+                    if (GameManager.DEBUG) Bukkit.getLogger().info(player + " has the item: " + itemToCollect.getType());
                     return true;
                 }
             }

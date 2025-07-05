@@ -26,15 +26,14 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import org.zethcodes.bingodunked.BingoDunked;
 import org.zethcodes.bingodunked.goals.*;
 import org.zethcodes.bingodunked.listeners.*;
-import org.zethcodes.bingodunked.managers.BoardManager;
-import org.zethcodes.bingodunked.managers.SettingsManager;
-import org.zethcodes.bingodunked.managers.TeamsManager;
+import org.zethcodes.bingodunked.managers.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.bukkit.Bukkit.getServer;
 import static org.zethcodes.bingodunked.managers.GameManager.plugin;
+import static org.zethcodes.bingodunked.managers.SettingsManager.pvp;
 
 public class BingoUtil {
 
@@ -62,206 +61,10 @@ public class BingoUtil {
         return biomes;
     }
 
-    public void goalAutoComplete(Player player, Class goalType)
-    {
-        Team team = getTeam(player);
-        if (team == Team.NONE) return;
-
-        for (int slot : validSlots) {
-            Goal goal = goals.get(slot);
-            if (goalType.isInstance(goal)) {
-                int col = (slot % 9) - 3;
-                int row = slot / 9;
-                boolean teamCompletedGoalAlready = hasTeamCompletedGoal(team,col,row);
-                if (!teamCompletedGoalAlready) {
-                    if (goal.isComplete(player)) {
-                        completeGoal(slot,team,player);
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    public void craftGoalAutoComplete(Player player, ItemStack item)
-    {
-        Team team = getTeam(player);
-        if (team == Team.NONE) return;
-
-        for (int slot : validSlots) {
-            Goal goal = goals.get(slot);
-            if (goal instanceof CollectItemGoal) {
-                int col = (slot % 9) - 3;
-                int row = slot / 9;
-                boolean teamCompletedGoalAlready = hasTeamCompletedGoal(team,col,row);
-                if (!teamCompletedGoalAlready) {
-                    if (((CollectItemGoal) goal).isCompleteItem(item,player)) {
-                        completeGoal(slot,team,player);
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    public void completeGoal(int slot, Team team, Player player) {
-        if (gameState == GameState.FINISHED) {
-            return;
-        }
-
-        if (team == Team.NONE)
-        {
-            if (DEBUG) Bukkit.getLogger().info(player + " is not on a team");
-            return;
-        }
-
-
-        int col = (slot % 9) - 3;
-        int row = slot / 9;
-
-        Goal goal = goals.get(slot);
-        incrementPlayerGoalsCompleted(player);
-
-        if (goal instanceof PotionEffectGoal) {
-            activeEffectGoal = false;
-        } else if (goal instanceof FishingGoal) {
-            activeFishGoal = false;
-        } else if (goal instanceof CollectColouredItemGoal) {
-            activeColouredGoal = false;
-        } else if (goal instanceof CompleteAdvancementGoal) {
-            activeAdvancementGoal = false;
-        }
-
-        boolean[][] teamBoard;
-        ChatColor teamColor;
-        ItemStack teamWool;
-        Sound teamSound;
-        Sound otherTeamSound = Sound.BLOCK_BELL_USE;
-
-        switch (team) {
-            case RED:
-                teamBoard = redBoard;
-                teamWool = redWool;
-                break;
-            case BLUE:
-                teamBoard = blueBoard;
-                teamWool = blueWool;
-                break;
-            case GREEN:
-                teamBoard = greenBoard;
-                teamWool = greenWool;
-                break;
-            case YELLOW:
-                teamBoard = yellowBoard;
-                teamWool = yellowWool;
-                break;
-            case ORANGE:
-                teamBoard = orangeBoard;
-                teamWool = orangeWool;
-                break;
-            case PURPLE:
-                teamBoard = purpleBoard;
-                teamWool = purpleWool;
-                break;
-            case CYAN:
-                teamBoard = cyanBoard;
-                teamWool = cyanWool;
-                break;
-            case BROWN:
-                teamBoard = brownBoard;
-                teamWool = brownWool;
-                break;
-            default:
-                return;
-        }
-        teamSound = Sound.BLOCK_NOTE_BLOCK_PLING;
-        teamColor = getTeamChatColour(player);
-
-        teamBoard[col][row] = true;
-
-        if (isGoalToBeDunked(col, row, team)) {
-            resetBoards(col, row);
-
-            String playerName;
-            try {
-                playerName = player.getName();
-            } catch (Exception ex)
-            {
-                playerName = "<left server>";
-            }
-
-            String message = teamColor + playerName + ChatColor.WHITE + " has dunked the goal " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + goal.getName() + ChatColor.WHITE + "!";
-            BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "DUNKED!", teamColor + goal.getName());
-            BingoAnnounce(message);
-            BingoAnnounce("");
-
-            if (goal instanceof TravelGoal)
-            {
-                activeTravelType = null;
-            } else if (goal instanceof BreakBlockTypeGoal)
-            {
-                activeBlockTypes.remove(((BreakBlockTypeGoal) goal).requiredBlock);
-            }
-
-            newGoal(slot);
-
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                p.playSound(p, Sound.ENTITY_ENDER_DRAGON_GROWL, 3f, 2f);
-            }
-
-            if (overTime)
-            {
-                determineWinner();
-            }
-            return;
-        }
-
-        for (Map.Entry<UUID, Team> entry : TeamMap.entrySet()) {
-            Player p = getServer().getPlayer(entry.getKey());
-            Team playerTeam = entry.getValue();
-
-            if (p == null) continue;
-
-            if (playerTeam == team) {
-                p.playSound(p, teamSound, 10f, 2f);
-            } else {
-                p.playSound(p, otherTeamSound, 5f, 0f);
-            }
-        }
-
-        ItemMeta meta = teamWool.getItemMeta();
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.DARK_PURPLE + goals.get(slot).getName());
-        meta.setLore(lore);
-        meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
-        teamWool.setItemMeta(meta);
-        BingoCard.setItem(slot, teamWool);
-
-        String playerName;
-        try {
-            playerName = player.getName();
-        } catch (Exception ex)
-        {
-            playerName = "<left server>";
-        }
-
-        String message = teamColor + playerName + ChatColor.WHITE + " has completed " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + goal.getName();
-        BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "GOAL!", teamColor + goal.getName());
-        BingoAnnounce(message);
-
-        if (checkBingo(team)) {
-            BingoEnd(team);
-        }
-
-        if (overTime)
-        {
-            determineWinner();
-        }
-    }
-
     public static void showStats()
     {
-        playerGoalsCompleted.forEach((uuid, numOfGoals) ->
+        Map<UUID, Integer> playerTotalGoalsCompleted = new HashMap<>();
+        GameManager.instance.playerGoalsCompleted.forEach((uuid, numOfGoals) ->
         {
             playerTotalGoalsCompleted.put(uuid, playerTotalGoalsCompleted.getOrDefault(uuid,0) + numOfGoals);
         });
@@ -273,10 +76,10 @@ public class BingoUtil {
             Bukkit.broadcastMessage("");
         }, 20L * 5);
 
-        addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        TaskManager.instance.addTaskId(Bukkit.getScheduler().runTaskLater(plugin, () -> {
             BingoAnnounce("");
             Bukkit.broadcastMessage(ChatColor.GRAY + "" + ChatColor.BOLD + " [DUNKED GAME STATS] ");
-            List<Map.Entry<UUID, Integer>> sortedEntries = new ArrayList<>(playerGoalsCompleted.entrySet());
+            List<Map.Entry<UUID, Integer>> sortedEntries = new ArrayList<>(GameManager.instance.playerGoalsCompleted.entrySet());
             sortedEntries.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
 
             for (Map.Entry<UUID, Integer> entry : sortedEntries) {
@@ -291,70 +94,11 @@ public class BingoUtil {
                 }
 
                 Integer goalsCompleted = entry.getValue();
-                ChatColor teamChatColour = getTeamChatColour(player);
+                ChatColor teamChatColour = GameManager.instance.teamsManager.getTeamChatColour(player);
                 Bukkit.broadcastMessage("    " + teamChatColour + playerName + ChatColor.WHITE + ": " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + goalsCompleted + ChatColor.WHITE + " goals completed");
             }
             Bukkit.broadcastMessage("");
         }, 20L * 10).getTaskId());
-    }
-
-    public boolean checkBingo(Team team) {
-        boolean[][] board;
-
-        switch (team) {
-            case RED:
-                board = redBoard;
-                break;
-            case BLUE:
-                board = blueBoard;
-                break;
-            case GREEN:
-                board = greenBoard;
-                break;
-            case YELLOW:
-                board = yellowBoard;
-                break;
-            case ORANGE:
-                board = orangeBoard;
-                break;
-            case PURPLE:
-                board = purpleBoard;
-                break;
-            case CYAN:
-                board = cyanBoard;
-                break;
-            case BROWN:
-                board = brownBoard;
-                break;
-            default:
-                return false;
-        }
-
-        return checkBoardForBingo(board);
-    }
-
-    private boolean checkBoardForBingo(boolean[][] board) {
-        for (int col = 0; col < 3; ++col) {
-            if (board[col][0] && board[col][1] && board[col][2]) {
-                return true;
-            }
-        }
-
-        for (int row = 0; row < 3; ++row) {
-            if (board[0][row] && board[1][row] && board[2][row]) {
-                return true;
-            }
-        }
-
-        if (board[0][0] && board[1][1] && board[2][2]) {
-            return true;
-        }
-
-        if (board[2][0] && board[1][1] && board[0][2]) {
-            return true;
-        }
-
-        return false;
     }
 
     public static void spawnFirework(Location location, Color color, FireworkEffect.Type type) {
@@ -373,23 +117,14 @@ public class BingoUtil {
         firework.setFireworkMeta(fireworkMeta);
     }
 
-    public void BingoCompleteGoal(int slot, Team team, Player player)
-    {
-        completeGoal(slot,team,player);
-    }
 
-    public void incrementPlayerGoalsCompleted(Player player) {
-        numOfGoalsCompleted++;
-        playerGoalsCompleted.put(player.getUniqueId(), playerGoalsCompleted.getOrDefault(player.getUniqueId(), 0) + 1);
-        updatePlayerTabListName(player);
-    }
 
     public static void updatePlayerTabListName(Player player) {
-        int goalsCompleted = playerGoalsCompleted.getOrDefault(player.getUniqueId(), 0);
+        int goalsCompleted = GameManager.instance.playerGoalsCompleted.getOrDefault(player.getUniqueId(), 0);
 
-        ChatColor teamChatColour = teams.getTeamChatColour(player);
+        ChatColor teamChatColour = GameManager.instance.teamsManager.getTeamChatColour(player);
 
-        if (pvp == PvP.GLOWING_PVP) {
+        if (pvp == SettingsManager.PvP.GLOWING_PVP) {
             player.setGlowing(true);
 
             // Create or get the scoreboard
@@ -461,7 +196,7 @@ public class BingoUtil {
         World locationWorld = player.getWorld();
 
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p.getWorld().equals(locationWorld) && getTeam(player) != getTeam(p)) {
+            if (p.getWorld().equals(locationWorld) && GameManager.instance.teamsManager.getTeam(player) != GameManager.instance.teamsManager.getTeam(p)) {
                 double distanceSquared = p.getLocation().distanceSquared(player.getLocation());
                 if (distanceSquared < nearestDistanceSquared) {
                     nearestDistanceSquared = distanceSquared;
