@@ -79,7 +79,7 @@ public class BingoCheat implements CommandExecutor, TabExecutor {
             targetPlayer = (Player) sender;
         }
 
-        GameManager.instance.boardManager.BingoCompleteGoal(slot, team, targetPlayer);
+        GameManager.instance.boardManager.completeGoal(slot, team, targetPlayer);
         return true;
     }
 

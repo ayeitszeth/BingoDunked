@@ -1,35 +1,20 @@
 package org.zethcodes.bingodunked.util;
 
 import org.bukkit.*;
-import org.bukkit.advancement.Advancement;
-import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.block.Biome;
-import org.bukkit.entity.*;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.potion.*;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
-import org.zethcodes.bingodunked.BingoDunked;
-import org.zethcodes.bingodunked.goals.*;
-import org.zethcodes.bingodunked.listeners.*;
+import org.bukkit.generator.structure.Structure;
+import org.bukkit.util.StructureSearchResult;
 import org.zethcodes.bingodunked.managers.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.bukkit.Bukkit.getServer;
 import static org.zethcodes.bingodunked.managers.GameManager.plugin;
@@ -37,28 +22,68 @@ import static org.zethcodes.bingodunked.managers.SettingsManager.pvp;
 
 public class BingoUtil {
 
-    Goal testGoal = null;
+    static List<Structure> structures = Arrays.asList(
+            Structure.ANCIENT_CITY,
+            Structure.BASTION_REMNANT,
+            Structure.BURIED_TREASURE,
+            Structure.FORTRESS,
+            Structure.JUNGLE_PYRAMID,
+            Structure.MINESHAFT,
+            Structure.OCEAN_RUIN_COLD,
+            Structure.OCEAN_RUIN_WARM,
+            Structure.PILLAGER_OUTPOST,
+            Structure.RUINED_PORTAL,
+            Structure.SHIPWRECK,
+            Structure.SWAMP_HUT,
+            Structure.STRONGHOLD,
+            Structure.TRAIL_RUINS,
+            Structure.VILLAGE_SAVANNA,
+            Structure.VILLAGE_TAIGA,
+            Structure.VILLAGE_DESERT,
+            Structure.VILLAGE_PLAINS,
+            Structure.VILLAGE_SNOWY,
+            Structure.MONUMENT,
+            Structure.TRIAL_CHAMBERS
+    );
 
-    public List<Biome> findBiomes(Location location, int radius, int step)
+
+    public static List<Biome> findBiomes(Location location, int radius, int step)
     {
         Set<Biome> uniqueBiomes = new HashSet<>();
         int centreX = location.getBlockX();
+        int y = (int) location.getY();
         int centreZ = location.getBlockZ();
         World world = location.getWorld();
+
 
         for (int x = centreX - radius; x <= centreX + radius; x += step)
         {
             for (int z = centreZ - radius; z <= centreZ + radius; z += step)
             {
-                Biome biomeA = world.getBiome(x,64,z);
+                Biome biomeA = world.getBiome(x,y,z);
                 uniqueBiomes.add(biomeA);
-                Biome biomeB = world.getBiome(x,-32,z);
-                uniqueBiomes.add(biomeB);
             }
         }
         List<Biome> biomes = new ArrayList<>(uniqueBiomes);
-        Collections.shuffle(biomes);
         return biomes;
+    }
+
+    // input radius is in blocks like the biomes search
+    public static List<Structure> findStructures(Location location, int radius) {
+        Set<Structure> uniqueStructures = new HashSet<>();
+        World world = location.getWorld();
+        int chunksRadius = radius / 16;
+
+        for (Structure structure : structures)
+        {
+            StructureSearchResult result = world.locateNearestStructure(location, structure, chunksRadius, false);
+            if (result == null) continue;
+
+            uniqueStructures.add(result.getStructure());
+        }
+
+        List<Structure> structures = new ArrayList<>(uniqueStructures);
+        return structures;
     }
 
     public static void showStats()

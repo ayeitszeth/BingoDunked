@@ -3,12 +3,15 @@ package org.zethcodes.bingodunked.managers;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.structure.Structure;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.zethcodes.bingodunked.BingoDunked;
 import org.zethcodes.bingodunked.goals.*;
 import org.zethcodes.bingodunked.listeners.*;
+import org.zethcodes.bingodunked.util.BingoUtil;
 import org.zethcodes.bingodunked.util.WorldUtil;
 
 import java.util.*;
@@ -119,6 +122,16 @@ public class GameManager {
         {
             BingoAnnounce("Please generate a world using /newworld before starting Bingo");
             return;
+        }
+
+        for (Biome biome : BingoUtil.findBiomes(spawnLoc, 50, 5))
+        {
+            boardManager.goalManager.AddBiomeGoals(biome);
+        }
+
+        for (Structure structure : BingoUtil.findStructures(spawnLoc, 128))
+        {
+            boardManager.goalManager.AddStructureGoals(structure);
         }
 
         BingoAnnounce("The board is being set up. Please wait one moment.");
@@ -434,6 +447,12 @@ public class GameManager {
     public void incrementPlayerGoalsCompleted(Player player) {
         numOfGoalsCompleted++;
         playerGoalsCompleted.put(player.getUniqueId(), playerGoalsCompleted.getOrDefault(player.getUniqueId(), 0) + 1);
+
+        if (numOfGoalsCompleted == 16) // start stage 1
+        {
+            boardManager.incrementStage();
+        }
+
         updatePlayerTabListName(player);
     }
 

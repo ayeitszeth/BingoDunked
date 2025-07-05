@@ -8,27 +8,47 @@ import org.bukkit.block.Biome;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.generator.structure.Structure;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.zethcodes.bingodunked.BingoDunked;
 import org.zethcodes.bingodunked.goals.*;
 import org.zethcodes.bingodunked.listeners.*;
-import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class GoalFactory {
+public class GoalManager {
     public List<Goal> availableGoals = new ArrayList<>();
     public HashMap<Biome, Goal> biomeGoals = new HashMap<Biome, Goal>();
+    public HashMap<Structure, Goal> structureGoals = new HashMap<Structure, Goal>();
 
     public void ClearGoals()
     {
         availableGoals.clear();
+        biomeGoals.clear();
+    }
+
+    public void SetStructureGoals()
+    {
+        ItemStack heartOfTheSea = new ItemStack(Material.HEART_OF_THE_SEA, 1);
+        CollectItemGoal heartOfTheSeaGoal = new CollectItemGoal("Collect a Heart of the Sea", heartOfTheSea);
+        structureGoals.put(Structure.BURIED_TREASURE, heartOfTheSeaGoal);
+
+        ItemStack breezeRod = new ItemStack(Material.BREEZE_ROD, 1);
+        KillEntityGoal killBreezeGoal = new KillEntityGoal("Kill a Breeze", breezeRod, EntityType.BREEZE, GameManager.instance.killEntityListener);
+        structureGoals.put(Structure.TRIAL_CHAMBERS, killBreezeGoal);
+
+//        ItemStack ominousBottle = new ItemStack(Material.OMINOUS_BOTTLE, 1);
+//        PotionEffectGoal trialOmenGoal = new PotionEffectGoal("Get the Trial Omen Effect", ominousBottle, PotionEffectType.TRIAL_OMEN, GameManager.instance.potionEffectListener);
+//        availableGoals.add(trialOmenGoal);
+
+        ItemStack cobweb = new ItemStack(Material.COBWEB, 32);
+        CollectItemsAmountGoal cobwebGoal = new CollectItemsAmountGoal("Collect 32 Cobwebs", cobweb);
+        structureGoals.put(Structure.MINESHAFT, cobwebGoal);
     }
 
     public void SetBiomeGoals()
@@ -77,9 +97,112 @@ public class GoalFactory {
         ItemStack cookie = new ItemStack(Material.COOKIE, 1);
         EatGoal cookieGoal = new EatGoal("Eat a Cookie", cookie, GameManager.instance.eatListener);
         biomeGoals.put(Biome.JUNGLE, cookieGoal);
+
+        ItemStack boggedEgg = new ItemStack(Material.BOGGED_SPAWN_EGG,1);
+        KillEntityGoal boggedGoal = new KillEntityGoal("Kill a Bogged", boggedEgg, EntityType.BOGGED, GameManager.instance.killEntityListener);
+        biomeGoals.put(Biome.SWAMP,boggedGoal);
+
+        ItemStack goatHorn = new ItemStack(Material.GOAT_HORN, 1);
+        CollectItemGoal goatHornGoal = new CollectItemGoal("Collect a Goat Horn", goatHorn);
+        biomeGoals.put(Biome.JAGGED_PEAKS,goatHornGoal);
+
+        ItemStack armascute = new ItemStack(Material.ARMADILLO_SCUTE, 1);
+        BreedEntityGoal armaBreedGoal = new BreedEntityGoal("Breed Two Armadillos", armascute, EntityType.ARMADILLO, GameManager.instance.breedEntityListener);
+        biomeGoals.put(Biome.SAVANNA, armaBreedGoal);
+
+        ItemStack polarEgg = new ItemStack(Material.POLAR_BEAR_SPAWN_EGG, 1);
+        KillEntityGoal polarGoal = new KillEntityGoal("Kill a Polar Bear", polarEgg, EntityType.POLAR_BEAR, GameManager.instance.killEntityListener);
+        biomeGoals.put(Biome.SNOWY_PLAINS, polarGoal);
+
+        ItemStack deadBush = new ItemStack(Material.DEAD_BUSH, 1);
+        CollectItemGoal deadBushGoal = new CollectItemGoal("Collect a Dead Bush", deadBush);
+        biomeGoals.put(Biome.WOODED_BADLANDS,deadBushGoal);
+
+        ItemStack pinkPetal = new ItemStack(Material.PINK_PETALS, 1);
+        CollectItemGoal pinkPetalGoal = new CollectItemGoal("Collect some Pink Petals", pinkPetal);
+        biomeGoals.put(Biome.CHERRY_GROVE, pinkPetalGoal);
+
+        ItemStack scaffolding = new ItemStack(Material.SCAFFOLDING,1);
+        CollectItemGoal scaffoldingGoal = new CollectItemGoal("Craft some Scaffolding", scaffolding);
+        biomeGoals.put(Biome.BAMBOO_JUNGLE,scaffoldingGoal);
+
+        ItemStack greenConcrete = new ItemStack(Material.GREEN_CONCRETE, 1);
+        CollectColouredItemGoal greenConcreteGoal = new CollectColouredItemGoal("Collect a Block of Green Concrete", greenConcrete);
+        biomeGoals.put(Biome.DESERT,greenConcreteGoal);
+
+        ItemStack seaCucum = new ItemStack(Material.SEA_PICKLE,1);
+        CollectItemGoal seaPickleGoal = new CollectItemGoal("Collect a Sea Pickle", seaCucum);
+        biomeGoals.put(Biome.WARM_OCEAN, seaPickleGoal);
+
+        ItemStack sculkSensor = new ItemStack(Material.SCULK_SENSOR,1);
+        CompleteAdvancementGoal sneakGoal = new CompleteAdvancementGoal("Complete the advancement Sneak 100", sculkSensor, Bukkit.getAdvancement(new NamespacedKey("minecraft","adventure/avoid_vibration")));
+        biomeGoals.put(Biome.DEEP_DARK, sneakGoal);
+
+        ItemStack wolfArmour = new ItemStack(Material.WOLF_ARMOR, 1);
+        CollectItemGoal wolfArmourGoal = new CollectItemGoal("Collect some Wolf Armor", wolfArmour);
+        biomeGoals.put(Biome.SAVANNA_PLATEAU,wolfArmourGoal);
+
+        ItemStack bucSalmon = new ItemStack(Material.SALMON_BUCKET, 1);
+        CompleteAdvancementGoal tacFishGoal = new CompleteAdvancementGoal("Complete the advancement Tactical Fishing!", bucSalmon, Bukkit.getAdvancement(new NamespacedKey("minecraft", "husbandry/tactical_fishing")));
+        biomeGoals.put(Biome.COLD_OCEAN,tacFishGoal);
+
+        ItemStack squidEgg = new ItemStack(Material.SQUID_SPAWN_EGG,1);
+        KillEntityGoal killSquidGoal = new KillEntityGoal("Kill a Squid",squidEgg,EntityType.SQUID,GameManager.instance.killEntityListener);
+        biomeGoals.put(Biome.DEEP_COLD_OCEAN,killSquidGoal);
+
+        ItemStack sealantern = new ItemStack(Material.SEA_LANTERN,1);
+        CollectItemGoal seaLanternGoal = new CollectItemGoal("Collect a Sea Lantern",sealantern);
+        biomeGoals.put(Biome.DEEP_FROZEN_OCEAN,seaLanternGoal);
+
+        List<Material> mushrooms = new ArrayList<>();
+        mushrooms.add(Material.RED_MUSHROOM);
+        mushrooms.add(Material.BROWN_MUSHROOM);
+        mushrooms.add(Material.WARPED_FUNGUS);
+        mushrooms.add(Material.CRIMSON_FUNGUS);
+        CollectItemsAmountGoal mushroomsGoal = new CollectItemsAmountGoal("Collect 32 Mushrooms of Any Type", mushrooms, 32);
+        biomeGoals.put(Biome.DARK_FOREST, mushroomsGoal);
+
+        ItemStack redMushroom = new ItemStack(Material.RED_MUSHROOM,1);
+        BreedEntityGoal mooshroomBreedGoal = new BreedEntityGoal("Breed a Mooshroom", redMushroom, EntityType.MOOSHROOM,GameManager.instance.breedEntityListener);
+        biomeGoals.put(Biome.MUSHROOM_FIELDS,mooshroomBreedGoal);
+
+        ItemStack coarsedirt = new ItemStack(Material.COARSE_DIRT, 64);
+        CollectItemsAmountGoal coarseDirtGoal = new CollectItemsAmountGoal("Collect 64 Coarse Dirt Blocks", coarsedirt);
+        biomeGoals.put(Biome.OLD_GROWTH_SPRUCE_TAIGA,coarseDirtGoal);
+
+        ItemStack muddyMangroveRoots = new ItemStack(Material.MUDDY_MANGROVE_ROOTS, 16);
+        CollectItemsAmountGoal mangroveRootsGoal = new CollectItemsAmountGoal("Collect 16 Muddy Mangrove Roots", muddyMangroveRoots);
+        biomeGoals.put(Biome.MANGROVE_SWAMP, mangroveRootsGoal);
+
+        ItemStack creakingEgg = new ItemStack(Material.CREAKING_SPAWN_EGG, 1);
+        KillEntityGoal killCreakingGoal = new KillEntityGoal("Kill a Creaking", creakingEgg, EntityType.CREAKING, GameManager.instance.killEntityListener);
+        biomeGoals.put(Biome.PALE_GARDEN, killCreakingGoal);
+
+        ItemStack leatherBoots = new ItemStack(Material.LEATHER_BOOTS, 1);
+        CompleteAdvancementGoal lightAsRabbitGoal = new CompleteAdvancementGoal("Complete the advancement Light as a Rabbit", leatherBoots, Bukkit.getAdvancement(new NamespacedKey("minecraft", "adventure/walk_on_powder_snow_with_leather_boots")));
+        biomeGoals.put(Biome.SNOWY_SLOPES, lightAsRabbitGoal);
+
+        ItemStack berries = new ItemStack(Material.SWEET_BERRIES,1);
+        DeathGoal berryPokedGoal = new DeathGoal("Achieve the Death Message \n'<player> was poked to death by a sweet berry bush'",berries,"was poked to death by a sweet berry bush",GameManager.instance.deathListener);
+        biomeGoals.put(Biome.TAIGA,berryPokedGoal);
     }
 
-    public void AddGoals(int stage)  {
+    public void AddBiomeGoals(Biome biome)
+    {
+        if (!biomeGoals.containsKey(biome)) return;
+        availableGoals.add(biomeGoals.get(biome));
+        biomeGoals.remove(biome);
+    }
+
+    public void AddStructureGoals(Structure structure)
+    {
+        if (!structureGoals.containsKey(structure)) return;
+        availableGoals.add(structureGoals.get(structure));
+        structureGoals.remove(structure);
+    }
+
+    public void AddGoals(int stage)
+    {
 
         if (stage == 0)
         {
@@ -138,9 +261,6 @@ public class GoalFactory {
             FallGoal fall150Goal = new FallGoal("Fall from 150 Blocks", feather, 150, GameManager.instance.fallHeightListener);
             availableGoals.add(fall150Goal);
 
-            FallGoal fall225Goal = new FallGoal("Fall from 225 Blocks", feather, 225, GameManager.instance.fallHeightListener);
-            availableGoals.add(fall225Goal);
-
             ItemStack xpBottle5 = new ItemStack(Material.EXPERIENCE_BOTTLE, 5);
             ExperienceGoal exp5Goal = new ExperienceGoal("Get to Level 5", xpBottle5, 5, GameManager.instance.experienceListener);
             availableGoals.add(exp5Goal);
@@ -196,6 +316,24 @@ public class GoalFactory {
             ItemStack lightBlueGlass = new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS, 1);
             CollectColouredItemGoal lightBlueGlassGoal = new CollectColouredItemGoal("Collect a Block of Light Blue Stained Glass", lightBlueGlass);
             availableGoals.add(lightBlueGlassGoal);
+
+            List<Material> bannerPatterns = new ArrayList<>();
+            bannerPatterns.add(Material.FLOWER_BANNER_PATTERN);
+            bannerPatterns.add(Material.CREEPER_BANNER_PATTERN);
+            bannerPatterns.add(Material.SKULL_BANNER_PATTERN);
+            bannerPatterns.add(Material.MOJANG_BANNER_PATTERN);
+            bannerPatterns.add(Material.GLOBE_BANNER_PATTERN);
+            bannerPatterns.add(Material.PIGLIN_BANNER_PATTERN);
+            bannerPatterns.add(Material.FLOW_BANNER_PATTERN);
+            bannerPatterns.add(Material.GUSTER_BANNER_PATTERN);
+            bannerPatterns.add(Material.FIELD_MASONED_BANNER_PATTERN);
+            bannerPatterns.add(Material.BORDURE_INDENTED_BANNER_PATTERN);
+            CollectItemsGoal bannerPatternGoal = new CollectItemsGoal("Collect any Banner Pattern", bannerPatterns);
+            availableGoals.add(bannerPatternGoal);
+
+            ItemStack shield = new ItemStack(Material.SHIELD,1);
+            CompleteAdvancementGoal nottodayGoal = new CompleteAdvancementGoal("Complete the advancement Not Today, Thank You", shield, Bukkit.getAdvancement(new NamespacedKey("minecraft", "story/deflect_arrow")));
+            availableGoals.add(nottodayGoal);
         } else if (stage == 1)
         {
             ItemStack diamondBlock = new ItemStack(Material.DIAMOND_BLOCK, 1);
@@ -233,6 +371,41 @@ public class GoalFactory {
             ItemStack xpBottle15 = new ItemStack(Material.EXPERIENCE_BOTTLE, 15);
             ExperienceGoal exp15Goal = new ExperienceGoal("Get to Level 15", xpBottle15, 15, GameManager.instance.experienceListener);
             availableGoals.add(exp15Goal);
+
+            ItemStack lichen = new ItemStack(Material.GLOW_LICHEN, 1);
+            CollectItemGoal lichenGoal = new CollectItemGoal("Collect Glow Lichen", lichen);
+            availableGoals.add(lichenGoal);
+
+            List<Material> potterySherds = new ArrayList<>();
+            potterySherds.add(Material.ANGLER_POTTERY_SHERD);
+            potterySherds.add(Material.ARCHER_POTTERY_SHERD);
+            potterySherds.add(Material.ARMS_UP_POTTERY_SHERD);
+            potterySherds.add(Material.BLADE_POTTERY_SHERD);
+            potterySherds.add(Material.BREWER_POTTERY_SHERD);
+            potterySherds.add(Material.BURN_POTTERY_SHERD);
+            potterySherds.add(Material.DANGER_POTTERY_SHERD);
+            potterySherds.add(Material.EXPLORER_POTTERY_SHERD);
+            potterySherds.add(Material.FRIEND_POTTERY_SHERD);
+            potterySherds.add(Material.HEART_POTTERY_SHERD);
+            potterySherds.add(Material.HEARTBREAK_POTTERY_SHERD);
+            potterySherds.add(Material.HOWL_POTTERY_SHERD);
+            potterySherds.add(Material.MINER_POTTERY_SHERD);
+            potterySherds.add(Material.MOURNER_POTTERY_SHERD);
+            potterySherds.add(Material.PLENTY_POTTERY_SHERD);
+            potterySherds.add(Material.PRIZE_POTTERY_SHERD);
+            potterySherds.add(Material.SHEAF_POTTERY_SHERD);
+            potterySherds.add(Material.SHELTER_POTTERY_SHERD);
+            potterySherds.add(Material.SKULL_POTTERY_SHERD);
+            potterySherds.add(Material.SNORT_POTTERY_SHERD);
+            potterySherds.add(Material.FLOW_POTTERY_SHERD);
+            potterySherds.add(Material.GUSTER_POTTERY_SHERD);
+            potterySherds.add(Material.SCRAPE_POTTERY_SHERD);
+            CollectItemsGoal potterySherdGoal = new CollectItemsGoal("Collect any Pottery Sherd", potterySherds);
+            availableGoals.add(potterySherdGoal);
+
+            ItemStack carvedPumpkin = new ItemStack(Material.CARVED_PUMPKIN, 1);
+            CompleteAdvancementGoal hiredHelpGoal = new CompleteAdvancementGoal("Complete the advancement Hired Help", carvedPumpkin, Bukkit.getAdvancement(new NamespacedKey("minecraft","adventure/summon_iron_golem")));
+            availableGoals.add(hiredHelpGoal);
         } else if (stage == 2)
         {
             ItemStack emeraldBlock = new ItemStack(Material.EMERALD_BLOCK, 1);
@@ -374,6 +547,18 @@ public class GoalFactory {
             ItemStack pumpkinPie = new ItemStack(Material.PUMPKIN_PIE, 1);
             EatGoal pumpkinPieGoal = new EatGoal("Eat a Pumpkin Pie", pumpkinPie, GameManager.instance.eatListener);
             availableGoals.add(pumpkinPieGoal);
+
+            ItemStack feather = new ItemStack(Material.FEATHER,1);
+            FallGoal fall225Goal = new FallGoal("Fall from 225 Blocks", feather, 225, GameManager.instance.fallHeightListener);
+            availableGoals.add(fall225Goal);
+
+            ItemStack crafter = new ItemStack(Material.CRAFTER, 1);
+            CollectItemGoal crafterGoal = new CollectItemGoal("Craft a Crafter", crafter);
+            availableGoals.add(crafterGoal);
+
+            ItemStack anvil = new ItemStack(Material.ANVIL, 1);
+            CollectItemGoal anvilGoal = new CollectItemGoal("Collect an Anvil", anvil);
+            availableGoals.add(anvilGoal);
         } else if (stage == 3)
         {
             ItemStack sharpnessBook = new ItemStack(Material.ENCHANTED_BOOK,1);
@@ -411,6 +596,10 @@ public class GoalFactory {
             unbreakingMeta.addStoredEnchant(Enchantment.UNBREAKING, 2, false);
             EnchantItemGoal unbreakingGoal = new EnchantItemGoal("Enchant an Item with Unbreaking", unbreakingBook, Enchantment.UNBREAKING, 1, GameManager.instance.enchantListener);
             availableGoals.add(unbreakingGoal);
+
+            ItemStack fireCharge = new ItemStack(Material.FIRE_CHARGE,1);
+            CompleteAdvancementGoal returnToSender = new CompleteAdvancementGoal("Complete the advancement Return to Sender", fireCharge, Bukkit.getAdvancement(new NamespacedKey("minecraft","nether/return_to_sender")));
+            availableGoals.add(returnToSender);
         } else if (stage == 4)
         {
             ItemStack magmacream = new ItemStack(Material.MAGMA_CREAM, 1);
@@ -468,11 +657,39 @@ public class GoalFactory {
             ItemStack comparator = new ItemStack(Material.COMPARATOR, 1);
             CollectItemGoal comparatorGoal = new CollectItemGoal("Craft a Comparator", comparator);
             availableGoals.add(comparatorGoal);
+
+            ItemStack soulLantern = new ItemStack(Material.SOUL_LANTERN, 1);
+            CollectItemGoal soulLanternGoal = new CollectItemGoal("Craft a Soul Lantern", soulLantern);
+            availableGoals.add(soulLanternGoal);
+
+            ItemStack copperBulb = new ItemStack(Material.COPPER_BULB, 1);
+            CollectItemGoal copperBulbGoal = new CollectItemGoal("Collect a Copper Bulb", copperBulb);
+            availableGoals.add(copperBulbGoal);
+
+            ItemStack respawnAnchor = new ItemStack(Material.RESPAWN_ANCHOR,1);
+            CollectItemGoal respawnAnchorGoal = new CollectItemGoal("Craft a Respawn Anchor", respawnAnchor);
+            availableGoals.add(respawnAnchorGoal);
+
+            ItemStack goldIngot = new ItemStack(Material.GOLD_INGOT,1);
+            CompleteAdvancementGoal ohshinyGoal = new CompleteAdvancementGoal("Complete the advancement Oh Shiny", goldIngot, Bukkit.getAdvancement(new NamespacedKey("minecraft","nether/distract_piglin")));
+            availableGoals.add(ohshinyGoal);
+
+            ItemStack netheriteBoots = new ItemStack(Material.NETHERITE_BOOTS,1);
+            CompleteAdvancementGoal hotTouristGoal = new CompleteAdvancementGoal("Complete the advancement Hot Tourist Destinations", netheriteBoots, Bukkit.getAdvancement(new NamespacedKey("minecraft","nether/explore_nether")));
+            availableGoals.add(hotTouristGoal);
         } else
         {
             ItemStack endermiteEgg = new ItemStack(Material.ENDERMITE_SPAWN_EGG,1);
             KillEntityGoal endermiteKillGoal = new KillEntityGoal("Kill an Endermite", endermiteEgg, EntityType.ENDERMITE, GameManager.instance.killEntityListener);
             availableGoals.add(endermiteKillGoal);
+
+            ItemStack diaBoots = new ItemStack(Material.DIAMOND_BOOTS,1);
+            CompleteAdvancementGoal subspaceGoal = new CompleteAdvancementGoal("Complete the advancement Subspace Bubble", diaBoots, Bukkit.getAdvancement(new NamespacedKey("minecraft","nether/fast_travel")));
+            availableGoals.add(subspaceGoal);
+
+            ItemStack eyeOfEnder = new ItemStack(Material.ENDER_EYE,1);
+            CompleteAdvancementGoal eyeSpyGoal = new CompleteAdvancementGoal("Complete the advancement Eye Spy", eyeOfEnder, Bukkit.getAdvancement(new NamespacedKey("minecraft","story/follow_ender_eye")));
+            availableGoals.add(eyeSpyGoal);
         }
 
         /* DISABLED - villages too strong
@@ -484,155 +701,128 @@ public class GoalFactory {
         ItemStack rabbitStew = new ItemStack(Material.RABBIT_STEW, 1);
         EatGoal rabbitStewGoal = new EatGoal("Eat some Rabbit Stew", rabbitStew, GameManager.instance.eatListener);
         availableGoals.add(rabbitStewGoal);
+
+        ItemStack rawCod = new ItemStack(Material.COD,1);
+        BreedEntityGoal catBreedGoal = new BreedEntityGoal("Breed two Cats", rawCod, EntityType.CAT, GameManager.instance.breedEntityListener);
+        availableGoals.add(catBreedGoal);
+
+        ItemStack chainmailArmor = new ItemStack(Material.CHAINMAIL_HELMET, 1);
+        List<Material> chainmailArmors = new ArrayList<>();
+        chainmailArmors.add(Material.CHAINMAIL_HELMET);
+        chainmailArmors.add(Material.CHAINMAIL_CHESTPLATE);
+        chainmailArmors.add(Material.CHAINMAIL_LEGGINGS);
+        chainmailArmors.add(Material.CHAINMAIL_BOOTS);
+        CollectItemsGoal chainmailArmorGoal = new CollectItemsGoal("Collect any piece of Chainmail Armor", chainmailArmor, chainmailArmors);
+        availableGoals.add(chainmailArmorGoal);
+
         */
 
-        /* STRUCTURE RELATED GOALS
+        /*  Broken Goals
+           ItemStack minecart = new ItemStack(Material.MINECART,1);
+        TravelGoal cart250Goal = new TravelGoal("Use a Minecart to travel 250 Blocks", minecart, 250.0, TravelListener.TYPE.MINECART, GameManager.instance.travelListener);
+        availableGoals.add(cart250Goal);
 
-        ItemStack heartOfTheSea = new ItemStack(Material.HEART_OF_THE_SEA, 1);
-            CollectItemGoal heartOfTheSeaGoal = new CollectItemGoal("Collect a Heart of the Sea", heartOfTheSea);
-            availableGoals.add(heartOfTheSeaGoal);
+        TravelGoal cart500Goal = new TravelGoal("Use a Minecart to travel 500 Blocks", minecart, 500.0, TravelListener.TYPE.MINECART, GameManager.instance.travelListener);
+        availableGoals.add(cart500Goal);
+
+        ItemStack stalac = new ItemStack(Material.POINTED_DRIPSTONE,1);
+        KillEntityWithCauseGoal killZombieWithFallingGoal = new KillEntityWithCauseGoal("Kill a Zombie with a Falling Block",stalac, EntityType.ZOMBIE, EntityDamageEvent.DamageCause.FALLING_BLOCK, GameManager.instance.killEntityListener);
+        availableGoals.add(killZombieWithFallingGoal);
+
+        ItemStack berries = new ItemStack(Material.SWEET_BERRIES, 64);
+        List<Material> berriesList = new ArrayList<>();
+        mudBrickList.add(Material.SWEET_BERRIES);
+        CollectItemsAmountGoal berryGoal = new CollectItemsAmountGoal("Collect 64 Sweet Berries", berries, berriesList, 64);
+        biomeGoals.put(Biome.TAIGA,berryGoal);
+
+        ItemStack snowballs = new ItemStack(Material.SNOWBALL, 64);
+        List<Material> snowList = new ArrayList<>();
+        mudBrickList.add(Material.SNOWBALL);
+        CollectItemsAmountGoal snowballGoal = new CollectItemsAmountGoal("Collect 64 Snowballs", snowballs, snowList, 64);
+        biomeGoals.put(Biome.SNOWY_TAIGA,snowballGoal);
+
          */
 
-        ItemStack soulLantern = new ItemStack(Material.SOUL_LANTERN, 1);
-        CollectItemGoal soulLanternGoal = new CollectItemGoal("Craft a Soul Lantern", soulLantern);
-        availableGoals.add(soulLanternGoal);
+        /* Bad Goals
 
-        ItemStack crafter = new ItemStack(Material.CRAFTER, 1);
-        CollectItemGoal crafterGoal = new CollectItemGoal("Craft a Crafter", crafter);
-        availableGoals.add(crafterGoal);
+        List<Material> torches = new ArrayList<>();
+        torches.add(Material.TORCH);
+        torches.add(Material.SOUL_TORCH);
+        torches.add(Material.REDSTONE_TORCH);
+        CollectItemsAmountGoal torchesGoal = new CollectItemsAmountGoal("Collect 128 Torches of Any Type", torches, 128);
+        availableGoals.add(torchesGoal);
 
-        ItemStack copperBulb = new ItemStack(Material.COPPER_BULB, 1);
-        CollectItemGoal copperBulbGoal = new CollectItemGoal("Collect a Copper Bulb", copperBulb);
-        availableGoals.add(copperBulbGoal);
+        List<Material> stairsList = new ArrayList<>();
+        stairsList.add(Material.OAK_STAIRS);
+        stairsList.add(Material.STONE_STAIRS);
+        stairsList.add(Material.COBBLESTONE_STAIRS);
+        stairsList.add(Material.BRICK_STAIRS);
+        stairsList.add(Material.STONE_BRICK_STAIRS);
+        stairsList.add(Material.NETHER_BRICK_STAIRS);
+        stairsList.add(Material.SANDSTONE_STAIRS);
+        stairsList.add(Material.SPRUCE_STAIRS);
+        stairsList.add(Material.BIRCH_STAIRS);
+        stairsList.add(Material.JUNGLE_STAIRS);
+        stairsList.add(Material.ACACIA_STAIRS);
+        stairsList.add(Material.DARK_OAK_STAIRS);
+        stairsList.add(Material.MANGROVE_STAIRS);
+        stairsList.add(Material.CRIMSON_STAIRS);
+        stairsList.add(Material.WARPED_STAIRS);
+        stairsList.add(Material.RED_SANDSTONE_STAIRS);
+        stairsList.add(Material.PURPUR_STAIRS);
+        stairsList.add(Material.PRISMARINE_STAIRS);
+        stairsList.add(Material.PRISMARINE_BRICK_STAIRS);
+        stairsList.add(Material.DARK_PRISMARINE_STAIRS);
+        stairsList.add(Material.POLISHED_GRANITE_STAIRS);
+        stairsList.add(Material.SMOOTH_RED_SANDSTONE_STAIRS);
+        stairsList.add(Material.MOSSY_STONE_BRICK_STAIRS);
+        stairsList.add(Material.POLISHED_DIORITE_STAIRS);
+        stairsList.add(Material.MOSSY_COBBLESTONE_STAIRS);
+        stairsList.add(Material.END_STONE_BRICK_STAIRS);
+        stairsList.add(Material.STONE_STAIRS);
+        stairsList.add(Material.SMOOTH_SANDSTONE_STAIRS);
+        stairsList.add(Material.SMOOTH_QUARTZ_STAIRS);
+        stairsList.add(Material.GRANITE_STAIRS);
+        stairsList.add(Material.ANDESITE_STAIRS);
+        stairsList.add(Material.RED_NETHER_BRICK_STAIRS);
+        stairsList.add(Material.POLISHED_ANDESITE_STAIRS);
+        stairsList.add(Material.DIORITE_STAIRS);
+        stairsList.add(Material.COBBLED_DEEPSLATE_STAIRS);
+        stairsList.add(Material.POLISHED_DEEPSLATE_STAIRS);
+        stairsList.add(Material.DEEPSLATE_BRICK_STAIRS);
+        stairsList.add(Material.DEEPSLATE_TILE_STAIRS);
+        stairsList.add(Material.PALE_OAK_STAIRS);
+        CollectItemsAmountGoal stairsGoal = new CollectItemsAmountGoal("Collect 128 Stairs of Any Type", stairsList, 128);
+        availableGoals.add(stairsGoal);
 
-        ItemStack boggedEgg = new ItemStack(Material.BOGGED_SPAWN_EGG,1);
-        KillEntityGoal boggedGoal = new KillEntityGoal("Kill a Bogged", boggedEgg, EntityType.BOGGED, GameManager.instance.killEntityListener);
-        biomeGoals.put(Biome.SWAMP,boggedGoal);
+        List<Material> pressurePlates = new ArrayList<>();
+        pressurePlates.add(Material.OAK_PRESSURE_PLATE);
+        pressurePlates.add(Material.SPRUCE_PRESSURE_PLATE);
+        pressurePlates.add(Material.BIRCH_PRESSURE_PLATE);
+        pressurePlates.add(Material.JUNGLE_PRESSURE_PLATE);
+        pressurePlates.add(Material.ACACIA_PRESSURE_PLATE);
+        pressurePlates.add(Material.DARK_OAK_PRESSURE_PLATE);
+        pressurePlates.add(Material.CRIMSON_PRESSURE_PLATE);
+        pressurePlates.add(Material.WARPED_PRESSURE_PLATE);
+        pressurePlates.add(Material.STONE_PRESSURE_PLATE);
+        pressurePlates.add(Material.LIGHT_WEIGHTED_PRESSURE_PLATE);
+        pressurePlates.add(Material.HEAVY_WEIGHTED_PRESSURE_PLATE);
+        pressurePlates.add(Material.MANGROVE_PRESSURE_PLATE);
+        pressurePlates.add(Material.CHERRY_PRESSURE_PLATE);
+        pressurePlates.add(Material.PALE_OAK_PRESSURE_PLATE);
+        CollectItemSetAmountGoal pressurePlateGoal = new CollectItemSetAmountGoal("Collect 5 Unique Types of Pressure Plates", pressurePlates, 5);
+        availableGoals.add(pressurePlateGoal);
 
-        ItemStack goatHorn = new ItemStack(Material.GOAT_HORN, 1);
-        CollectItemGoal goatHornGoal = new CollectItemGoal("Collect a Goat Horn", goatHorn);
-        biomeGoals.put(Biome.JAGGED_PEAKS,goatHornGoal);
+        List<Material> gravityBlocks = new ArrayList<>();
+        gravityBlocks.add(Material.SAND);
+        gravityBlocks.add(Material.RED_SAND);
+        gravityBlocks.add(Material.POINTED_DRIPSTONE);
+        gravityBlocks.add(Material.GRAVEL);
+        gravityBlocks.add(Material.ANVIL);
+        CollectItemSetAmountGoal gravityGoal = new CollectItemSetAmountGoal("Collect 3 Unique Types of Gravity-Affected Blocks", gravityBlocks, 3);
+        availableGoals.add(gravityGoal);
 
-        ItemStack armascute = new ItemStack(Material.ARMADILLO_SCUTE, 1);
-        BreedEntityGoal armaBreedGoal = new BreedEntityGoal("Breed Two Armadillos", armascute, EntityType.ARMADILLO, GameManager.instance.breedEntityListener);
-        biomeGoals.put(Biome.SAVANNA, armaBreedGoal);
-
-        ItemStack polarEgg = new ItemStack(Material.POLAR_BEAR_SPAWN_EGG, 1);
-        KillEntityGoal polarGoal = new KillEntityGoal("Kill a Polar Bear", polarEgg, EntityType.POLAR_BEAR, GameManager.instance.killEntityListener);
-        biomeGoals.put(Biome.SNOWY_PLAINS, polarGoal);
-
-        ItemStack deadBush = new ItemStack(Material.DEAD_BUSH, 1);
-        CollectItemGoal deadBushGoal = new CollectItemGoal("Collect a Dead Bush", deadBush);
-        biomeGoals.put(Biome.WOODED_BADLANDS,deadBushGoal);
-
-        ItemStack pinkPetal = new ItemStack(Material.PINK_PETALS, 1);
-        CollectItemGoal pinkPetalGoal = new CollectItemGoal("Collect some Pink Petals", pinkPetal);
-        biomeGoals.put(Biome.CHERRY_GROVE, pinkPetalGoal);
-
-        ItemStack scaffolding = new ItemStack(Material.SCAFFOLDING,1);
-        CollectItemGoal scaffoldingGoal = new CollectItemGoal("Craft some Scaffolding", scaffolding);
-        biomeGoals.put(Biome.BAMBOO_JUNGLE,scaffoldingGoal);
-
-        ItemStack lichen = new ItemStack(Material.GLOW_LICHEN, 1);
-        CollectItemGoal lichenGoal = new CollectItemGoal("Collect Glow Lichen", lichen);
-        availableGoals.add(lichenGoal);
-
-        ItemStack greenConcrete = new ItemStack(Material.GREEN_CONCRETE, 1);
-        CollectColouredItemGoal greenConcreteGoal = new CollectColouredItemGoal("Collect a Block of Green Concrete", greenConcrete);
-        biomeGoals.put(Biome.DESERT,greenConcreteGoal);
-
-        List<Material> potterySherds = new ArrayList<>();
-        potterySherds.add(Material.ANGLER_POTTERY_SHERD);
-        potterySherds.add(Material.ARCHER_POTTERY_SHERD);
-        potterySherds.add(Material.ARMS_UP_POTTERY_SHERD);
-        potterySherds.add(Material.BLADE_POTTERY_SHERD);
-        potterySherds.add(Material.BREWER_POTTERY_SHERD);
-        potterySherds.add(Material.BURN_POTTERY_SHERD);
-        potterySherds.add(Material.DANGER_POTTERY_SHERD);
-        potterySherds.add(Material.EXPLORER_POTTERY_SHERD);
-        potterySherds.add(Material.FRIEND_POTTERY_SHERD);
-        potterySherds.add(Material.HEART_POTTERY_SHERD);
-        potterySherds.add(Material.HEARTBREAK_POTTERY_SHERD);
-        potterySherds.add(Material.HOWL_POTTERY_SHERD);
-        potterySherds.add(Material.MINER_POTTERY_SHERD);
-        potterySherds.add(Material.MOURNER_POTTERY_SHERD);
-        potterySherds.add(Material.PLENTY_POTTERY_SHERD);
-        potterySherds.add(Material.PRIZE_POTTERY_SHERD);
-        potterySherds.add(Material.SHEAF_POTTERY_SHERD);
-        potterySherds.add(Material.SHELTER_POTTERY_SHERD);
-        potterySherds.add(Material.SKULL_POTTERY_SHERD);
-        potterySherds.add(Material.SNORT_POTTERY_SHERD);
-        potterySherds.add(Material.FLOW_POTTERY_SHERD);
-        potterySherds.add(Material.GUSTER_POTTERY_SHERD);
-        potterySherds.add(Material.SCRAPE_POTTERY_SHERD);
-        CollectItemsGoal potterySherdGoal = new CollectItemsGoal("Collect any Pottery Sherd", potterySherds);
-        availableGoals.add(potterySherdGoal);
-
-        ItemStack anvil = new ItemStack(Material.ANVIL, 1);
-        CollectItemGoal anvilGoal = new CollectItemGoal("Collect an Anvil", anvil);
-        availableGoals.add(anvilGoal);
-
-        ItemStack respawnAnchor = new ItemStack(Material.RESPAWN_ANCHOR,1);
-        CollectItemGoal respawnAnchorGoal = new CollectItemGoal("Craft a Respawn Anchor", respawnAnchor);
-        availableGoals.add(respawnAnchorGoal);
-
-        ItemStack seaCucum = new ItemStack(Material.SEA_PICKLE,1);
-        CollectItemGoal seaPickleGoal = new CollectItemGoal("Collect a Sea Pickle", seaCucum);
-        biomeGoals.put(Biome.WARM_OCEAN, seaPickleGoal);
-
-        List<Material> bannerPatterns = new ArrayList<>();
-        bannerPatterns.add(Material.FLOWER_BANNER_PATTERN);
-        bannerPatterns.add(Material.CREEPER_BANNER_PATTERN);
-        bannerPatterns.add(Material.SKULL_BANNER_PATTERN);
-        bannerPatterns.add(Material.MOJANG_BANNER_PATTERN);
-        bannerPatterns.add(Material.GLOBE_BANNER_PATTERN);
-        bannerPatterns.add(Material.PIGLIN_BANNER_PATTERN);
-        bannerPatterns.add(Material.FLOW_BANNER_PATTERN);
-        bannerPatterns.add(Material.GUSTER_BANNER_PATTERN);
-        bannerPatterns.add(Material.FIELD_MASONED_BANNER_PATTERN);
-        bannerPatterns.add(Material.BORDURE_INDENTED_BANNER_PATTERN);
-        CollectItemsGoal bannerPatternGoal = new CollectItemsGoal("Collect any Banner Pattern", bannerPatterns);
-        availableGoals.add(bannerPatternGoal);
-
-        ItemStack fireCharge = new ItemStack(Material.FIRE_CHARGE,1);
-        CompleteAdvancementGoal returnToSender = new CompleteAdvancementGoal("Complete the advancement Return to Sender", fireCharge, Bukkit.getAdvancement(new NamespacedKey("minecraft","nether/return_to_sender")));
-        availableGoals.add(returnToSender);
-
-        ItemStack shield = new ItemStack(Material.SHIELD,1);
-        CompleteAdvancementGoal nottodayGoal = new CompleteAdvancementGoal("Complete the advancement Not Today, Thank You", shield, Bukkit.getAdvancement(new NamespacedKey("minecraft", "story/deflect_arrow")));
-        availableGoals.add(nottodayGoal);
-
-        ItemStack diaBoots = new ItemStack(Material.DIAMOND_BOOTS,1);
-        CompleteAdvancementGoal subspaceGoal = new CompleteAdvancementGoal("Complete the advancement Subspace Bubble", diaBoots, Bukkit.getAdvancement(new NamespacedKey("minecraft","nether/fast_travel")));
-        availableGoals.add(subspaceGoal);
-
-        ItemStack eyeOfEnder = new ItemStack(Material.ENDER_EYE,1);
-        CompleteAdvancementGoal eyeSpyGoal = new CompleteAdvancementGoal("Complete the advancement Eye Spy", eyeOfEnder, Bukkit.getAdvancement(new NamespacedKey("minecraft","story/follow_ender_eye")));
-        availableGoals.add(eyeSpyGoal);
-
-        ItemStack goldIngot = new ItemStack(Material.GOLD_INGOT,1);
-        CompleteAdvancementGoal ohshinyGoal = new CompleteAdvancementGoal("Complete the advancement Oh Shiny", goldIngot, Bukkit.getAdvancement(new NamespacedKey("minecraft","nether/distract_piglin")));
-        availableGoals.add(ohshinyGoal);
-
-        ItemStack netheriteBoots = new ItemStack(Material.NETHERITE_BOOTS,1);
-        CompleteAdvancementGoal hotTouristGoal = new CompleteAdvancementGoal("Complete the advancement Hot Tourist Destinations", netheriteBoots, Bukkit.getAdvancement(new NamespacedKey("minecraft","nether/explore_nether")));
-        availableGoals.add(hotTouristGoal);
-
-        ItemStack sculkSensor = new ItemStack(Material.SCULK_SENSOR,1);
-        CompleteAdvancementGoal sneakGoal = new CompleteAdvancementGoal("Complete the advancement Sneak 100", sculkSensor, Bukkit.getAdvancement(new NamespacedKey("minecraft","adventure/avoid_vibration")));
-        biomeGoals.put(Biome.DEEP_DARK, sneakGoal);
-
-        ItemStack wolfArmour = new ItemStack(Material.WOLF_ARMOR, 1);
-        CollectItemGoal wolfArmourGoal = new CollectItemGoal("Collect some Wolf Armor", wolfArmour);
-        biomeGoals.put(Biome.SAVANNA_PLATEAU,wolfArmourGoal);
-
-        ItemStack carvedPumpkin = new ItemStack(Material.CARVED_PUMPKIN, 1);
-        CompleteAdvancementGoal hiredHelpGoal = new CompleteAdvancementGoal("Complete the advancement Hired Help", carvedPumpkin, Bukkit.getAdvancement(new NamespacedKey("minecraft","adventure/summon_iron_golem")));
-        availableGoals.add(hiredHelpGoal);
-
-        ItemStack leatherBoots = new ItemStack(Material.LEATHER_BOOTS, 1);
-        CompleteAdvancementGoal lightAsRabbitGoal = new CompleteAdvancementGoal("Complete the advancement Light as a Rabbit", leatherBoots, Bukkit.getAdvancement(new NamespacedKey("minecraft", "adventure/walk_on_powder_snow_with_leather_boots")));
-        biomeGoals.put(Biome.SNOWY_SLOPES, lightAsRabbitGoal);
+        */
 
         ItemStack targetblock = new ItemStack(Material.TARGET, 1);
         CompleteAdvancementGoal bullseyeGoal = new CompleteAdvancementGoal("Complete the advancement Bullseye", targetblock, Bukkit.getAdvancement(new NamespacedKey("minecraft", "adventure/bullseye")));
@@ -641,18 +831,6 @@ public class GoalFactory {
         ItemStack glowInkSac = new ItemStack(Material.GLOW_INK_SAC, 1);
         CompleteAdvancementGoal glowAndBeholdGoal = new CompleteAdvancementGoal("Complete the advancement Glow and Behold!", glowInkSac, Bukkit.getAdvancement(new NamespacedKey("minecraft", "husbandry/make_a_sign_glow")));
         availableGoals.add(glowAndBeholdGoal);
-
-        ItemStack bucSalmon = new ItemStack(Material.SALMON_BUCKET, 1);
-        CompleteAdvancementGoal tacFishGoal = new CompleteAdvancementGoal("Complete the advancement Tactical Fishing!", bucSalmon, Bukkit.getAdvancement(new NamespacedKey("minecraft", "husbandry/tactical_fishing")));
-        biomeGoals.put(Biome.COLD_OCEAN,tacFishGoal);
-
-        ItemStack squidEgg = new ItemStack(Material.SQUID_SPAWN_EGG,1);
-        KillEntityGoal killSquidGoal = new KillEntityGoal("Kill a Squid",squidEgg,EntityType.SQUID,GameManager.instance.killEntityListener);
-        biomeGoals.put(Biome.DEEP_COLD_OCEAN,killSquidGoal);
-
-        ItemStack sealantern = new ItemStack(Material.SEA_LANTERN,1);
-        CollectItemGoal seaLanternGoal = new CollectItemGoal("Collect a Sea Lantern",sealantern);
-        biomeGoals.put(Biome.DEEP_FROZEN_OCEAN,seaLanternGoal);
 
         ItemStack armorStandItem = new ItemStack(Material.ARMOR_STAND, 1);
         ArmorStandInteractGoal fillArmorStandGoal = new ArmorStandInteractGoal("Fill all slots of an Armor Stand", armorStandItem, EntityType.ARMOR_STAND, GameManager.instance.armorStandInteractListener);
@@ -665,11 +843,6 @@ public class GoalFactory {
         ItemStack chiseledBookshelf = new ItemStack(Material.CHISELED_BOOKSHELF, 1);
         BlockInteractGoal fillchiseledBookshelfGoal = new BlockInteractGoal("Completely fill a Chiseled Bookshelf", chiseledBookshelf, Material.CHISELED_BOOKSHELF, GameManager.instance.blockInteractListener);
         availableGoals.add(fillchiseledBookshelfGoal);
-
-        /* DISABLED - villages too storng
-        ItemStack rawCod = new ItemStack(Material.COD,1);
-        BreedEntityGoal catBreedGoal = new BreedEntityGoal("Breed two Cats", rawCod, EntityType.CAT, GameManager.instance.breedEntityListener);
-        availableGoals.add(catBreedGoal);*/
 
         ItemStack tnt = new ItemStack(Material.TNT,1);
         CollectItemGoal tntGoal = new CollectItemGoal("Craft a Block of TNT", tnt);
@@ -743,7 +916,6 @@ public class GoalFactory {
         CollectItemsAmountGoal rawBlocksGoal = new CollectItemsAmountGoal("Collect 16 Blocks of Any Raw Ore", rawBlocks, 16);
         availableGoals.add(rawBlocksGoal);
 
-        ItemStack bread = new ItemStack(Material.BREAD, 32);
         List<Material> foodItems = new ArrayList<>();
         foodItems.add(Material.APPLE);
         foodItems.add(Material.GOLDEN_APPLE);
@@ -896,13 +1068,7 @@ public class GoalFactory {
         CollectItemsAmountGoal glassGoal = new CollectItemsAmountGoal("Collect 64 of Any Glass Blocks", glassBlocks, 64);
         availableGoals.add(glassGoal);
 
-        /* Weird/Frustraing Goal
-        List<Material> torches = new ArrayList<>();
-        torches.add(Material.TORCH);
-        torches.add(Material.SOUL_TORCH);
-        torches.add(Material.REDSTONE_TORCH);
-        CollectItemsAmountGoal torchesGoal = new CollectItemsAmountGoal("Collect 128 Torches of Any Type", torches, 128);
-        availableGoals.add(torchesGoal); */
+
 
         List<Material> netherBlocks = new ArrayList<>();
         netherBlocks.add(Material.NETHERRACK);
@@ -939,14 +1105,6 @@ public class GoalFactory {
         CollectItemsAmountGoal saplingsGoal = new CollectItemsAmountGoal("Collect 32 Saplings of Any Type", saplings, 32);
         availableGoals.add(saplingsGoal);
 
-        List<Material> mushrooms = new ArrayList<>();
-        mushrooms.add(Material.RED_MUSHROOM);
-        mushrooms.add(Material.BROWN_MUSHROOM);
-        mushrooms.add(Material.WARPED_FUNGUS);
-        mushrooms.add(Material.CRIMSON_FUNGUS);
-        CollectItemsAmountGoal mushroomsGoal = new CollectItemsAmountGoal("Collect 32 Mushrooms of Any Type", mushrooms, 32);
-        biomeGoals.put(Biome.DARK_FOREST, mushroomsGoal);
-
         ItemStack tintedGlass = new ItemStack(Material.TINTED_GLASS,1);
         CollectItemGoal tintedGlassGoal = new CollectItemGoal("Collect a Block of Tinted Glass",tintedGlass);
         availableGoals.add(tintedGlassGoal);
@@ -958,10 +1116,6 @@ public class GoalFactory {
         ItemStack tuffBricks = new ItemStack(Material.TUFF, 16);
         CollectItemsAmountGoal tuffBricksGoal = new CollectItemsAmountGoal("Collect 16 Tuff Bricks", tuffBricks);
         availableGoals.add(tuffBricksGoal);
-
-        ItemStack redMushroom = new ItemStack(Material.RED_MUSHROOM,1);
-        BreedEntityGoal mooshroomBreedGoal = new BreedEntityGoal("Breed a Mooshroom", redMushroom, EntityType.MOOSHROOM,GameManager.instance.breedEntityListener);
-        biomeGoals.put(Biome.MUSHROOM_FIELDS,mooshroomBreedGoal);
 
         ItemStack seagrass = new ItemStack(Material.SEAGRASS, 64);
         CollectItemsAmountGoal seagrassGoal = new CollectItemsAmountGoal("Collect 64 Seagrass", seagrass);
@@ -1012,22 +1166,9 @@ public class GoalFactory {
         TravelGoal strider200Goal = new TravelGoal("Use a Strider to travel 100 Blocks", striderSaddle, 200.0, TravelListener.TYPE.STRIDER, GameManager.instance.travelListener);
         availableGoals.add(strider200Goal);
 
-        /* Goal wasn't being detected by spigot
-        ItemStack minecart = new ItemStack(Material.MINECART,1);
-        TravelGoal cart250Goal = new TravelGoal("Use a Minecart to travel 250 Blocks", minecart, 250.0, TravelListener.TYPE.MINECART, GameManager.instance.travelListener);
-        availableGoals.add(cart250Goal);
-
-        TravelGoal cart500Goal = new TravelGoal("Use a Minecart to travel 500 Blocks", minecart, 500.0, TravelListener.TYPE.MINECART, GameManager.instance.travelListener);
-        availableGoals.add(cart500Goal);*/
-
         ItemStack gunpowder = new ItemStack(Material.GUNPOWDER,1);
         KillEntityWithCauseGoal killCreeperWithTntGoal = new KillEntityWithCauseGoal("Kill a Creeper with a TNT Block",gunpowder, EntityType.CREEPER, EntityDamageEvent.DamageCause.BLOCK_EXPLOSION, GameManager.instance.killEntityListener);
         availableGoals.add(killCreeperWithTntGoal);
-
-        // jack said it was broken
-//        ItemStack stalac = new ItemStack(Material.POINTED_DRIPSTONE,1);
-//        KillEntityWithCauseGoal killZombieWithFallingGoal = new KillEntityWithCauseGoal("Kill a Zombie with a Falling Block",stalac, EntityType.ZOMBIE, EntityDamageEvent.DamageCause.FALLING_BLOCK, GameManager.instance.killEntityListener);
-//        availableGoals.add(killZombieWithFallingGoal);
 
         ItemStack bow = new ItemStack(Material.BOW,1);
         KillEntityWithCauseGoal killSkeletonwithProjGoal = new KillEntityWithCauseGoal("Kill a Skeleton with a Projectile",bow, EntityType.SKELETON, EntityDamageEvent.DamageCause.PROJECTILE, GameManager.instance.killEntityListener);
@@ -1065,15 +1206,6 @@ public class GoalFactory {
         CollectItemsAmountGoal railGoal = new CollectItemsAmountGoal("Collect 64 Rails of Any Type", railTypes, 64);
         availableGoals.add(railGoal);
 
-        /*ItemStack chainmailArmor = new ItemStack(Material.CHAINMAIL_HELMET, 1);
-        List<Material> chainmailArmors = new ArrayList<>();
-        chainmailArmors.add(Material.CHAINMAIL_HELMET);
-        chainmailArmors.add(Material.CHAINMAIL_CHESTPLATE);
-        chainmailArmors.add(Material.CHAINMAIL_LEGGINGS);
-        chainmailArmors.add(Material.CHAINMAIL_BOOTS);
-        CollectItemsGoal chainmailArmorGoal = new CollectItemsGoal("Collect any piece of Chainmail Armor", chainmailArmor, chainmailArmors);
-        availableGoals.add(chainmailArmorGoal);*/
-
         ItemStack mudBricks = new ItemStack(Material.MUD_BRICKS, 4);
         CollectItemsAmountGoal mudBricksGoal = new CollectItemsAmountGoal("Collect 4 Mud Bricks", mudBricks);
         availableGoals.add(mudBricksGoal);
@@ -1081,72 +1213,6 @@ public class GoalFactory {
         ItemStack encBook = new ItemStack(Material.ENCHANTED_BOOK,1);
         CollectItemGoal encbookGoal = new CollectItemGoal("Collect Any Enchanted Book", encBook);
         availableGoals.add(encbookGoal);
-
-        /* Goal wasn't being detected by spigot
-        ItemStack berries = new ItemStack(Material.SWEET_BERRIES, 64);
-        List<Material> berriesList = new ArrayList<>();
-        mudBrickList.add(Material.SWEET_BERRIES);
-        CollectItemsAmountGoal berryGoal = new CollectItemsAmountGoal("Collect 64 Sweet Berries", berries, berriesList, 64);
-        biomeGoals.put(Biome.TAIGA,berryGoal);*/
-
-        ItemStack coarsedirt = new ItemStack(Material.COARSE_DIRT, 64);
-        CollectItemsAmountGoal coarseDirtGoal = new CollectItemsAmountGoal("Collect 64 Coarse Dirt Blocks", coarsedirt);
-        biomeGoals.put(Biome.OLD_GROWTH_SPRUCE_TAIGA,coarseDirtGoal);
-
-        /* Disabled due to spigot
-        ItemStack snowballs = new ItemStack(Material.SNOWBALL, 64);
-        List<Material> snowList = new ArrayList<>();
-        mudBrickList.add(Material.SNOWBALL);
-        CollectItemsAmountGoal snowballGoal = new CollectItemsAmountGoal("Collect 64 Snowballs", snowballs, snowList, 64);
-        biomeGoals.put(Biome.SNOWY_TAIGA,snowballGoal);*/
-
-        ItemStack muddyMangroveRoots = new ItemStack(Material.MUDDY_MANGROVE_ROOTS, 16);
-        CollectItemsAmountGoal mangroveRootsGoal = new CollectItemsAmountGoal("Collect 16 Muddy Mangrove Roots", muddyMangroveRoots);
-        biomeGoals.put(Biome.MANGROVE_SWAMP, mangroveRootsGoal);
-
-        /* Frustraing Goal
-        List<Material> stairsList = new ArrayList<>();
-        stairsList.add(Material.OAK_STAIRS);
-        stairsList.add(Material.STONE_STAIRS);
-        stairsList.add(Material.COBBLESTONE_STAIRS);
-        stairsList.add(Material.BRICK_STAIRS);
-        stairsList.add(Material.STONE_BRICK_STAIRS);
-        stairsList.add(Material.NETHER_BRICK_STAIRS);
-        stairsList.add(Material.SANDSTONE_STAIRS);
-        stairsList.add(Material.SPRUCE_STAIRS);
-        stairsList.add(Material.BIRCH_STAIRS);
-        stairsList.add(Material.JUNGLE_STAIRS);
-        stairsList.add(Material.ACACIA_STAIRS);
-        stairsList.add(Material.DARK_OAK_STAIRS);
-        stairsList.add(Material.MANGROVE_STAIRS);
-        stairsList.add(Material.CRIMSON_STAIRS);
-        stairsList.add(Material.WARPED_STAIRS);
-        stairsList.add(Material.RED_SANDSTONE_STAIRS);
-        stairsList.add(Material.PURPUR_STAIRS);
-        stairsList.add(Material.PRISMARINE_STAIRS);
-        stairsList.add(Material.PRISMARINE_BRICK_STAIRS);
-        stairsList.add(Material.DARK_PRISMARINE_STAIRS);
-        stairsList.add(Material.POLISHED_GRANITE_STAIRS);
-        stairsList.add(Material.SMOOTH_RED_SANDSTONE_STAIRS);
-        stairsList.add(Material.MOSSY_STONE_BRICK_STAIRS);
-        stairsList.add(Material.POLISHED_DIORITE_STAIRS);
-        stairsList.add(Material.MOSSY_COBBLESTONE_STAIRS);
-        stairsList.add(Material.END_STONE_BRICK_STAIRS);
-        stairsList.add(Material.STONE_STAIRS);
-        stairsList.add(Material.SMOOTH_SANDSTONE_STAIRS);
-        stairsList.add(Material.SMOOTH_QUARTZ_STAIRS);
-        stairsList.add(Material.GRANITE_STAIRS);
-        stairsList.add(Material.ANDESITE_STAIRS);
-        stairsList.add(Material.RED_NETHER_BRICK_STAIRS);
-        stairsList.add(Material.POLISHED_ANDESITE_STAIRS);
-        stairsList.add(Material.DIORITE_STAIRS);
-        stairsList.add(Material.COBBLED_DEEPSLATE_STAIRS);
-        stairsList.add(Material.POLISHED_DEEPSLATE_STAIRS);
-        stairsList.add(Material.DEEPSLATE_BRICK_STAIRS);
-        stairsList.add(Material.DEEPSLATE_TILE_STAIRS);
-        stairsList.add(Material.PALE_OAK_STAIRS);
-        CollectItemsAmountGoal stairsGoal = new CollectItemsAmountGoal("Collect 128 Stairs of Any Type", stairsList, 128);
-        availableGoals.add(stairsGoal); */
 
         ItemStack waterBucket = new ItemStack(Material.WATER_BUCKET,1);
         DeathGoal drownGoal = new DeathGoal("Achieve the Death Message '<player> drowned'", waterBucket,"drowned",GameManager.instance.deathListener);
@@ -1175,10 +1241,6 @@ public class GoalFactory {
         ItemStack gravel = new ItemStack(Material.GRAVEL,1);
         DeathGoal suffocationGoal = new DeathGoal("Achieve the Death Message '<player> suffocated in a wall'",gravel,"suffocated in a wall",GameManager.instance.deathListener);
         availableGoals.add(suffocationGoal);
-
-        ItemStack berries = new ItemStack(Material.SWEET_BERRIES,1);
-        DeathGoal berryPokedGoal = new DeathGoal("Achieve the Death Message \n'<player> was poked to death by a sweet berry bush'",berries,"was poked to death by a sweet berry bush",GameManager.instance.deathListener);
-        biomeGoals.put(Biome.TAIGA,berryPokedGoal);
 
         ItemStack trident = new ItemStack(Material.TRIDENT,1);
         DeathGoal tridentDeathGoal = new DeathGoal("Achieve the Death Message '<player> was impaled by Drowned'",trident,"was impaled by Drowned",GameManager.instance.deathListener);
@@ -1227,10 +1289,6 @@ public class GoalFactory {
         CollectItemSetGoal furnaceGoal = new CollectItemSetGoal("Collect Every Type of Furnace", allFurnaces);
         availableGoals.add(furnaceGoal);
 
-        ItemStack cobweb = new ItemStack(Material.COBWEB, 32);
-        CollectItemsAmountGoal cobwebGoal = new CollectItemsAmountGoal("Collect 32 Cobwebs", cobweb);
-        availableGoals.add(cobwebGoal);
-
         List<Material> oakWoodBlocks = new ArrayList<>();
         oakWoodBlocks.add(Material.OAK_LOG);
         oakWoodBlocks.add(Material.OAK_WOOD);
@@ -1252,25 +1310,6 @@ public class GoalFactory {
 
         CollectItemSetAmountGoal flowerGoal = new CollectItemSetAmountGoal("Collect 5 Unique Types of Flowers", flowers, 5);
         availableGoals.add(flowerGoal);
-
-        /* Frustrating Goal
-        List<Material> pressurePlates = new ArrayList<>();
-        pressurePlates.add(Material.OAK_PRESSURE_PLATE);
-        pressurePlates.add(Material.SPRUCE_PRESSURE_PLATE);
-        pressurePlates.add(Material.BIRCH_PRESSURE_PLATE);
-        pressurePlates.add(Material.JUNGLE_PRESSURE_PLATE);
-        pressurePlates.add(Material.ACACIA_PRESSURE_PLATE);
-        pressurePlates.add(Material.DARK_OAK_PRESSURE_PLATE);
-        pressurePlates.add(Material.CRIMSON_PRESSURE_PLATE);
-        pressurePlates.add(Material.WARPED_PRESSURE_PLATE);
-        pressurePlates.add(Material.STONE_PRESSURE_PLATE);
-        pressurePlates.add(Material.LIGHT_WEIGHTED_PRESSURE_PLATE);
-        pressurePlates.add(Material.HEAVY_WEIGHTED_PRESSURE_PLATE);
-        pressurePlates.add(Material.MANGROVE_PRESSURE_PLATE);
-        pressurePlates.add(Material.CHERRY_PRESSURE_PLATE);
-        pressurePlates.add(Material.PALE_OAK_PRESSURE_PLATE);
-        CollectItemSetAmountGoal pressurePlateGoal = new CollectItemSetAmountGoal("Collect 5 Unique Types of Pressure Plates", pressurePlates, 5);
-        availableGoals.add(pressurePlateGoal); */
 
         List<Material> graniteBlocks = new ArrayList<>();
         graniteBlocks.add(Material.GRANITE);
@@ -1335,16 +1374,6 @@ public class GoalFactory {
         CollectItemSetAmountGoal sandGoal = new CollectItemSetAmountGoal("Collect 10 Unique Types of Sand Blocks", sandBlocks, 10);
         availableGoals.add(sandGoal);
 
-        // Disabled due to missing all on the powdered concrete blocks - will need further balancing
-//        List<Material> gravityBlocks = new ArrayList<>();
-//        gravityBlocks.add(Material.SAND);
-//        gravityBlocks.add(Material.RED_SAND);
-//        gravityBlocks.add(Material.POINTED_DRIPSTONE);
-//        gravityBlocks.add(Material.GRAVEL);
-//        gravityBlocks.add(Material.ANVIL);
-//        CollectItemSetAmountGoal gravityGoal = new CollectItemSetAmountGoal("Collect 3 Unique Types of Gravity-Affected Blocks", gravityBlocks, 3);
-//        availableGoals.add(gravityGoal);
-
         List<Material> redstoneItems = new ArrayList<>();
         redstoneItems.add(Material.REDSTONE_TORCH);
         redstoneItems.add(Material.REDSTONE_BLOCK);
@@ -1378,21 +1407,9 @@ public class GoalFactory {
         CollectItemSetAmountGoal fishUniqueGoal = new CollectItemSetAmountGoal("Collect 5 Unique Fish", fish, 5);
         availableGoals.add(fishUniqueGoal);
 
-        ItemStack breezeRod = new ItemStack(Material.BREEZE_ROD, 1);
-        KillEntityGoal killBreezeGoal = new KillEntityGoal("Kill a Breeze", breezeRod, EntityType.BREEZE, GameManager.instance.killEntityListener);
-        availableGoals.add(killBreezeGoal);
-
-        ItemStack ominousBottle = new ItemStack(Material.OMINOUS_BOTTLE, 1);
-        PotionEffectGoal trialOmenGoal = new PotionEffectGoal("Get the Trial Omen Effect", ominousBottle, PotionEffectType.TRIAL_OMEN, GameManager.instance.potionEffectListener);
-        availableGoals.add(trialOmenGoal);
-
         ItemStack codBucket = new ItemStack(Material.COD_BUCKET, 1);
         KillEntityWithCauseGoal codWithLavaGoal = new KillEntityWithCauseGoal("Kill a Cod with Lava", codBucket, EntityType.COD, EntityDamageEvent.DamageCause.LAVA, GameManager.instance.killEntityListener);
         availableGoals.add(codWithLavaGoal);
-
-        ItemStack creakingEgg = new ItemStack(Material.CREAKING_SPAWN_EGG, 1);
-        KillEntityGoal killCreakingGoal = new KillEntityGoal("Kill a Creaking", creakingEgg, EntityType.CREAKING, GameManager.instance.killEntityListener);
-        biomeGoals.put(Biome.PALE_GARDEN, killCreakingGoal);
 
         ItemStack bush = new ItemStack(Material.BUSH, 16);
         CollectItemsAmountGoal collectBushesGoal = new CollectItemsAmountGoal("Collect 16 Bushes", bush);
@@ -1452,15 +1469,5 @@ public class GoalFactory {
         ItemStack driedGhast = new ItemStack(Material.DRIED_GHAST, 1);
         CompleteAdvancementGoal driedGhastGoal = new CompleteAdvancementGoal("Complete the advancedment 'Stay Hydrated!'", driedGhast, Bukkit.getAdvancement(new NamespacedKey("minecraft","husbandry/place_dried_ghast_in_water")));
         availableGoals.add(driedGhastGoal);
-
-//        if (settingsManager.difficulty == BingoUtil.Difficulty.INSANE)
-//        {
-//            biomeGoals.forEach((key,goal) ->
-//            {
-//                availableGoals.add(goal);
-//            });
-//        }
-
-        //testGoal = berryPokedGoal;
     }
 }

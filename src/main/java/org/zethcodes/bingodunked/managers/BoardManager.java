@@ -1,11 +1,9 @@
 package org.zethcodes.bingodunked.managers;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.structure.Structure;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -42,13 +40,12 @@ public class BoardManager {
     public TravelListener.TYPE activeTravelType = null;
     public Set<BreakBlockTypeListener.BlockType> activeBlockTypes = new HashSet<>();
 
-    GoalFactory goalFactory = new GoalFactory();
+    GoalManager goalManager = new GoalManager();
     int stage = 0;
 
     int animateCounter = 0;
 
-    public void BoardSetUp()
-    {
+    public void BoardSetUp() {
         BingoCard = Bukkit.createInventory(null, 27, "Bingo Card");
 
         redBoard = new boolean[3][3];
@@ -64,8 +61,9 @@ public class BoardManager {
         activeBlockTypes.clear();
 
         stage = 0;
-        goalFactory.ClearGoals();
-        goalFactory.AddGoals(stage);
+        goalManager.ClearGoals();
+        goalManager.SetBiomeGoals();
+        goalManager.AddGoals(stage);
 
         SetCardsInv();
 
@@ -77,21 +75,20 @@ public class BoardManager {
         }
     }
 
-    public void FillCard()
-    {
-        for (int i = 0; i < 9; ++i)
-        {
-            newGoal(i);
+    public void FillCard() {
+        for (int slot : validSlots) {
+            newGoal(slot);
         }
 
         AnimateBingoCard();
     }
 
-    public void newGoal(int slot)
-    {
-        if (goalFactory.availableGoals.isEmpty()) {
-            goalFactory.ClearGoals();
-            goalFactory.AddGoals(stage);
+    //region Goal Functions
+
+    public void newGoal(int slot) {
+        if (goalManager.availableGoals.isEmpty()) {
+            goalManager.ClearGoals();
+            goalManager.AddGoals(stage);
         }
 
         goals.remove(slot);
@@ -100,19 +97,18 @@ public class BoardManager {
         int row = slot / 9;
 
         Random random = new Random();
-        int ranGoal = random.nextInt(goalFactory.availableGoals.size());
-        Goal goal = goalFactory.availableGoals.get(ranGoal);
-        goalFactory.availableGoals.remove(goal);
+        int ranGoal = random.nextInt(goalManager.availableGoals.size());
+        Goal goal = goalManager.availableGoals.get(ranGoal);
+        goalManager.availableGoals.remove(goal);
 
         HashSet<Class<? extends Goal>> currentGoalTypes = new HashSet<>();
 
-        for (int i = 0; i < 9; ++i)
-        {
+        for (int i = 0; i < 9; ++i) {
             Goal curGoal = goals.get(i);
             if (curGoal == null) continue;
 
             Class<? extends Goal> curClass = curGoal.getClass();
-            if (curGoal instanceof CollectItemGoal) continue;
+            if (curGoal instanceof CollectItemGoal && !(curGoal instanceof CollectColouredItemGoal)) continue;
 
             currentGoalTypes.add(curClass);
         }
@@ -121,24 +117,19 @@ public class BoardManager {
                 (goals.containsValue(goal))) &&
                 SettingsManager.difficulty == SettingsManager.Difficulty.NORMAL) {
 
-            if (goalFactory.availableGoals.isEmpty()) {
-                goalFactory.ClearGoals();
-                goalFactory.AddGoals(stage);
+            if (goalManager.availableGoals.isEmpty()) {
+                goalManager.ClearGoals();
+                goalManager.AddGoals(stage);
             }
 
-            ranGoal = random.nextInt(goalFactory.availableGoals.size());
-            goal = goalFactory.availableGoals.get(ranGoal);
-            goalFactory.availableGoals.remove(goal);
+            ranGoal = random.nextInt(goalManager.availableGoals.size());
+            goal = goalManager.availableGoals.get(ranGoal);
+            goalManager.availableGoals.remove(goal);
         }
 
-        // force test goal
-        //goal = testGoal;
-
-        if (goal instanceof TravelGoal)
-        {
+        if (goal instanceof TravelGoal) {
             activeTravelType = ((TravelGoal) goal).type;
-        } else if (goal instanceof BreakBlockTypeGoal)
-        {
+        } else if (goal instanceof BreakBlockTypeGoal) {
             activeBlockTypes.add(((BreakBlockTypeGoal) goal).requiredBlock);
         }
 
@@ -149,16 +140,14 @@ public class BoardManager {
         meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
         item.setItemMeta(meta);
 
-        goals.put(slot,goal);
+        goals.put(slot, goal);
         BingoCard.setItem(slot, item);
         BingoUtil.BingoAnnounce("The new goal is " + ChatColor.BOLD + goal.getName() + "!");
 
-        for (Player player : Bukkit.getOnlinePlayers())
-        {
+        for (Player player : Bukkit.getOnlinePlayers()) {
             if (goal instanceof CollectItemGoal || goal instanceof ExperienceGoal ||
                     goal instanceof CompleteAdvancementGoal || goal instanceof BreakBlockTypeGoal ||
-                    goal instanceof TravelGoal)
-            {
+                    goal instanceof TravelGoal) {
                 if (goal.isComplete(player)) {
                     completeGoal(slot, instance.teamsManager.getTeam(player), player);
                 }
@@ -166,51 +155,15 @@ public class BoardManager {
         }
     }
 
-    public void ResetBoardsAtSlot(int col, int row) {
-        redBoard[col][row] = false;
-        blueBoard[col][row] = false;
-        greenBoard[col][row] = false;
-        yellowBoard[col][row] = false;
-        orangeBoard[col][row] = false;
-        purpleBoard[col][row] = false;
-        cyanBoard[col][row] = false;
-        brownBoard[col][row] = false;
-    }
-
-    public void SetCardsInv() {
-        ItemStack black = new ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1);
-        ItemMeta blackMeta = black.getItemMeta();
-        blackMeta.setDisplayName(ChatColor.BLACK + " ");
-        black.setItemMeta(blackMeta);
-        for (int i = 0; i < 3; ++i)
-        {
-            BingoCard.setItem(i * 9, black);
-            BingoCard.setItem(i * 9 + 1, black);
-            BingoCard.setItem(i * 9 + 2, black);
-            BingoCard.setItem(i * 9 + 6, black);
-            BingoCard.setItem(i * 9 + 7, black);
-            BingoCard.setItem(i * 9 + 8, black);
-        }
-    }
-
-    //region Goal Functions
-
-    public void BingoCompleteGoal(int slot, TeamsManager.Team team, Player player)
-    {
-        completeGoal(slot,team,player);
-    }
-
     public void completeGoal(int slot, TeamsManager.Team team, Player player) {
         if (gameState == GameManager.GameState.FINISHED) {
             return;
         }
 
-        if (team == TeamsManager.Team.NONE)
-        {
+        if (team == TeamsManager.Team.NONE) {
             if (GameManager.DEBUG) Bukkit.getLogger().info(player + " is not on a team");
             return;
         }
-
 
         int col = (slot % 9) - 3;
         int row = slot / 9;
@@ -223,8 +176,6 @@ public class BoardManager {
         ItemStack teamWool = instance.teamsManager.getTeamWool(team);
         Sound teamSound = Sound.BLOCK_NOTE_BLOCK_PLING;
         Sound otherTeamSound = Sound.BLOCK_BELL_USE;
-
-
         teamBoard[col][row] = true;
 
         if (isGoalToBeDunked(col, row, team)) {
@@ -233,8 +184,7 @@ public class BoardManager {
             String playerName;
             try {
                 playerName = player.getName();
-            } catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 playerName = "<left server>";
             }
 
@@ -243,11 +193,9 @@ public class BoardManager {
             BingoUtil.BingoAnnounce(message);
             BingoUtil.BingoAnnounce("");
 
-            if (goal instanceof TravelGoal)
-            {
+            if (goal instanceof TravelGoal) {
                 activeTravelType = null;
-            } else if (goal instanceof BreakBlockTypeGoal)
-            {
+            } else if (goal instanceof BreakBlockTypeGoal) {
                 activeBlockTypes.remove(((BreakBlockTypeGoal) goal).requiredBlock);
             }
 
@@ -286,8 +234,7 @@ public class BoardManager {
         String playerName;
         try {
             playerName = player.getName();
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             playerName = "<left server>";
         }
 
@@ -302,8 +249,7 @@ public class BoardManager {
         instance.CheckOverTime();
     }
 
-    public void goalAutoComplete(Player player, Class goalType)
-    {
+    public void goalAutoComplete(Player player, Class goalType) {
         TeamsManager.Team team = instance.teamsManager.getTeam(player);
         if (team == TeamsManager.Team.NONE) return;
 
@@ -312,10 +258,10 @@ public class BoardManager {
             if (goalType.isInstance(goal)) {
                 int col = (slot % 9) - 3;
                 int row = slot / 9;
-                boolean teamCompletedGoalAlready = hasTeamCompletedGoal(team,col,row);
+                boolean teamCompletedGoalAlready = hasTeamCompletedGoal(team, col, row);
                 if (!teamCompletedGoalAlready) {
                     if (goal.isComplete(player)) {
-                        completeGoal(slot,team,player);
+                        completeGoal(slot, team, player);
                         return;
                     }
                 }
@@ -323,8 +269,7 @@ public class BoardManager {
         }
     }
 
-    public void craftGoalAutoComplete(Player player, ItemStack item)
-    {
+    public void craftGoalAutoComplete(Player player, ItemStack item) {
         TeamsManager.Team team = instance.teamsManager.getTeam(player);
         if (team == TeamsManager.Team.NONE) return;
 
@@ -333,10 +278,10 @@ public class BoardManager {
             if (goal instanceof CollectItemGoal) {
                 int col = (slot % 9) - 3;
                 int row = slot / 9;
-                boolean teamCompletedGoalAlready = hasTeamCompletedGoal(team,col,row);
+                boolean teamCompletedGoalAlready = hasTeamCompletedGoal(team, col, row);
                 if (!teamCompletedGoalAlready) {
-                    if (((CollectItemGoal) goal).isCompleteItem(item,player)) {
-                        completeGoal(slot,team,player);
+                    if (((CollectItemGoal) goal).isCompleteItem(item, player)) {
+                        completeGoal(slot, team, player);
                         return;
                     }
                 }
@@ -348,12 +293,36 @@ public class BoardManager {
 
     //region Bingo Checks
 
-    public boolean hasTeamCompletedGoal(TeamsManager.Team team, int col, int row)
-    {
+    public void ResetBoardsAtSlot(int col, int row) {
+        redBoard[col][row] = false;
+        blueBoard[col][row] = false;
+        greenBoard[col][row] = false;
+        yellowBoard[col][row] = false;
+        orangeBoard[col][row] = false;
+        purpleBoard[col][row] = false;
+        cyanBoard[col][row] = false;
+        brownBoard[col][row] = false;
+    }
+
+    public void SetCardsInv() {
+        ItemStack black = new ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1);
+        ItemMeta blackMeta = black.getItemMeta();
+        blackMeta.setDisplayName(ChatColor.BLACK + " ");
+        black.setItemMeta(blackMeta);
+        for (int i = 0; i < 3; ++i) {
+            BingoCard.setItem(i * 9, black);
+            BingoCard.setItem(i * 9 + 1, black);
+            BingoCard.setItem(i * 9 + 2, black);
+            BingoCard.setItem(i * 9 + 6, black);
+            BingoCard.setItem(i * 9 + 7, black);
+            BingoCard.setItem(i * 9 + 8, black);
+        }
+    }
+
+    public boolean hasTeamCompletedGoal(TeamsManager.Team team, int col, int row) {
         if (team == TeamsManager.Team.NONE) return false;
 
-        switch (team)
-        {
+        switch (team) {
             case RED:
                 return redBoard[col][row];
             case BLUE:
@@ -468,8 +437,7 @@ public class BoardManager {
 
     //region Other
 
-    public boolean[][] GetTeamBoard(TeamsManager.Team team)
-    {
+    public boolean[][] GetTeamBoard(TeamsManager.Team team) {
         switch (team) {
             case RED:
                 return redBoard;
@@ -524,8 +492,7 @@ public class BoardManager {
                                 continue;
                             }
 
-                            if (isGoalToBeDunked(col, row, TeamsManager.Team.NONE) || items.size() <= 1)
-                            {
+                            if (isGoalToBeDunked(col, row, TeamsManager.Team.NONE) || items.size() <= 1) {
                                 continue;
                             }
 
@@ -554,10 +521,32 @@ public class BoardManager {
         }
     }
 
-    //endregion
-
-    public void OpenInv(Player player)
-    {
+    public void OpenInv(Player player) {
         player.openInventory(BingoCard);
     }
+
+    public void incrementStage()
+    {
+        stage++;
+        goalManager.AddGoals(stage);
+
+        for (Map.Entry<UUID, TeamsManager.Team> entry : instance.teamsManager.GetTeamMap().entrySet()) {
+            Player p = getServer().getPlayer(entry.getKey());
+            if (p == null) continue;
+
+            for (Biome biome : BingoUtil.findBiomes(p.getLocation(), 50, 20))
+            {
+                goalManager.AddBiomeGoals(biome);
+            }
+
+            for (Structure structure : BingoUtil.findStructures(p.getLocation(), 64))
+            {
+                goalManager.AddStructureGoals(structure);
+            }
+        }
+    }
+
+    //endregion
+
+
 }
