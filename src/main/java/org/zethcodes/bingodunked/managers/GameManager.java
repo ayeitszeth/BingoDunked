@@ -332,7 +332,7 @@ public class GameManager {
         teamColor = teamsManager.getTeamChatColour(team);
 
         String message = teamColor + "" + ChatColor.BOLD + teamName + " team has won Bingo!";
-        BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "BINGO!",message);
+//        BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "BINGO!",message);
         BingoAnnounce(message);
 
         spawnFirework(Bukkit.getWorld(WorldUtil.bingoWorldName).getSpawnLocation(), fireworkColor, FireworkEffect.Type.BALL_LARGE);
@@ -459,10 +459,20 @@ public class GameManager {
         numOfGoalsCompleted++;
         playerGoalsCompleted.put(player.getUniqueId(), playerGoalsCompleted.getOrDefault(player.getUniqueId(), 0) + 1);
 
-        if (numOfGoalsCompleted % 10 == 0) // new stage
+        if (numOfGoalsCompleted == 1)
         {
-            boardManager.incrementStage();
+            boardManager.incrementStage(); // start stage 1
+        } else if (numOfGoalsCompleted == 19)
+        {
+            boardManager.incrementStage(); // start stage 2
+        } else if (numOfGoalsCompleted == 49)
+        {
+            boardManager.incrementStage(); // start stage 3
+        } else if (numOfGoalsCompleted == 99)
+        {
+            boardManager.incrementStage(); // start stage 4
         }
+
 
         updatePlayerTabListName(player);
     }

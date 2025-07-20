@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.zethcodes.bingodunked.managers.GameManager;
+import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -31,6 +32,7 @@ public class AdvancementListener implements Listener {
 
         UUID uuid = event.getPlayer().getUniqueId();
         playerCompletedAdvancements.put(uuid, playerCompletedAdvancements.getOrDefault(uuid, 0) + 1);
+        BingoUtil.BingoWhisper(event.getPlayer(), "You have completed " + playerCompletedAdvancements.get(uuid) + " achievements.");
     }
 
     public boolean hasPlayerGotEnoughAdvancements(Player player, int target) {

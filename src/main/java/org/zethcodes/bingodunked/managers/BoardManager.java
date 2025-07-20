@@ -119,6 +119,7 @@ public class BoardManager {
         goalManager.availableGoals.remove(goal);
 
         HashSet<Class<? extends Goal>> currentGoalTypes = new HashSet<>();
+        HashSet<Class<? extends Goal>> skippedGoalTypes = new HashSet<>();
 
 //        Bukkit.getLogger().info("Goal " + slot);
 
@@ -128,6 +129,9 @@ public class BoardManager {
             if (curGoal == null) continue;
 
             Class<? extends Goal> curClass = curGoal.getClass();
+
+            if (currentGoalTypes.contains(curClass)) skippedGoalTypes.add(curClass);
+
             currentGoalTypes.add(curClass);
         }
 
@@ -140,7 +144,7 @@ public class BoardManager {
             }
         }
 
-        while ((currentGoalTypes.contains(
+        while ((skippedGoalTypes.contains(
                 goal instanceof CollectColouredItemGoal
                         ? CollectColouredItemGoal.class
                         : goal.getClass()
@@ -169,6 +173,12 @@ public class BoardManager {
         ItemStack item = goal.getItem();
         ItemMeta meta = item.getItemMeta();
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        meta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+        meta.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
+        meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
+        meta.addItemFlags(ItemFlag.HIDE_DYE);
+        meta.addItemFlags(ItemFlag.HIDE_CONTAINER);
+        meta.addItemFlags(ItemFlag.HIDE_FIREWORKS);
         List<String> lore = wrapAndColorLore(goal.getName(), 30, ChatColor.DARK_PURPLE);
         meta.setLore(lore);
         meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
@@ -223,7 +233,7 @@ public class BoardManager {
             }
 
             String message = teamColor + playerName + ChatColor.WHITE + " has dunked the goal " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + goal.getName() + ChatColor.WHITE + "!";
-            BingoUtil.BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "DUNKED!", teamColor + goal.getName());
+//            BingoUtil.BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "DUNKED!", teamColor + goal.getName());
             BingoUtil.BingoAnnounce(message);
             BingoUtil.BingoAnnounce("");
 
@@ -279,7 +289,7 @@ public class BoardManager {
         }
 
         String message = teamColor + playerName + ChatColor.WHITE + " has completed " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + goal.getName();
-        BingoUtil.BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "GOAL!", teamColor + goal.getName());
+//        BingoUtil.BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "GOAL!", teamColor + goal.getName());
         BingoUtil.BingoAnnounce(message);
 
         BingoUtil.BingoAnnounce("");

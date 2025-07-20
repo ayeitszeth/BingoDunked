@@ -511,9 +511,6 @@ public class GoalManager {
             CollectItemsAmountGoal saplingsGoal = new CollectItemsAmountGoal("Collect 32 Saplings of Any Type", saplings, 32);
             availableGoals.add(saplingsGoal);
 
-            DeathGoal bangGoal = new DeathGoal("Achieve the Death Message '<player> went off with a bang'",fireworkRocket ,"went off with a bang",GameManager.instance.deathListener);
-            availableGoals.add(bangGoal);
-
             ItemStack sugarcane = new ItemStack(Material.SUGAR_CANE, 32);
             CollectItemsAmountGoal sugarcaneGoal = new CollectItemsAmountGoal("Collect 32 Sugar Cane", sugarcane);
             availableGoals.add(sugarcaneGoal);
@@ -704,6 +701,14 @@ public class GoalManager {
             KillEntityGoal batKillGoal = new KillEntityGoal("Kill a Bat", batSpawnEgg, EntityType.BAT,GameManager.instance.killEntityListener);
             availableGoals.add(batKillGoal);
 
+            ItemStack beeSpawnEgg = new ItemStack(Material.BEE_SPAWN_EGG,1);
+            KillEntityGoal beeKillGoal = new KillEntityGoal("Kill a Bee", beeSpawnEgg, EntityType.BEE,GameManager.instance.killEntityListener);
+            availableGoals.add(beeKillGoal);
+
+            ItemStack creeperSpawnEgg = new ItemStack(Material.CREEPER_SPAWN_EGG,1);
+            KillEntityGoal creeperKillGoal = new KillEntityGoal("Kill a Creeper", creeperSpawnEgg, EntityType.CREEPER,GameManager.instance.killEntityListener);
+            availableGoals.add(creeperKillGoal);
+
             ItemStack lecternItem = new ItemStack(Material.LECTERN, 1);
             BlockInteractGoal placeBookOnLecternGoal = new BlockInteractGoal("Place a Book on a Lectern", lecternItem, Material.LECTERN, GameManager.instance.blockInteractListener);
             availableGoals.add(placeBookOnLecternGoal);
@@ -723,6 +728,10 @@ public class GoalManager {
             railTypes.add(Material.ACTIVATOR_RAIL);
             CollectItemsAmountGoal railGoal = new CollectItemsAmountGoal("Collect 64 Rails of Any Type", railTypes, 64);
             availableGoals.add(railGoal);
+
+            ItemStack fireworkRocket = new ItemStack(Material.FIREWORK_ROCKET, 1);
+            DeathGoal bangGoal = new DeathGoal("Achieve the Death Message '<player> went off with a bang'",fireworkRocket ,"went off with a bang",GameManager.instance.deathListener);
+            availableGoals.add(bangGoal);
 
             ItemStack tntMinecart = new ItemStack(Material.TNT_MINECART,1);
             DeathGoal tntCartGoal = new DeathGoal("Achieve the Death Message '<player> blew up'", tntMinecart, "blew up",GameManager.instance.deathListener);
@@ -1083,21 +1092,28 @@ public class GoalManager {
             CollectItemGoal anvilGoal = new CollectItemGoal("Collect an Anvil", anvil);
             availableGoals.add(anvilGoal);
 
-            ItemStack targetblock = new ItemStack(Material.TARGET, 1);
-            CompleteAdvancementGoal bullseyeGoal = new CompleteAdvancementGoal("Complete the advancement Bullseye", targetblock, Bukkit.getAdvancement(new NamespacedKey("minecraft", "adventure/bullseye")));
+            ItemStack targetBlock = new ItemStack(Material.TARGET, 1);
+            CompleteAdvancementGoal bullseyeGoal = new CompleteAdvancementGoal("Complete the advancement Bullseye", targetBlock, Bukkit.getAdvancement(new NamespacedKey("minecraft", "adventure/bullseye")));
             availableGoals.add(bullseyeGoal);
+
+            ItemStack bow = new ItemStack(Material.BOW, 1);
+            CompleteAdvancementGoal sniperDuelGoal = new CompleteAdvancementGoal("Complete the advancement Sniper Duel", bow, Bukkit.getAdvancement(new NamespacedKey("minecraft", "adventure/sniper_duel")));
+            availableGoals.add(sniperDuelGoal);
 
             ItemStack glowInkSac = new ItemStack(Material.GLOW_INK_SAC, 1);
             CompleteAdvancementGoal glowAndBeholdGoal = new CompleteAdvancementGoal("Complete the advancement Glow and Behold!", glowInkSac, Bukkit.getAdvancement(new NamespacedKey("minecraft", "husbandry/make_a_sign_glow")));
             availableGoals.add(glowAndBeholdGoal);
 
+            ItemStack chiseledBookshelf = new ItemStack(Material.CHISELED_BOOKSHELF, 1);
+            CompleteAdvancementGoal powerOfBooksGoal = new CompleteAdvancementGoal("Complete the advancement The Power of Books", chiseledBookshelf, Bukkit.getAdvancement(new NamespacedKey("minecraft", "adventure/read_power_of_chiseled_bookshelf")));
+            availableGoals.add(powerOfBooksGoal);
+
             ItemStack armorStandItem = new ItemStack(Material.ARMOR_STAND, 1);
             ArmorStandInteractGoal fillArmorStandGoal = new ArmorStandInteractGoal("Fill all slots of an Armor Stand", armorStandItem, EntityType.ARMOR_STAND, GameManager.instance.armorStandInteractListener);
             availableGoals.add(fillArmorStandGoal);
 
-            ItemStack chiseledBookshelf = new ItemStack(Material.CHISELED_BOOKSHELF, 1);
-            BlockInteractGoal fillchiseledBookshelfGoal = new BlockInteractGoal("Completely fill a Chiseled Bookshelf", chiseledBookshelf, Material.CHISELED_BOOKSHELF, GameManager.instance.blockInteractListener);
-            availableGoals.add(fillchiseledBookshelfGoal);
+            BlockInteractGoal fillChiseledBookshelfGoal = new BlockInteractGoal("Completely fill a Chiseled Bookshelf", chiseledBookshelf, Material.CHISELED_BOOKSHELF, GameManager.instance.blockInteractListener);
+            availableGoals.add(fillChiseledBookshelfGoal);
 
             List<Material> mobDrops = new ArrayList<>();
             mobDrops.add(Material.ROTTEN_FLESH);
@@ -1132,9 +1148,9 @@ public class GoalManager {
             KillEntityWithCauseGoal killCreeperWithTntGoal = new KillEntityWithCauseGoal("Kill a Creeper with a TNT Block",gunpowder, EntityType.CREEPER, EntityDamageEvent.DamageCause.BLOCK_EXPLOSION, GameManager.instance.killEntityListener);
             availableGoals.add(killCreeperWithTntGoal);
 
-            ItemStack bow = new ItemStack(Material.BOW,1);
-            KillEntityWithCauseGoal killSkeletonwithProjGoal = new KillEntityWithCauseGoal("Kill a Skeleton with a Projectile",bow, EntityType.SKELETON, EntityDamageEvent.DamageCause.PROJECTILE, GameManager.instance.killEntityListener);
-            availableGoals.add(killSkeletonwithProjGoal);
+            ItemStack skeletonHead = new ItemStack(Material.SKELETON_SKULL, 1);
+            KillEntityWithCauseGoal killSkeletonWithProjGoal = new KillEntityWithCauseGoal("Kill a Skeleton with a Projectile",skeletonHead, EntityType.SKELETON, EntityDamageEvent.DamageCause.PROJECTILE, GameManager.instance.killEntityListener);
+            availableGoals.add(killSkeletonWithProjGoal);
 
             ItemStack spEye = new ItemStack(Material.SPIDER_EYE,1);
             KillEntityWithCauseGoal killSpiderFallGoal = new KillEntityWithCauseGoal("Kill a Spider with Fall Damage",spEye, EntityType.SPIDER, EntityDamageEvent.DamageCause.FALL, GameManager.instance.killEntityListener);
