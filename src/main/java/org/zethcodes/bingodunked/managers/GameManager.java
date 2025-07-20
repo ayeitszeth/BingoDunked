@@ -37,8 +37,10 @@ public class GameManager {
     public ArmorStandInteractListener armorStandInteractListener;
     public TravelListener travelListener;
     public DeathListener deathListener;
+    public CauldronListener cauldronListener;
+    public AdvancementListener advancementListener;
     public static BingoDunked plugin;
-    public static boolean DEBUG = false;
+    public static boolean DEBUG = true;
 
     public TeamsManager teamsManager;
     public BoardManager boardManager;
@@ -53,7 +55,7 @@ public class GameManager {
     public GameManager(BingoDunked plugin, KillEntityListener killEntityListener, BreedEntityListener breedEntityListener, PotionEffectListener potionEffectListener,
                      EnchantListener enchantListener, FishingListener fishingListener, FallHeightListener fallHeightListener,
                      ExperienceListener experienceListener, EatListener eatListener, BlockInteractListener blockInteractListener,
-                     ArmorStandInteractListener armorStandInteractListener, DeathListener deathListener) {
+                     ArmorStandInteractListener armorStandInteractListener, DeathListener deathListener, CauldronListener cauldronListener, AdvancementListener advancementListener) {
         instance = this;
         GameManager.plugin = plugin;
         this.killEntityListener = killEntityListener;
@@ -67,6 +69,8 @@ public class GameManager {
         this.blockInteractListener = blockInteractListener;
         this.armorStandInteractListener = armorStandInteractListener;
         this.deathListener = deathListener;
+        this.cauldronListener = cauldronListener;
+        this.advancementListener = advancementListener;
 
         this.travelListener = new TravelListener();
         this.blockTypeListener = new BreakBlockTypeListener();
@@ -98,6 +102,8 @@ public class GameManager {
         blockInteractListener.Reset();
         travelListener.Reset();
         deathListener.Reset();
+        cauldronListener.Reset();
+        advancementListener.Reset();
         numOfGoalsCompleted = 0;
         timeLeft = time * 60;
         overTime = false;
@@ -124,15 +130,20 @@ public class GameManager {
             return;
         }
 
-        for (Biome biome : BingoUtil.findBiomes(spawnLoc, 50, 5))
+        for (Biome biome : BingoUtil.findBiomes(spawnLoc, 64, 5))
         {
             boardManager.goalManager.AddBiomeGoals(biome);
         }
 
-        for (Structure structure : BingoUtil.findStructures(spawnLoc, 128))
+        foundStructures.clear();
+        BingoUtil.findStructures(spawnLoc, 128);
+
+        for (Structure structure : foundStructures)
         {
             boardManager.goalManager.AddStructureGoals(structure);
         }
+
+        Collections.shuffle(boardManager.goalManager.availableGoals);
 
         BingoAnnounce("The board is being set up. Please wait one moment.");
 
@@ -448,7 +459,7 @@ public class GameManager {
         numOfGoalsCompleted++;
         playerGoalsCompleted.put(player.getUniqueId(), playerGoalsCompleted.getOrDefault(player.getUniqueId(), 0) + 1);
 
-        if (numOfGoalsCompleted == 16) // start stage 1
+        if (numOfGoalsCompleted % 10 == 0) // new stage
         {
             boardManager.incrementStage();
         }

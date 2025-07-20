@@ -2,6 +2,8 @@ package org.zethcodes.bingodunked;
 
 import org.bukkit.*;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.checker.units.qual.A;
+import org.checkerframework.checker.units.qual.C;
 import org.zethcodes.bingodunked.commands.*;
 import org.zethcodes.bingodunked.handlers.*;
 import org.zethcodes.bingodunked.listeners.*;
@@ -28,6 +30,8 @@ public final class BingoDunked extends JavaPlugin {
         BlockInteractListener blockInteractListener = new BlockInteractListener();
         ArmorStandInteractListener armorStandInteractListener = new ArmorStandInteractListener();
         DeathListener deathListener = new DeathListener();
+        CauldronListener cauldronListener = new CauldronListener();
+        AdvancementListener advancementListener = new AdvancementListener();
 
         getServer().getPluginManager().registerEvents(killEntityListener, this);
         getServer().getPluginManager().registerEvents(breedEntityListener, this);
@@ -40,13 +44,15 @@ public final class BingoDunked extends JavaPlugin {
         getServer().getPluginManager().registerEvents(blockInteractListener, this);
         getServer().getPluginManager().registerEvents(armorStandInteractListener, this);
         getServer().getPluginManager().registerEvents(deathListener,this);
+        getServer().getPluginManager().registerEvents(cauldronListener, this);
+        getServer().getPluginManager().registerEvents(advancementListener, this);
 
         new SettingsManager();
         new TaskManager();
 
         GameManager gameManager = new GameManager(this,killEntityListener,breedEntityListener,potionEffectListener, enchantListener,
                 fishingListener,fallHeightListener,experienceListener, eatListener, blockInteractListener,
-                armorStandInteractListener, deathListener);
+                armorStandInteractListener, deathListener, cauldronListener, advancementListener);
 
         new BingoHandler();
 

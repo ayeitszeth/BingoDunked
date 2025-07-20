@@ -5,6 +5,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.structure.Structure;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -17,6 +18,7 @@ import java.util.*;
 
 import static org.bukkit.Bukkit.getServer;
 import static org.zethcodes.bingodunked.managers.GameManager.*;
+import static org.zethcodes.bingodunked.util.BingoUtil.BingoAnnounce;
 import static org.zethcodes.bingodunked.util.BingoUtil.wrapAndColorLore;
 
 public class BoardManager {
@@ -48,6 +50,8 @@ public class BoardManager {
     public void BoardSetUp() {
         BingoCard = Bukkit.createInventory(null, 27, "Bingo Card");
 
+        goals.clear();
+
         redBoard = new boolean[3][3];
         blueBoard = new boolean[3][3];
         greenBoard = new boolean[3][3];
@@ -63,13 +67,14 @@ public class BoardManager {
         stage = 0;
         goalManager.ClearGoals();
         goalManager.SetBiomeGoals();
+        goalManager.SetStructureGoals();
         goalManager.AddGoals(stage);
 
         SetCardsInv();
 
         validSlots.clear();
-        for (int col = 0; col < 3; ++col) {
-            for (int row = 0; row < 3; ++row) {
+        for (int row = 0; row < 3; ++row) {
+            for (int col = 0; col < 3; ++col) {
                 validSlots.add(row * 9 + col + 3);
             }
         }
@@ -77,15 +82,27 @@ public class BoardManager {
 
     public void FillCard() {
         for (int slot : validSlots) {
-            newGoal(slot);
+            newGoal(slot, true);
         }
 
-        AnimateBingoCard();
+        if (goalManager.testGoal != null)
+        {
+            ItemStack item = goalManager.testGoal.getItem();
+            ItemMeta meta = item.getItemMeta();
+            List<String> lore = wrapAndColorLore(goalManager.testGoal.getName(), 30, ChatColor.DARK_PURPLE);
+            meta.setLore(lore);
+            meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal 1");
+            item.setItemMeta(meta);
+            goals.put(3, goalManager.testGoal);
+            BingoCard.setItem(3, item);
+        }
+
+        if (animateCounter == 0) AnimateBingoCard();
     }
 
     //region Goal Functions
 
-    public void newGoal(int slot) {
+    public void newGoal(int slot, boolean isSilent) {
         if (goalManager.availableGoals.isEmpty()) {
             goalManager.ClearGoals();
             goalManager.AddGoals(stage);
@@ -103,19 +120,33 @@ public class BoardManager {
 
         HashSet<Class<? extends Goal>> currentGoalTypes = new HashSet<>();
 
-        for (int i = 0; i < 9; ++i) {
-            Goal curGoal = goals.get(i);
+//        Bukkit.getLogger().info("Goal " + slot);
+
+        for (int boardSlot : validSlots) {
+            Goal curGoal = goals.get(boardSlot);
+
             if (curGoal == null) continue;
 
             Class<? extends Goal> curClass = curGoal.getClass();
-            if (curGoal instanceof CollectItemGoal && !(curGoal instanceof CollectColouredItemGoal)) continue;
-
             currentGoalTypes.add(curClass);
         }
 
-        while ((currentGoalTypes.contains(goal.getClass()) ||
-                (goals.containsValue(goal))) &&
-                SettingsManager.difficulty == SettingsManager.Difficulty.NORMAL) {
+        if (DEBUG)
+        {
+            Bukkit.getLogger().info("Goal " + slot);
+            for (Class<? extends Goal> clazz : currentGoalTypes)
+            {
+                Bukkit.getLogger().info(clazz.getName());
+            }
+        }
+
+        while ((currentGoalTypes.contains(
+                goal instanceof CollectColouredItemGoal
+                        ? CollectColouredItemGoal.class
+                        : goal.getClass()
+        ) || goals.containsValue(goal)) &&
+                SettingsManager.difficulty == SettingsManager.Difficulty.NORMAL)
+        {
 
             if (goalManager.availableGoals.isEmpty()) {
                 goalManager.ClearGoals();
@@ -127,6 +158,8 @@ public class BoardManager {
             goalManager.availableGoals.remove(goal);
         }
 
+//        Bukkit.getLogger().info("Goal " + slot + " Class " + goal.getClass());
+
         if (goal instanceof TravelGoal) {
             activeTravelType = ((TravelGoal) goal).type;
         } else if (goal instanceof BreakBlockTypeGoal) {
@@ -135,6 +168,7 @@ public class BoardManager {
 
         ItemStack item = goal.getItem();
         ItemMeta meta = item.getItemMeta();
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         List<String> lore = wrapAndColorLore(goal.getName(), 30, ChatColor.DARK_PURPLE);
         meta.setLore(lore);
         meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
@@ -142,7 +176,7 @@ public class BoardManager {
 
         goals.put(slot, goal);
         BingoCard.setItem(slot, item);
-        BingoUtil.BingoAnnounce("The new goal is " + ChatColor.BOLD + goal.getName() + "!");
+        if (!isSilent) BingoUtil.BingoAnnounce("The new goal is " + ChatColor.BOLD + goal.getName() + "!");
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (goal instanceof CollectItemGoal || goal instanceof ExperienceGoal ||
@@ -193,13 +227,19 @@ public class BoardManager {
             BingoUtil.BingoAnnounce(message);
             BingoUtil.BingoAnnounce("");
 
+            BingoUtil.BingoAnnounce("");
+            BingoUtil.BingoAnnounce(instance.teamsManager.getTeamChatColour(getTeamComplete(0, 0)) + " ■ " + instance.teamsManager.getTeamChatColour(getTeamComplete(1, 0)) + "■ " + instance.teamsManager.getTeamChatColour(getTeamComplete(2, 0)) + "■");
+            BingoUtil.BingoAnnounce(instance.teamsManager.getTeamChatColour(getTeamComplete(0, 1)) + " ■ " + instance.teamsManager.getTeamChatColour(getTeamComplete(1, 1)) + "■ " + instance.teamsManager.getTeamChatColour(getTeamComplete(2, 1)) + "■");
+            BingoUtil.BingoAnnounce(instance.teamsManager.getTeamChatColour(getTeamComplete(0, 2)) + " ■ " + instance.teamsManager.getTeamChatColour(getTeamComplete(1, 2)) + "■ " + instance.teamsManager.getTeamChatColour(getTeamComplete(2, 2)) + "■");
+            BingoUtil.BingoAnnounce("");
+
             if (goal instanceof TravelGoal) {
                 activeTravelType = null;
             } else if (goal instanceof BreakBlockTypeGoal) {
                 activeBlockTypes.remove(((BreakBlockTypeGoal) goal).requiredBlock);
             }
 
-            newGoal(slot);
+            newGoal(slot, false);
 
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.playSound(p, Sound.ENTITY_ENDER_DRAGON_GROWL, 3f, 2f);
@@ -241,6 +281,12 @@ public class BoardManager {
         String message = teamColor + playerName + ChatColor.WHITE + " has completed " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + goal.getName();
         BingoUtil.BroadcastPlayerTitle(ChatColor.LIGHT_PURPLE + "GOAL!", teamColor + goal.getName());
         BingoUtil.BingoAnnounce(message);
+
+        BingoUtil.BingoAnnounce("");
+        BingoUtil.BingoAnnounce(instance.teamsManager.getTeamChatColour(getTeamComplete(0, 0)) + " ■ " + instance.teamsManager.getTeamChatColour(getTeamComplete(1, 0)) + "■ " + instance.teamsManager.getTeamChatColour(getTeamComplete(2, 0)) + "■");
+        BingoUtil.BingoAnnounce(instance.teamsManager.getTeamChatColour(getTeamComplete(0, 1)) + " ■ " + instance.teamsManager.getTeamChatColour(getTeamComplete(1, 1)) + "■ " + instance.teamsManager.getTeamChatColour(getTeamComplete(2, 1)) + "■");
+        BingoUtil.BingoAnnounce(instance.teamsManager.getTeamChatColour(getTeamComplete(0, 2)) + " ■ " + instance.teamsManager.getTeamChatColour(getTeamComplete(1, 2)) + "■ " + instance.teamsManager.getTeamChatColour(getTeamComplete(2, 2)) + "■");
+        BingoUtil.BingoAnnounce("");
 
         if (checkBingo(team)) {
             GameManager.instance.BingoEnd(team);
@@ -461,73 +507,72 @@ public class BoardManager {
     }
 
     public void AnimateBingoCard() {
-        if (gameState == GameManager.GameState.STARTED) {
-            // Run the animation asynchronously
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep((long) (1.25f * 1000));
-                        animateCounter++;
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            animateCounter++;
 
-                        for (int slot : validSlots) {
-                            Goal goal = goals.get(slot);
-                            int col = (slot % 9) - 3;
-                            int row = slot / 9;
-                            List<Material> items = new ArrayList<>();
+            for (int slot : validSlots) {
+                Goal goal = goals.get(slot);
+                int col = (slot % 9) - 3;
+                int row = slot / 9;
 
-                            if (goal instanceof CollectItemsAmountGoal) {
-                                CollectItemsAmountGoal newGoal = (CollectItemsAmountGoal) goal;
-                                items = newGoal.items;
-                            } else if (goal instanceof CollectItemSetAmountGoal) {
-                                CollectItemSetAmountGoal newGoal = (CollectItemSetAmountGoal) goal;
-                                items = newGoal.items;
-                            } else if (goal instanceof CollectItemSetGoal) {
-                                CollectItemSetGoal newGoal = (CollectItemSetGoal) goal;
-                                items = newGoal.items;
-                            } else if (goal instanceof CollectItemsGoal) {
-                                CollectItemsGoal newGoal = (CollectItemsGoal) goal;
-                                items = newGoal.items;
-                            } else {
-                                continue;
-                            }
+                List<Material> baseItems;
 
-                            if (isGoalToBeDunked(col, row, TeamsManager.Team.NONE) || items.size() <= 1) {
-                                continue;
-                            }
-
-                            ItemStack item = new ItemStack(items.get(animateCounter % items.size()), goal.getItem().getAmount());
-                            ItemMeta meta = item.getItemMeta();
-                            List<String> lore = wrapAndColorLore(goal.getName(), 30, ChatColor.DARK_PURPLE);
-                            meta.setLore(lore);
-                            meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
-                            item.setItemMeta(meta);
-
-                            // Schedule the UI update back to the main thread
-                            int finalSlot = slot;
-                            Bukkit.getScheduler().runTask(plugin, () -> {
-                                BingoCard.setItem(finalSlot, item);
-                            });
-                        }
-
-                        // Repeat the animation
-                        AnimateBingoCard();
-
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                if (goal instanceof CollectItemsAmountGoal) {
+                    baseItems = ((CollectItemsAmountGoal) goal).items;
+                } else if (goal instanceof CollectItemSetAmountGoal) {
+                    baseItems = ((CollectItemSetAmountGoal) goal).items;
+                } else if (goal instanceof CollectItemSetGoal) {
+                    baseItems = ((CollectItemSetGoal) goal).items;
+                } else if (goal instanceof CollectItemsGoal) {
+                    baseItems = ((CollectItemsGoal) goal).items;
+                } else {
+                    baseItems = new ArrayList<>();
+                    baseItems.add(goal.getItem().getType());
                 }
-            }.runTaskAsynchronously(plugin);
-        }
+
+                if (baseItems == null || baseItems.isEmpty()) continue;
+
+                List<Material> animatedItems;
+
+                if (isGoalToBeDunked(col, row, TeamsManager.Team.NONE)) {
+                    TeamsManager.Team team = getTeamComplete(col, row);
+                    ItemStack wool = instance.teamsManager.getTeamWool(team);
+
+                    animatedItems = new ArrayList<>();
+                    for (Material item : baseItems) {
+                        animatedItems.add(wool.getType());
+                        animatedItems.add(item);
+                    }
+                } else {
+                    animatedItems = baseItems;
+                }
+
+                Material animMaterial = animatedItems.get(animateCounter % animatedItems.size());
+                ItemStack item = new ItemStack(animMaterial, goal.getItem().getAmount());
+                ItemMeta meta = item.getItemMeta();
+                meta.setLore(wrapAndColorLore(goal.getName(), 30, ChatColor.DARK_PURPLE));
+                meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Goal " + (col + row * 3 + 1));
+                item.setItemMeta(meta);
+
+                BingoCard.setItem(slot, item);
+            }
+
+            AnimateBingoCard(); // recursion is still okay if memory is fixed
+        }, 30L);
     }
 
+
+
     public void OpenInv(Player player) {
+        if (BingoCard == null) return;
+
         player.openInventory(BingoCard);
     }
 
     public void incrementStage()
     {
         stage++;
+        goalManager.availableGoals.clear();
         goalManager.AddGoals(stage);
 
         for (Map.Entry<UUID, TeamsManager.Team> entry : instance.teamsManager.GetTeamMap().entrySet()) {
@@ -538,13 +583,40 @@ public class BoardManager {
             {
                 goalManager.AddBiomeGoals(biome);
             }
-
-            for (Structure structure : BingoUtil.findStructures(p.getLocation(), 64))
-            {
-                goalManager.AddStructureGoals(structure);
-            }
         }
+
+        for (Structure structure : BingoUtil.foundStructures)
+        {
+            goalManager.AddStructureGoals(structure);
+        }
+
+        Collections.shuffle(goalManager.availableGoals);
     }
+
+    public TeamsManager.Team getTeamComplete(int col, int row)
+    {
+        if (redBoard[col][row]) return TeamsManager.Team.RED;
+        else if (blueBoard[col][row]) return TeamsManager.Team.BLUE;
+        else if (greenBoard[col][row]) return TeamsManager.Team.GREEN;
+        else if (yellowBoard[col][row]) return TeamsManager.Team.YELLOW;
+        else if (orangeBoard[col][row]) return TeamsManager.Team.ORANGE;
+        else if (purpleBoard[col][row]) return TeamsManager.Team.PURPLE;
+        else if (cyanBoard[col][row]) return TeamsManager.Team.CYAN;
+        else if (brownBoard[col][row]) return TeamsManager.Team.BROWN;
+        else return TeamsManager.Team.NONE;
+    }
+
+//    // TEAMS
+//    boolean[][] redBoard = new boolean[3][3];
+//    boolean[][] blueBoard = new boolean[3][3];
+//    boolean[][] greenBoard = new boolean[3][3];
+//    boolean[][] yellowBoard = new boolean[3][3];
+//
+//    // Additional for FFA
+//    boolean[][] orangeBoard = new boolean[3][3];
+//    boolean[][] purpleBoard = new boolean[3][3];
+//    boolean[][] cyanBoard = new boolean[3][3];
+//    boolean[][] brownBoard = new boolean[3][3];
 
     //endregion
 

@@ -17,6 +17,7 @@ import org.zethcodes.bingodunked.managers.*;
 import java.util.*;
 
 import static org.bukkit.Bukkit.getServer;
+import static org.zethcodes.bingodunked.managers.GameManager.DEBUG;
 import static org.zethcodes.bingodunked.managers.GameManager.plugin;
 import static org.zethcodes.bingodunked.managers.SettingsManager.pvp;
 
@@ -24,19 +25,19 @@ public class BingoUtil {
 
     static List<Structure> structures = Arrays.asList(
             Structure.ANCIENT_CITY,
-            Structure.BASTION_REMNANT,
+//            Structure.BASTION_REMNANT,
             Structure.BURIED_TREASURE,
-            Structure.FORTRESS,
+//            Structure.FORTRESS,
             Structure.JUNGLE_PYRAMID,
             Structure.MINESHAFT,
-            Structure.OCEAN_RUIN_COLD,
-            Structure.OCEAN_RUIN_WARM,
+//            Structure.OCEAN_RUIN_COLD,
+//            Structure.OCEAN_RUIN_WARM,
             Structure.PILLAGER_OUTPOST,
-            Structure.RUINED_PORTAL,
+//            Structure.RUINED_PORTAL,
             Structure.SHIPWRECK,
-            Structure.SWAMP_HUT,
-            Structure.STRONGHOLD,
-            Structure.TRAIL_RUINS,
+//            Structure.SWAMP_HUT,
+//            Structure.STRONGHOLD,
+//            Structure.TRAIL_RUINS,
             Structure.VILLAGE_SAVANNA,
             Structure.VILLAGE_TAIGA,
             Structure.VILLAGE_DESERT,
@@ -45,6 +46,8 @@ public class BingoUtil {
             Structure.MONUMENT,
             Structure.TRIAL_CHAMBERS
     );
+
+    public static List<Structure> foundStructures = new ArrayList<>();
 
 
     public static List<Biome> findBiomes(Location location, int radius, int step)
@@ -55,7 +58,6 @@ public class BingoUtil {
         int centreZ = location.getBlockZ();
         World world = location.getWorld();
 
-
         for (int x = centreX - radius; x <= centreX + radius; x += step)
         {
             for (int z = centreZ - radius; z <= centreZ + radius; z += step)
@@ -64,26 +66,38 @@ public class BingoUtil {
                 uniqueBiomes.add(biomeA);
             }
         }
-        List<Biome> biomes = new ArrayList<>(uniqueBiomes);
-        return biomes;
+
+        return new ArrayList<>(uniqueBiomes);
     }
 
     // input radius is in blocks like the biomes search
-    public static List<Structure> findStructures(Location location, int radius) {
+    public static void findStructures(Location location, int radius) {
         Set<Structure> uniqueStructures = new HashSet<>();
         World world = location.getWorld();
         int chunksRadius = radius / 16;
 
         for (Structure structure : structures)
         {
+            if (DEBUG) Bukkit.getLogger().info("Searching for: " + structure.getKeyOrNull());
             StructureSearchResult result = world.locateNearestStructure(location, structure, chunksRadius, false);
             if (result == null) continue;
+
+            if (result.getLocation().distance(location) > radius) continue;
 
             uniqueStructures.add(result.getStructure());
         }
 
-        List<Structure> structures = new ArrayList<>(uniqueStructures);
-        return structures;
+        foundStructures = new ArrayList<>(uniqueStructures);
+
+        if (DEBUG)
+        {
+            Bukkit.getLogger().info("Found Structures: ");
+
+            for (Structure structure : foundStructures)
+            {
+                Bukkit.getLogger().info(" - " + structure.getKeyOrNull());
+            }
+        }
     }
 
     public static void showStats()

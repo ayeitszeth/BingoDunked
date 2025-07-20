@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class ExperienceListener implements Listener {
-    private HashMap<UUID, Integer> playerExperience;
+    private HashMap<UUID, Integer> playerExperience ;
 
     public ExperienceListener() {
         this.playerExperience = new HashMap<>();
@@ -33,6 +33,6 @@ public class ExperienceListener implements Listener {
 
     public boolean hasPlayerReachedLevel(Player player, int level) {
         if (GameManager.DEBUG) Bukkit.getLogger().info(player + " is level " + playerExperience.get(player.getUniqueId()));
-        return level <= playerExperience.get(player.getUniqueId());
+        return level <= playerExperience.getOrDefault(player.getUniqueId(), 0);
     }
 }

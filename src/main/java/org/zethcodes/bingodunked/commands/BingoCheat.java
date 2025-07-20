@@ -53,7 +53,7 @@ public class BingoCheat implements CommandExecutor, TabExecutor {
             int col = (slot % 9) - 3;
             int row = slot / 9;
             GameManager.instance.boardManager.ResetBoardsAtSlot(col,row);
-            GameManager.instance.boardManager.newGoal(slot);
+            GameManager.instance.boardManager.newGoal(slot, false);
             return true;
         }
 

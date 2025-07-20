@@ -10,6 +10,8 @@ import org.zethcodes.bingodunked.util.BingoUtil;
 
 import java.util.*;
 
+import static org.zethcodes.bingodunked.util.BingoUtil.updatePlayerTabListName;
+
 public class TeamsManager {
     public enum Team {RED, BLUE, GREEN, YELLOW, ORANGE, PURPLE, CYAN, BROWN, NONE};
 
@@ -68,7 +70,7 @@ public class TeamsManager {
 
         TeamMap.put(player.getUniqueId(),team);
         BingoUtil.BingoAnnounce(playerName + ChatColor.WHITE + " has joined the " + getTeamChatColour(team) + ChatColor.BOLD + team.name().charAt(0) + team.name().substring(1).toLowerCase() + " Team" + ChatColor.WHITE + ".");
-//        updatePlayerTabListName(player);
+        updatePlayerTabListName(player);
     }
 
     public void FFALateJoin(Player player)

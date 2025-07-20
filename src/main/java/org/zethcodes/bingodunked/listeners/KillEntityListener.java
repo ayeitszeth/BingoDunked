@@ -45,6 +45,7 @@ public class KillEntityListener implements Listener {
                 event.getEntity().getLastDamageCause().getCause().equals(EntityDamageEvent.DamageCause.FALL))
         {
             Player player = getNearestPlayer(event.getEntity().getLocation());
+            if (player == null) return;
             playerKills.put(player.getUniqueId(), entityType);
             playerCauses.put(player.getUniqueId(), event.getEntity().getLastDamageCause().getCause());
         }

@@ -6,6 +6,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.CauldronLevelChangeEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -16,6 +17,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.meta.CompassMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.zethcodes.bingodunked.goals.*;
+import org.zethcodes.bingodunked.listeners.CauldronListener;
 import org.zethcodes.bingodunked.managers.GameManager;
 import org.zethcodes.bingodunked.managers.SettingsManager;
 import org.zethcodes.bingodunked.util.BingoUtil;
@@ -237,6 +239,7 @@ public class BingoHandler implements Listener {
     {
         if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(event.getPlayer(), CompleteAdvancementGoal.class));
+        Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(event.getPlayer(), CompleteNumberAdvancementGoal.class));
     }
 
     @EventHandler
@@ -258,5 +261,15 @@ public class BingoHandler implements Listener {
     {
         if (GameManager.gameState == GameManager.GameState.FINISHED) return;
         Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(event.getEntity(), DeathGoal.class));
+    }
+
+    @EventHandler
+    public void FillCauldronEvent(CauldronLevelChangeEvent event)
+    {
+        if (GameManager.gameState == GameManager.GameState.FINISHED) return;
+        if (event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            Bukkit.getScheduler().runTask(GameManager.plugin, () -> GameManager.instance.boardManager.goalAutoComplete(player, CauldronInteractGoal.class));
+        }
     }
 }
